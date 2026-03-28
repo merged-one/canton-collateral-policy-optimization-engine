@@ -29,7 +29,9 @@ At this phase, the repository supports documentation checks, schema validation, 
 make bootstrap
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
+make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
 make test-policy-engine
+make test-optimizer
 make daml-build
 make daml-test
 make demo-run
@@ -37,7 +39,7 @@ make docs-lint
 make verify
 ```
 
-`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The current repository now proves deterministic policy evaluation plus basic workflow lifecycle execution.
+`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The optimizer scenario coverage is documented in [OPTIMIZER_TEST_PLAN.md](./OPTIMIZER_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The current repository now proves deterministic policy evaluation, deterministic collateral optimization, and basic workflow lifecycle execution.
 
 ## Proposal-Aligned Conformance Direction
 

@@ -15,7 +15,7 @@ The former name "Canton Collateral Policy & Optimization Engine" is retained onl
 - `README.md`
 - `daml.yaml`
 - `docs/adrs/0002-system-boundaries.md`
-- `docs/adrs/0009-rename-to-canton-collateral-control-plane.md`
+- `docs/adrs/0010-rename-to-canton-collateral-control-plane.md`
 - `docs/adrs/README.md`
 - `docs/architecture/COMPONENTS.md`
 - `docs/architecture/DATA_FLOW.md`

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, and execute the initial Daml workflow smoke scenario from a clean checkout.
+Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, optimize the first collateral-allocation path, and execute the initial Daml workflow smoke scenario from a clean checkout.
 
 ## Supported Bootstrap Platforms
 
@@ -42,7 +42,9 @@ This command:
 make status
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
+make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
 make test-policy-engine
+make test-optimizer
 make daml-build
 make daml-test
 make demo-run
@@ -54,11 +56,13 @@ What each command does:
 - `make status`: show pinned versus installed tool versions, scaffold presence, and git state
 - `make validate-cpl`: validate `CPL v0.1` schema and the published example policies
 - `make policy-eval`: validate a policy input, evaluate candidate inventory, and validate the generated `PolicyEvaluationReport`
+- `make optimize`: validate a policy input, optimize against inventory plus obligation inputs, and validate the generated `OptimizationReport`
 - `make test-policy-engine`: run deterministic policy-engine tests and regenerate the committed example report artifact
+- `make test-optimizer`: run deterministic optimizer tests and regenerate the committed optimization report artifact
 - `make daml-build`: compile the repository's Daml package into `.daml/dist/`
 - `make daml-test`: run the Daml lifecycle scripts for margin call, posting, substitution, and return skeletons
 - `make demo-run`: execute the aggregate `Bootstrap:workflowSmokeTest` Daml script
-- `make verify`: run the full verification loop across docs, CPL validation, policy-engine tests, Daml build, Daml tests, and smoke execution
+- `make verify`: run the full verification loop across docs, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml tests, and smoke execution
 
 ## Runtime Layout
 
@@ -70,6 +74,6 @@ What each command does:
 
 ## Notes
 
-- The current repository now includes an initial deterministic policy engine and initial Daml workflow skeletons, but it still does not implement optimization, live asset adapters, or settlement-window enforcement.
+- The current repository now includes an initial deterministic policy engine, an initial deterministic optimizer, and initial Daml workflow skeletons, but it still does not implement live asset adapters, settlement-window enforcement, or workflow-coupled optimization reservation.
 - Future Quickstart or Canton overlay assets should land under `infra/`, not inside the Daml or app package trees.
 - If the toolchain needs to be rebuilt from scratch, run `make clean-runtime` and then `make bootstrap`.

@@ -1,0 +1,707 @@
+{
+  "$schema": "../../reports/schemas/optimization-report.schema.json",
+  "reportType": "OptimizationReport",
+  "reportVersion": "0.1.0",
+  "optimizationId": "opr-eb25b472b5ecb036",
+  "status": "OPTIMAL",
+  "recommendedAction": "POST_NEW_SET",
+  "objective": {
+    "objectiveId": "MINIMIZE_MARKET_VALUE_THEN_HAIRCUT_COST_THEN_EXCESS",
+    "sequence": [
+      "market_value_amount",
+      "haircut_cost_amount",
+      "excess_amount",
+      "lot_count",
+      "lot_ids_lexical_tie_break"
+    ]
+  },
+  "policy": {
+    "policyId": "central-bank-domestic-window-policy",
+    "policyVersion": "1.0.0",
+    "cplVersion": "0.1.0",
+    "profile": "central_bank"
+  },
+  "inventory": {
+    "inventorySetId": "central-bank-eligible-set",
+    "inventoryVersion": "1.0.0",
+    "asOf": "2026-04-15T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "candidateLotCount": 4
+  },
+  "obligation": {
+    "obligationId": "central-bank-window-call",
+    "obligationVersion": "1.0.0",
+    "asOf": "2026-04-15T14:00:00Z",
+    "settlementCurrency": "USD",
+    "coverageMetric": "LENDABLE_VALUE",
+    "obligationAmount": 900000.0,
+    "currentPostedLotIds": []
+  },
+  "candidateUniverse": {
+    "candidateLotCount": 4,
+    "admissibleLotCount": 4,
+    "blockedLotCount": 0,
+    "consideredCombinationCount": 15,
+    "feasibleCombinationCount": 1,
+    "screeningResults": [
+      {
+        "lotId": "cb-lot-001",
+        "assetId": "ust-2027-01",
+        "assetClass": "SOVEREIGN_BOND",
+        "issuerId": "us-treasury",
+        "marketValue": 250000.0,
+        "lendableValue": 245000.0,
+        "totalHaircutBps": 200,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "cb-lot-002",
+        "assetId": "kfw-2029-01",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "kfw",
+        "marketValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "cb-lot-003",
+        "assetId": "eib-2030-01",
+        "assetClass": "SUPRANATIONAL_BOND",
+        "issuerId": "eib",
+        "marketValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "cb-lot-004",
+        "assetId": "fannie-2028-01",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "fannie-mae",
+        "marketValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      }
+    ]
+  },
+  "currentPortfolio": null,
+  "recommendedPortfolio": {
+    "lotIds": [
+      "cb-lot-001",
+      "cb-lot-002",
+      "cb-lot-003",
+      "cb-lot-004"
+    ],
+    "policyEvaluationId": "per-2505d379a57780cc",
+    "policyDecision": "ACCEPT",
+    "isFeasible": true,
+    "requiredAmount": 900000.0,
+    "allocatedMarketValue": 1000000.0,
+    "allocatedLendableValue": 942500.0,
+    "shortfallAmount": 0.0,
+    "excessAmount": 42500.0,
+    "haircutCostAmount": 57500.0,
+    "lotCount": 4,
+    "objectiveVector": {
+      "marketValueAmount": 1000000.0,
+      "haircutCostAmount": 57500.0,
+      "excessAmount": 42500.0,
+      "lotCount": 4,
+      "tieBreakLotIds": [
+        "cb-lot-001",
+        "cb-lot-002",
+        "cb-lot-003",
+        "cb-lot-004"
+      ]
+    },
+    "blockingReasonCodes": [],
+    "selectedLots": [
+      {
+        "lotId": "cb-lot-001",
+        "assetId": "ust-2027-01",
+        "issuerId": "us-treasury",
+        "assetClass": "SOVEREIGN_BOND",
+        "marketValue": 250000.0,
+        "valuationBasisValue": 250000.0,
+        "lendableValue": 245000.0,
+        "totalHaircutBps": 200
+      },
+      {
+        "lotId": "cb-lot-002",
+        "assetId": "kfw-2029-01",
+        "issuerId": "kfw",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 250000.0,
+        "valuationBasisValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "cb-lot-003",
+        "assetId": "eib-2030-01",
+        "issuerId": "eib",
+        "assetClass": "SUPRANATIONAL_BOND",
+        "marketValue": 250000.0,
+        "valuationBasisValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "cb-lot-004",
+        "assetId": "fannie-2028-01",
+        "issuerId": "fannie-mae",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 250000.0,
+        "valuationBasisValue": 250000.0,
+        "lendableValue": 232500.0,
+        "totalHaircutBps": 700
+      }
+    ],
+    "concentrationResults": [
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.25,
+        "thresholdCurrency": null,
+        "bucket": "eib",
+        "bucketValue": 250000.0,
+        "denominatorValue": 1000000.0,
+        "observedRatio": 0.25,
+        "relatedLotIds": [
+          "cb-lot-003"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.25,
+        "thresholdCurrency": null,
+        "bucket": "fannie-mae",
+        "bucketValue": 250000.0,
+        "denominatorValue": 1000000.0,
+        "observedRatio": 0.25,
+        "relatedLotIds": [
+          "cb-lot-004"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.25,
+        "thresholdCurrency": null,
+        "bucket": "kfw",
+        "bucketValue": 250000.0,
+        "denominatorValue": 1000000.0,
+        "observedRatio": 0.25,
+        "relatedLotIds": [
+          "cb-lot-002"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.25,
+        "thresholdCurrency": null,
+        "bucket": "us-treasury",
+        "bucketValue": 250000.0,
+        "denominatorValue": 1000000.0,
+        "observedRatio": 0.25,
+        "relatedLotIds": [
+          "cb-lot-001"
+        ],
+        "reason": null
+      }
+    ]
+  },
+  "substitutionRecommendation": {
+    "currentPostedLotIds": [],
+    "recommendedLotIds": [
+      "cb-lot-001",
+      "cb-lot-002",
+      "cb-lot-003",
+      "cb-lot-004"
+    ],
+    "removeLotIds": [],
+    "addLotIds": [
+      "cb-lot-001",
+      "cb-lot-002",
+      "cb-lot-003",
+      "cb-lot-004"
+    ],
+    "improvesObjective": true
+  },
+  "explanationTrace": [
+    {
+      "step": 1,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot cb-lot-001 for non-concentration policy feasibility.",
+      "lotIds": [
+        "cb-lot-001"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 2,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot cb-lot-002 for non-concentration policy feasibility.",
+      "lotIds": [
+        "cb-lot-002"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 3,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot cb-lot-003 for non-concentration policy feasibility.",
+      "lotIds": [
+        "cb-lot-003"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 4,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot cb-lot-004 for non-concentration policy feasibility.",
+      "lotIds": [
+        "cb-lot-004"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 5,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001.",
+      "lotIds": [
+        "cb-lot-001"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 245000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 250000.0,
+        "haircutCostAmount": 5000.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "cb-lot-001"
+        ]
+      }
+    },
+    {
+      "step": 6,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-002.",
+      "lotIds": [
+        "cb-lot-002"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 232500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 250000.0,
+        "haircutCostAmount": 17500.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "cb-lot-002"
+        ]
+      }
+    },
+    {
+      "step": 7,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-003.",
+      "lotIds": [
+        "cb-lot-003"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 232500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 250000.0,
+        "haircutCostAmount": 17500.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "cb-lot-003"
+        ]
+      }
+    },
+    {
+      "step": 8,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-004.",
+      "lotIds": [
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 232500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 250000.0,
+        "haircutCostAmount": 17500.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 9,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-002.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-002"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 477500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-002"
+        ]
+      }
+    },
+    {
+      "step": 10,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-003.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-003"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 477500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-003"
+        ]
+      }
+    },
+    {
+      "step": 11,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 477500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 12,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-002,cb-lot-003.",
+      "lotIds": [
+        "cb-lot-002",
+        "cb-lot-003"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 465000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 35000.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-002",
+          "cb-lot-003"
+        ]
+      }
+    },
+    {
+      "step": 13,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-002,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-002",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 465000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 35000.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-002",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 14,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-003,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-003",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 465000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 500000.0,
+        "haircutCostAmount": 35000.0,
+        "excessAmount": 0.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "cb-lot-003",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 15,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-002,cb-lot-003.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-002",
+        "cb-lot-003"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 710000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 750000.0,
+        "haircutCostAmount": 40000.0,
+        "excessAmount": 0.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-002",
+          "cb-lot-003"
+        ]
+      }
+    },
+    {
+      "step": 16,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-002,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-002",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 710000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 750000.0,
+        "haircutCostAmount": 40000.0,
+        "excessAmount": 0.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-002",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 17,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-001,cb-lot-003,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-003",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 710000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 750000.0,
+        "haircutCostAmount": 40000.0,
+        "excessAmount": 0.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-003",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 18,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset cb-lot-002,cb-lot-003,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-002",
+        "cb-lot-003",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 697500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 750000.0,
+        "haircutCostAmount": 52500.0,
+        "excessAmount": 0.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "cb-lot-002",
+          "cb-lot-003",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 19,
+      "stage": "SEARCH",
+      "outcome": "NEW_INCUMBENT",
+      "message": "Evaluated subset cb-lot-001,cb-lot-002,cb-lot-003,cb-lot-004.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-002",
+        "cb-lot-003",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 942500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 1000000.0,
+        "haircutCostAmount": 57500.0,
+        "excessAmount": 42500.0,
+        "lotCount": 4,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-002",
+          "cb-lot-003",
+          "cb-lot-004"
+        ]
+      }
+    },
+    {
+      "step": 20,
+      "stage": "DECISION",
+      "outcome": "POST_NEW_SET",
+      "message": "Selected the final optimizer recommendation.",
+      "lotIds": [
+        "cb-lot-001",
+        "cb-lot-002",
+        "cb-lot-003",
+        "cb-lot-004"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 942500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 1000000.0,
+        "haircutCostAmount": 57500.0,
+        "excessAmount": 42500.0,
+        "lotCount": 4,
+        "tieBreakLotIds": [
+          "cb-lot-001",
+          "cb-lot-002",
+          "cb-lot-003",
+          "cb-lot-004"
+        ]
+      }
+    }
+  ]
+}

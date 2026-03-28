@@ -10,7 +10,8 @@ cd "$repo_root"
 make --no-print-directory docs-lint
 make --no-print-directory validate-cpl
 make --no-print-directory test-policy-engine
+make --no-print-directory test-optimizer
 make --no-print-directory daml-build
 make --no-print-directory daml-test
 make --no-print-directory demo-run
-echo "verify: policy-engine and Daml workflow checks passed"
+echo "verify: policy-engine, optimizer, and Daml workflow checks passed"

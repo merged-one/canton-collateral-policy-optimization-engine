@@ -78,6 +78,7 @@ Current scope:
 - proposal-aligned architecture, milestone, invariant, and evidence structure
 - `CPL v0.1` prose specification, JSON Schema, validation plan, and example policy set
 - initial deterministic `CPL v0.1` policy engine and machine-readable policy evaluation report contract
+- initial deterministic optimization engine and machine-readable optimization report contract
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
 - first Daml domain model and lifecycle skeletons for obligations, posting, substitution, return, settlement intent, and execution reporting
 - executable Daml script checks for margin call, posting, substitution, and return skeletons
@@ -94,7 +95,7 @@ Current non-goals:
 - live integrations with custodians, CCPs, central-bank systems, or external pricing stacks
 - UI development
 - performance tuning
-- optimization, live asset adapters, settlement-window enforcement, and production-grade collateral business logic in this phase
+- live funding-curve optimization, workflow-coupled reservation, settlement-window enforcement, and production-grade collateral business logic in this phase
 
 ## Mission Control
 
@@ -119,7 +120,9 @@ Reproducible commands today:
 make bootstrap
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
+make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
 make test-policy-engine
+make test-optimizer
 make daml-build
 make daml-test
 make demo-run
@@ -128,7 +131,7 @@ make docs-lint
 make verify
 ```
 
-`make demo-run` now exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`.
+`make demo-run` now exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
 
 Current CPL artifacts:
 
@@ -146,6 +149,15 @@ Current policy-engine artifacts:
 - [docs/testing/POLICY_ENGINE_TEST_PLAN.md](./docs/testing/POLICY_ENGINE_TEST_PLAN.md)
 - [examples/inventory/central-bank-eligible-inventory.json](./examples/inventory/central-bank-eligible-inventory.json)
 - [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json](./reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json)
+
+Current optimization artifacts:
+
+- [docs/specs/OPTIMIZATION_REPORT_SPEC.md](./docs/specs/OPTIMIZATION_REPORT_SPEC.md)
+- [reports/schemas/optimization-report.schema.json](./reports/schemas/optimization-report.schema.json)
+- [docs/testing/OPTIMIZER_TEST_PLAN.md](./docs/testing/OPTIMIZER_TEST_PLAN.md)
+- [docs/economic/OPTIMIZATION_OBJECTIVES.md](./docs/economic/OPTIMIZATION_OBJECTIVES.md)
+- [examples/obligations/central-bank-window-call.json](./examples/obligations/central-bank-window-call.json)
+- [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json](./reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json)
 
 ## Upcoming Phases
 

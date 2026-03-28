@@ -1,7 +1,7 @@
 # Master Tracker
 
 Last Updated: 2026-03-28
-Current Phase: Milestone 2 / Phase 2 - Initial Policy Engine, Report Contracts, And Daml Workflow Skeletons
+Current Phase: Milestone 3 / Phase 3 - Initial Optimization And Substitution Engine
 
 ## Mission
 
@@ -37,7 +37,7 @@ The repository's active user-facing name is "Canton Collateral Control Plane". T
 
 ## Current Phase
 
-Milestone 2 / Phase 2 establishes the first executable policy-decision path for the repository. The expected output is a deterministic off-ledger engine that consumes `CPL v0.1`, evaluates normalized candidate inventory, emits a machine-readable `PolicyEvaluationReport`, and stays separate from authoritative workflow state on Canton.
+Milestone 3 / Phase 3 establishes the first executable optimization path for the repository. The expected output is a deterministic off-ledger optimizer that consumes `CPL v0.1`, normalized inventory, and normalized obligation inputs, emits a machine-readable `OptimizationReport`, and stays separate from authoritative workflow state on Canton.
 
 Prompt 1 status:
 
@@ -93,21 +93,28 @@ Prompt 6 status:
 - engine now evaluates eligibility, haircut, lendable value, concentration, encumbrance, segregation, settlement-currency mismatch, and wrong-way-risk outcomes against normalized candidate inventory
 - machine-readable `PolicyEvaluationReport` contract published under `reports/schemas/` with spec, ADR, test plan, and generated example artifact
 - `make policy-eval` and `make test-policy-engine` now provide reproducible policy-engine evaluation and test commands
-- optimization, role-scoped `ExecutionReport` disclosure profiles, live asset adapters, and reference-data contracts remain future layers
+- role-scoped `ExecutionReport` disclosure profiles, live asset adapters, and reference-data contracts remain future layers
+
+Prompt 7 status:
+
+- first deterministic optimizer added under `app/optimizer/` for best-to-post selection, substitution recommendation, concentration-aware allocation, and deterministic explanation traces
+- machine-readable `OptimizationReport` contract published under `reports/schemas/` with spec, ADR, economic rationale, test plan, and generated example artifact
+- `make optimize` and `make test-optimizer` now provide reproducible optimization and optimizer-test commands
+- optimization remains advisory and off-ledger; workflow reservation, consent, and settlement authority remain future Canton-layer work
 
 ## Next 5 Tasks
 
 1. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
 2. Specify role-scoped `ExecutionReport` disclosure profiles beyond the current workflow-party report baseline.
-3. Pin the target Quickstart release and overlay strategy that will sit on top of the current Daml and Canton baseline.
-4. Expand the conformance-suite matrix to cover temporal, privacy, replay, substitution, and release scenarios on top of the new policy-engine and Daml package surfaces.
+3. Define the first workflow-coupled optimizer reservation and consent interface without collapsing Canton authority.
+4. Expand the conformance-suite matrix to cover optimizer determinism, temporal, privacy, replay, substitution, and release scenarios on top of the new engine and Daml package surfaces.
 5. Define the first asset-adapter interface that will consume `SettlementInstruction` and `EncumbranceState` contracts without collapsing workflow authority.
 
 ## Blockers
 
-- No current blocker for continued policy-engine and report-contract work.
-- Live asset-adapter and workflow-coupled implementation beyond the current engine and Daml skeletons should not proceed until the target Quickstart overlay and asset interface versions are pinned on top of the current Daml and Canton baseline.
-- Economic calibration is intentionally deferred until reference-data contracts and richer report contracts are specified.
+- No current blocker for continued optimizer, policy-engine, and report-contract work.
+- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the target Quickstart overlay and asset interface versions are pinned on top of the current Daml and Canton baseline.
+- Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
 
 ## Dependency List
@@ -156,14 +163,18 @@ Target dependencies to pin in future ADRs:
 - [x] initial Daml workflow skeleton package
 - [x] initial policy evaluation report contract
 - [x] initial deterministic policy evaluation engine
+- [x] initial optimization report contract
+- [x] initial deterministic optimizer
 - [x] executable demo artifacts
 - [x] implementation-linked tests
+- [x] Prompt 7 execution report
 
 ## Demo Checklist
 
 - [ ] reproducible LocalNet startup command
 - [ ] reproducible seed-data or bootstrap command
 - [x] sample policy load command
+- [x] machine-readable optimization report generated by real optimization execution
 - [ ] end-to-end substitution or return demo command
 - [ ] machine-readable execution report generated by real workflow execution
 - [ ] operator-facing demo runbook

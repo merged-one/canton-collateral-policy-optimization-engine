@@ -620,7 +620,7 @@ Affected files:
 - `docs/integration/TOKEN_STANDARD_ALIGNMENT.md`
 - `docs/adrs/README.md`
 - `docs/adrs/0002-system-boundaries.md`
-- `docs/adrs/0009-rename-to-canton-collateral-control-plane.md`
+- `docs/adrs/0010-rename-to-canton-collateral-control-plane.md`
 - `docs/invariants/INVARIANT_REGISTRY.md`
 - `docs/evidence/EVIDENCE_MANIFEST.md`
 - `docs/evidence/prompt-04-execution-report.md`
@@ -662,7 +662,7 @@ Completed artifacts:
 - renamed primary identity surfaces in `README.md`, `AGENTS.md`, `docs/mission-control/`, and the glossary
 - added explicit control-plane versus data-plane architecture guidance in `README.md`, `docs/architecture/OVERVIEW.md`, `docs/integration/QUICKSTART_INTEGRATION_PLAN.md`, and `docs/domain/GLOSSARY.md`
 - updated build metadata in `daml.yaml` so the DAR now builds as `canton-collateral-control-plane-0.1.0.dar`
-- recorded the rename decision in `docs/adrs/0009-rename-to-canton-collateral-control-plane.md` and linked it through the decision log, invariant registry, risk register, and evidence manifest
+- recorded the rename decision in `docs/adrs/0010-rename-to-canton-collateral-control-plane.md` and linked it through the decision log, invariant registry, risk register, and evidence manifest
 - updated continuity and evidence records in `docs/evidence/`, including this rename execution report
 - preserved subsystem names and existing code layout for `CPL`, policy evaluation, optimization, workflow, conformance, and reporting surfaces
 
@@ -699,3 +699,110 @@ Results:
 
 Next step:
 Continue with the Prompt 6 follow-on work by defining pinned reference-data contracts, role-scoped `ExecutionReport` disclosure profiles, and the first asset-adapter interface on top of the current policy-engine and Daml package surfaces.
+
+## 2026-03-28 - Prompt 7 - Pre-Change
+
+Intent:
+Implement the repository's first deterministic collateral optimization engine for best-to-post allocation and substitution recommendation, with explicit separation from workflow execution and machine-readable optimization reporting.
+
+Risks addressed:
+
+- the repository currently stops at policy evaluation, so posting decisions remain undocumented, untested, and operationally ambiguous
+- optimization logic could accidentally collapse policy evaluation, report generation, and workflow execution into one layer unless the boundary is made explicit in code and ADRs
+- non-deterministic tie-breaking or unstable explanation ordering would undermine operational review, legal review, and reproducible testing
+- concentration-aware allocation and substitution logic could drift from institutional collateral practice if objective semantics are not documented alongside the implementation
+- report and evidence artifacts could remain incomplete unless the optimizer produces a schema-valid machine-readable output and the mission-control surfaces are updated in the same change
+
+Affected files:
+
+- `Makefile`
+- `README.md`
+- `app/README.md`
+- `app/optimizer/`
+- `examples/README.md`
+- `examples/inventory/central-bank-eligible-inventory.json`
+- `examples/obligations/*.json`
+- `reports/README.md`
+- `reports/generated/`
+- `reports/schemas/optimization-report.schema.json`
+- `docs/specs/OPTIMIZATION_REPORT_SPEC.md`
+- `docs/economic/OPTIMIZATION_OBJECTIVES.md`
+- `docs/testing/OPTIMIZER_TEST_PLAN.md`
+- `docs/testing/TEST_STRATEGY.md`
+- `docs/adrs/0009-optimization-objective-and-determinism.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/mission-control/WORKLOG.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-07-execution-report.md`
+- `docs/risks/RISK_REGISTER.md`
+- `docs/security/THREAT_MODEL.md`
+- `test/optimizer/`
+
+Acceptance criteria:
+
+- a real deterministic optimizer exists under `app/optimizer/` and remains separate from workflow execution concerns
+- the optimizer supports best-to-post selection under a policy and obligation amount
+- the optimizer recommends compliant substitutions when an existing posted set can be improved
+- concentration-aware allocation changes outcomes when policy concentration limits bind
+- machine-readable optimization reports include deterministic explanation traces and validate against the published schema
+- reproducible commands exist for `make optimize` and `make test-optimizer`
+- optimizer documentation, ADRs, invariants, evidence, and mission-control records are updated consistently
+- at least one generated optimization report artifact is produced from executable code, relevant checks pass, the changes are committed, and the worktree is left clean
+
+Planned commands:
+
+```sh
+make optimize POLICY=... INVENTORY=... OBLIGATION=...
+make test-optimizer
+make test-policy-engine
+make validate-cpl
+make docs-lint
+make verify
+git status --short --branch
+```
+
+## 2026-03-28 - Prompt 7 - Post-Change
+
+Outcome:
+Implemented the repository's first deterministic collateral optimizer under `app/optimizer/`, added a machine-readable `OptimizationReport` contract plus generated artifact, documented the objective and determinism rules, and preserved the separation between optimization advice and authoritative Canton workflow execution.
+
+Completed artifacts:
+
+- optimizer implementation and CLI under `app/optimizer/`
+- reusable non-concentration screening and report-finalization split inside `app/policy-engine/evaluator.py`
+- example obligation inputs under `examples/obligations/`
+- optimization report schema and generated artifact under `reports/schemas/` and `reports/generated/`
+- optimization report spec, economic rationale, optimizer test plan, and ADR under `docs/specs/`, `docs/economic/`, `docs/testing/`, and `docs/adrs/`
+- mission-control, invariant, evidence, risk, threat, runbook, setup, and command-surface updates for the new optimizer milestone
+- prompt execution evidence in `docs/evidence/prompt-07-execution-report.md`
+- deterministic optimizer scenario suite under `test/optimizer/`
+
+Commands run:
+
+```sh
+make status
+make validate-cpl
+make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
+make test-policy-engine
+make test-optimizer
+make docs-lint
+make verify
+git status --short --branch
+```
+
+Results:
+
+- `make status` passed and reported `Current Phase: Milestone 3 / Phase 3 - Initial Optimization And Substitution Engine`
+- `make validate-cpl` passed
+- `make optimize ...` passed and regenerated `reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json`
+- `make test-policy-engine` passed and preserved the existing deterministic policy-engine baseline
+- `make test-optimizer` passed and executed the five new deterministic optimizer scenario tests plus report validation
+- `make docs-lint` passed after the optimizer schema, ADR, spec, economic note, test plan, tracker, and evidence updates were added to the required documentation set
+- `make verify` passed and re-ran docs linting, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml lifecycle tests, and the workflow smoke run
+- the Daml helper emitted an informational notice that SDK `3.4.11` exists upstream; the repository remains intentionally pinned to `2.10.4`
+- `git status --short --branch` showed only the expected task-related changes before commit
+
+Next step:
+Define reference-data contracts and workflow-coupled reservation or consent interfaces so future optimizer recommendations can be bound to Canton execution without losing the current deterministic advisory boundary.

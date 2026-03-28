@@ -1,4 +1,4 @@
-# ADR 0009: Rename The Repository To Canton Collateral Control Plane
+# ADR 0010: Rename The Repository To Canton Collateral Control Plane
 
 - Status: Accepted
 - Date: 2026-03-28

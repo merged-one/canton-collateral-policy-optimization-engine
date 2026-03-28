@@ -1,0 +1,712 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://c-cope.dev/reports/optimization-report.schema.json",
+  "title": "Optimization Report v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reportType",
+    "reportVersion",
+    "optimizationId",
+    "status",
+    "recommendedAction",
+    "objective",
+    "policy",
+    "inventory",
+    "obligation",
+    "candidateUniverse",
+    "currentPortfolio",
+    "recommendedPortfolio",
+    "substitutionRecommendation",
+    "explanationTrace"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "reportType": {
+      "const": "OptimizationReport"
+    },
+    "reportVersion": {
+      "const": "0.1.0"
+    },
+    "optimizationId": {
+      "type": "string",
+      "pattern": "^opr-[0-9a-f]{16}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPTIMAL",
+        "NO_SOLUTION"
+      ]
+    },
+    "recommendedAction": {
+      "type": "string",
+      "enum": [
+        "POST_NEW_SET",
+        "SUBSTITUTE",
+        "KEEP_CURRENT_POSTED_SET",
+        "NO_SOLUTION"
+      ]
+    },
+    "objective": {
+      "$ref": "#/$defs/objective"
+    },
+    "policy": {
+      "$ref": "#/$defs/policyReference"
+    },
+    "inventory": {
+      "$ref": "#/$defs/inventoryReference"
+    },
+    "obligation": {
+      "$ref": "#/$defs/obligationReference"
+    },
+    "candidateUniverse": {
+      "$ref": "#/$defs/candidateUniverse"
+    },
+    "currentPortfolio": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/portfolio"
+        }
+      ]
+    },
+    "recommendedPortfolio": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/portfolio"
+        }
+      ]
+    },
+    "substitutionRecommendation": {
+      "$ref": "#/$defs/substitutionRecommendation"
+    },
+    "explanationTrace": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/traceEntry"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "currencyCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assetClass": {
+      "type": "string",
+      "enum": [
+        "CASH",
+        "SOVEREIGN_BOND",
+        "AGENCY_BOND",
+        "SUPRANATIONAL_BOND",
+        "COVERED_BOND",
+        "CORPORATE_BOND",
+        "MONEY_MARKET_FUND",
+        "EQUITY",
+        "ABS",
+        "MUNICIPAL_BOND"
+      ]
+    },
+    "numberAmount": {
+      "type": "number"
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objectiveId",
+        "sequence"
+      ],
+      "properties": {
+        "objectiveId": {
+          "const": "MINIMIZE_MARKET_VALUE_THEN_HAIRCUT_COST_THEN_EXCESS"
+        },
+        "sequence": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "policyReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policyId",
+        "policyVersion",
+        "cplVersion",
+        "profile"
+      ],
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "policyVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "cplVersion": {
+          "const": "0.1.0"
+        },
+        "profile": {
+          "type": "string",
+          "enum": [
+            "central_bank",
+            "tri_party",
+            "ccp",
+            "bilateral_csa",
+            "custom"
+          ]
+        }
+      }
+    },
+    "inventoryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventorySetId",
+        "inventoryVersion",
+        "asOf",
+        "settlementCurrency",
+        "valuationCurrency",
+        "candidateLotCount"
+      ],
+      "properties": {
+        "inventorySetId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "inventoryVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "asOf": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "settlementCurrency": {
+          "$ref": "#/$defs/currencyCode"
+        },
+        "valuationCurrency": {
+          "$ref": "#/$defs/currencyCode"
+        },
+        "candidateLotCount": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "obligationReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "obligationId",
+        "obligationVersion",
+        "asOf",
+        "settlementCurrency",
+        "coverageMetric",
+        "obligationAmount",
+        "currentPostedLotIds"
+      ],
+      "properties": {
+        "obligationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "obligationVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "asOf": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "settlementCurrency": {
+          "$ref": "#/$defs/currencyCode"
+        },
+        "coverageMetric": {
+          "const": "LENDABLE_VALUE"
+        },
+        "obligationAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "currentPostedLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "candidateScreeningResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lotId",
+        "assetId",
+        "assetClass",
+        "issuerId",
+        "marketValue",
+        "lendableValue",
+        "totalHaircutBps",
+        "admissible",
+        "reasonCodes"
+      ],
+      "properties": {
+        "lotId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assetId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assetClass": {
+          "$ref": "#/$defs/assetClass"
+        },
+        "issuerId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "marketValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "lendableValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "totalHaircutBps": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "admissible": {
+          "type": "boolean"
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "candidateUniverse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateLotCount",
+        "admissibleLotCount",
+        "blockedLotCount",
+        "consideredCombinationCount",
+        "feasibleCombinationCount",
+        "screeningResults"
+      ],
+      "properties": {
+        "candidateLotCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "admissibleLotCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blockedLotCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "consideredCombinationCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "feasibleCombinationCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "screeningResults": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/candidateScreeningResult"
+          }
+        }
+      }
+    },
+    "objectiveVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "marketValueAmount",
+        "haircutCostAmount",
+        "excessAmount",
+        "lotCount",
+        "tieBreakLotIds"
+      ],
+      "properties": {
+        "marketValueAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "haircutCostAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "excessAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "lotCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tieBreakLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "selectedLot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lotId",
+        "assetId",
+        "issuerId",
+        "assetClass",
+        "marketValue",
+        "valuationBasisValue",
+        "lendableValue",
+        "totalHaircutBps"
+      ],
+      "properties": {
+        "lotId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assetId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "issuerId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assetClass": {
+          "$ref": "#/$defs/assetClass"
+        },
+        "marketValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "valuationBasisValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "lendableValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "totalHaircutBps": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "concentrationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "limitId",
+        "dimension",
+        "scope",
+        "metric",
+        "decision",
+        "thresholdValue",
+        "thresholdCurrency",
+        "bucket",
+        "bucketValue",
+        "denominatorValue",
+        "observedRatio",
+        "relatedLotIds",
+        "reason"
+      ],
+      "properties": {
+        "limitId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "dimension": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "metric": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "thresholdValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "thresholdCurrency": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bucket": {
+          "type": "string"
+        },
+        "bucketValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "denominatorValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "observedRatio": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "relatedLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "reason": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "portfolio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lotIds",
+        "policyEvaluationId",
+        "policyDecision",
+        "isFeasible",
+        "requiredAmount",
+        "allocatedMarketValue",
+        "allocatedLendableValue",
+        "shortfallAmount",
+        "excessAmount",
+        "haircutCostAmount",
+        "lotCount",
+        "objectiveVector",
+        "blockingReasonCodes",
+        "selectedLots",
+        "concentrationResults"
+      ],
+      "properties": {
+        "lotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "policyEvaluationId": {
+          "type": "string",
+          "pattern": "^per-[0-9a-f]{16}$"
+        },
+        "policyDecision": {
+          "type": "string",
+          "enum": [
+            "ACCEPT",
+            "REJECT",
+            "ESCALATE",
+            "REVIEW"
+          ]
+        },
+        "isFeasible": {
+          "type": "boolean"
+        },
+        "requiredAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "allocatedMarketValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "allocatedLendableValue": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "shortfallAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "excessAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "haircutCostAmount": {
+          "$ref": "#/$defs/numberAmount"
+        },
+        "lotCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "objectiveVector": {
+          "$ref": "#/$defs/objectiveVector"
+        },
+        "blockingReasonCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "selectedLots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selectedLot"
+          }
+        },
+        "concentrationResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/concentrationResult"
+          }
+        }
+      }
+    },
+    "substitutionRecommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currentPostedLotIds",
+        "recommendedLotIds",
+        "removeLotIds",
+        "addLotIds",
+        "improvesObjective"
+      ],
+      "properties": {
+        "currentPostedLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "recommendedLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "removeLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "addLotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "improvesObjective": {
+          "type": "boolean"
+        }
+      }
+    },
+    "traceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step",
+        "stage",
+        "outcome",
+        "message",
+        "lotIds",
+        "reasonCodes",
+        "coverageAmount",
+        "objectiveSnapshot"
+      ],
+      "properties": {
+        "step": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "SCREENING",
+            "CURRENT_PORTFOLIO",
+            "SEARCH",
+            "DECISION"
+          ]
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lotIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "coverageAmount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "objectiveSnapshot": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/objectiveVector"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -18,4 +18,5 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0006-runtime-foundation.md](./0006-runtime-foundation.md)
 - [0007-daml-contract-boundaries.md](./0007-daml-contract-boundaries.md)
 - [0008-policy-evaluation-engine.md](./0008-policy-evaluation-engine.md)
-- [0009-rename-to-canton-collateral-control-plane.md](./0009-rename-to-canton-collateral-control-plane.md)
+- [0009-optimization-objective-and-determinism.md](./0009-optimization-objective-and-determinism.md)
+- [0010-rename-to-canton-collateral-control-plane.md](./0010-rename-to-canton-collateral-control-plane.md)

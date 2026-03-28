@@ -13,8 +13,10 @@ VENV := .venv
 CHECK_JSONSCHEMA := $(VENV)/bin/check-jsonschema
 CPL_SCHEMA := schema/cpl.schema.json
 POLICY_EVAL_REPORT_SCHEMA := reports/schemas/policy-evaluation-report.schema.json
+OPTIMIZATION_REPORT_SCHEMA := reports/schemas/optimization-report.schema.json
 POLICY ?= examples/policies/central-bank-style-policy.json
 INVENTORY ?= examples/inventory/central-bank-eligible-inventory.json
+OBLIGATION ?= examples/obligations/central-bank-window-call.json
 REPORT ?=
 CPL_EXAMPLES := \
 	examples/policies/central-bank-style-policy.json \
@@ -40,12 +42,19 @@ REQUIRED_DOCS := \
 	app/policy-engine/cli.py \
 	app/policy-engine/constants.py \
 	app/policy-engine/evaluator.py \
+	app/optimizer/cli.py \
+	app/optimizer/optimizer.py \
+	app/optimizer/optimizer_constants.py \
 	reports/README.md \
 	reports/schemas/policy-evaluation-report.schema.json \
+	reports/schemas/optimization-report.schema.json \
 	test/README.md \
 	test/policy-engine/test_policy_engine.py \
+	test/optimizer/test_optimizer.py \
 	examples/README.md \
 	examples/inventory/central-bank-eligible-inventory.json \
+	examples/obligations/central-bank-window-call.json \
+	examples/obligations/central-bank-window-remediation.json \
 	infra/README.md \
 	daml/Foundation.daml \
 	daml/Bootstrap.daml \
@@ -79,7 +88,8 @@ REQUIRED_DOCS := \
 	docs/adrs/0006-runtime-foundation.md \
 	docs/adrs/0007-daml-contract-boundaries.md \
 	docs/adrs/0008-policy-evaluation-engine.md \
-	docs/adrs/0009-rename-to-canton-collateral-control-plane.md \
+	docs/adrs/0009-optimization-objective-and-determinism.md \
+	docs/adrs/0010-rename-to-canton-collateral-control-plane.md \
 	docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
@@ -91,6 +101,7 @@ REQUIRED_DOCS := \
 	docs/evidence/prompt-04-execution-report.md \
 	docs/evidence/prompt-05-execution-report.md \
 	docs/evidence/prompt-06-execution-report.md \
+	docs/evidence/prompt-07-execution-report.md \
 	docs/evidence/rename-to-collateral-control-plane-execution-report.md \
 	docs/runbooks/README.md \
 	docs/integration/INTEGRATION_SURFACES.md \
@@ -104,14 +115,18 @@ REQUIRED_DOCS := \
 	docs/specs/CPL_SPEC_v0_1.md \
 	docs/specs/CPL_EXAMPLES.md \
 	docs/specs/POLICY_EVALUATION_REPORT_SPEC.md \
+	docs/specs/OPTIMIZATION_REPORT_SPEC.md \
+	docs/economic/OPTIMIZATION_OBJECTIVES.md \
 	docs/testing/CPL_VALIDATION_TEST_PLAN.md \
 	docs/testing/DAML_TEST_PLAN.md \
 	docs/testing/POLICY_ENGINE_TEST_PLAN.md \
+	docs/testing/OPTIMIZER_TEST_PLAN.md \
 	docs/testing/TEST_STRATEGY.md \
 	docs/security/THREAT_MODEL.md \
 	docs/change-control/CHANGE_CONTROL.md \
 	$(CPL_SCHEMA) \
 	$(POLICY_EVAL_REPORT_SCHEMA) \
+	$(OPTIMIZATION_REPORT_SCHEMA) \
 	$(CPL_EXAMPLES) \
 	requirements-cpl-validation.txt
 
@@ -125,7 +140,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap docs-lint status verify validate-cpl policy-eval test-policy-engine daml-build daml-test demo-run clean-runtime
+.PHONY: bootstrap docs-lint status verify validate-cpl policy-eval optimize test-policy-engine test-optimizer daml-build daml-test demo-run clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -153,27 +168,39 @@ docs-lint:
 	@grep -q "make daml-test" README.md || { echo "docs-lint: README missing daml-test command"; exit 1; }
 	@grep -q "make demo-run" README.md || { echo "docs-lint: README missing demo-run command"; exit 1; }
 	@grep -q "make policy-eval" README.md || { echo "docs-lint: README missing policy-eval command"; exit 1; }
+	@grep -q "make optimize" README.md || { echo "docs-lint: README missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" README.md || { echo "docs-lint: README missing test-policy-engine command"; exit 1; }
+	@grep -q "make test-optimizer" README.md || { echo "docs-lint: README missing test-optimizer command"; exit 1; }
 	@grep -q "make daml-test" AGENTS.md || { echo "docs-lint: AGENTS missing daml-test command"; exit 1; }
 	@grep -q "make policy-eval" AGENTS.md || { echo "docs-lint: AGENTS missing policy-eval command"; exit 1; }
+	@grep -q "make optimize" AGENTS.md || { echo "docs-lint: AGENTS missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" AGENTS.md || { echo "docs-lint: AGENTS missing test-policy-engine command"; exit 1; }
+	@grep -q "make test-optimizer" AGENTS.md || { echo "docs-lint: AGENTS missing test-optimizer command"; exit 1; }
 	@grep -q "make daml-test" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing daml-test command"; exit 1; }
+	@grep -q "make optimize" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing optimize command"; exit 1; }
+	@grep -q "make test-optimizer" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing test-optimizer command"; exit 1; }
 	@grep -q "workflowSmokeTest" daml.yaml || { echo "docs-lint: daml.yaml missing workflow smoke init script"; exit 1; }
 	@grep -q "Daml SDK $(DAML_SDK_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Daml SDK pin"; exit 1; }
 	@grep -q "Temurin JDK $(JAVA_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Java pin"; exit 1; }
 	@grep -q "make daml-test" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing daml-test"; exit 1; }
 	@grep -q "make policy-eval" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing policy-eval"; exit 1; }
+	@grep -q "make optimize" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing optimize"; exit 1; }
+	@grep -q "make test-optimizer" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing test-optimizer"; exit 1; }
 	@grep -q "make demo-run" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-run"; exit 1; }
 	@grep -q "make daml-test" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing daml-test"; exit 1; }
 	@grep -q "make test-policy-engine" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-policy-engine"; exit 1; }
+	@grep -q "make optimize" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing optimize"; exit 1; }
+	@grep -q "make test-optimizer" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-optimizer"; exit 1; }
 	@grep -q "ADR 0006" docs/adrs/0006-runtime-foundation.md || { echo "docs-lint: ADR 0006 missing title"; exit 1; }
 	@grep -q "ADR 0007" docs/adrs/0007-daml-contract-boundaries.md || { echo "docs-lint: ADR 0007 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-07-execution-report.md || { echo "docs-lint: prompt 7 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
-	@echo "docs-lint: policy engine, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
+	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
+	@echo "docs-lint: policy engine, optimizer, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 validate-cpl: $(CHECK_JSONSCHEMA)
 	@$(CHECK_JSONSCHEMA) --check-metaschema $(CPL_SCHEMA)
@@ -204,10 +231,28 @@ policy-eval: $(CHECK_JSONSCHEMA)
 	$(CHECK_JSONSCHEMA) --schemafile $(POLICY_EVAL_REPORT_SCHEMA) "$$output_path"; \
 	echo "policy-eval: generated $$output_path"
 
+optimize: $(CHECK_JSONSCHEMA)
+	@test -n "$(POLICY)" || { echo "optimize: POLICY=... is required"; exit 1; }
+	@test -n "$(INVENTORY)" || { echo "optimize: INVENTORY=... is required"; exit 1; }
+	@test -n "$(OBLIGATION)" || { echo "optimize: OBLIGATION=... is required"; exit 1; }
+	@$(CHECK_JSONSCHEMA) --schemafile $(CPL_SCHEMA) "$(POLICY)"
+	@if [ -n "$(REPORT)" ]; then \
+		output_path=$$($(PYTHON) app/optimizer/cli.py --policy "$(POLICY)" --inventory "$(INVENTORY)" --obligation "$(OBLIGATION)" --output "$(REPORT)"); \
+	else \
+		output_path=$$($(PYTHON) app/optimizer/cli.py --policy "$(POLICY)" --inventory "$(INVENTORY)" --obligation "$(OBLIGATION)"); \
+	fi; \
+	$(CHECK_JSONSCHEMA) --schemafile $(OPTIMIZATION_REPORT_SCHEMA) "$$output_path"; \
+	echo "optimize: generated $$output_path"
+
 test-policy-engine: $(CHECK_JSONSCHEMA)
 	@PYTHONPATH=app/policy-engine $(PYTHON) -m unittest discover -s test/policy-engine -p 'test_*.py'
 	@$(MAKE) --no-print-directory policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json REPORT=reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json
 	@echo "test-policy-engine: deterministic policy-engine tests and report validation passed"
+
+test-optimizer: $(CHECK_JSONSCHEMA)
+	@PYTHONPATH=app/optimizer:app/policy-engine $(PYTHON) -m unittest discover -s test/optimizer -p 'test_*.py'
+	@$(MAKE) --no-print-directory optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json REPORT=reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json
+	@echo "test-optimizer: deterministic optimizer tests and report validation passed"
 
 status:
 	@$(STATUS_SCRIPT)

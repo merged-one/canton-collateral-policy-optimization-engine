@@ -70,13 +70,21 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0049 | Tests | [docs/testing/POLICY_ENGINE_TEST_PLAN.md](../testing/POLICY_ENGINE_TEST_PLAN.md) | scenario coverage for eligibility, haircuts, concentration, wrong-way risk, control failures, and determinism |
 | E-0050 | Demo artifacts | [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json](../../reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json) | real generated policy-evaluation artifact from `make policy-eval` |
 | E-0051 | Demo artifacts | [docs/evidence/prompt-06-execution-report.md](./prompt-06-execution-report.md) | reproducible Prompt 6 execution record for the first policy-engine package |
-| E-0052 | ADRs | [docs/adrs/0009-rename-to-canton-collateral-control-plane.md](../adrs/0009-rename-to-canton-collateral-control-plane.md) | repository-identity rename plus control-plane versus data-plane clarification |
+| E-0052 | ADRs | [docs/adrs/0010-rename-to-canton-collateral-control-plane.md](../adrs/0010-rename-to-canton-collateral-control-plane.md) | repository-identity rename plus control-plane versus data-plane clarification |
 | E-0053 | Demo artifacts | [docs/evidence/rename-to-collateral-control-plane-execution-report.md](./rename-to-collateral-control-plane-execution-report.md) | reproducible execution record for the repository rename and metadata update |
+| E-0054 | ADRs | [docs/adrs/0009-optimization-objective-and-determinism.md](../adrs/0009-optimization-objective-and-determinism.md) | first optimizer objective, deterministic search, and no-churn substitution decision |
+| E-0055 | Code | [app/optimizer](../../app/optimizer) | deterministic optimizer implementation and CLI |
+| E-0056 | Specs | [docs/specs/OPTIMIZATION_REPORT_SPEC.md](../specs/OPTIMIZATION_REPORT_SPEC.md) | normative report contract, deterministic search rules, and scope notes for `OptimizationReport` |
+| E-0057 | Code | [reports/schemas/optimization-report.schema.json](../../reports/schemas/optimization-report.schema.json) | canonical machine-readable schema for `OptimizationReport` |
+| E-0058 | Tests | [docs/testing/OPTIMIZER_TEST_PLAN.md](../testing/OPTIMIZER_TEST_PLAN.md) | scenario coverage for best-to-post, concentration-aware allocation, substitution, no-solution handling, and determinism |
+| E-0059 | Economic rationale | [docs/economic/OPTIMIZATION_OBJECTIVES.md](../economic/OPTIMIZATION_OBJECTIVES.md) | institutional rationale for best-to-post, concentration control, substitution economics, and deterministic explainability |
+| E-0060 | Demo artifacts | [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json](../../reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json) | real generated optimization artifact from `make optimize` |
+| E-0061 | Demo artifacts | [docs/evidence/prompt-07-execution-report.md](./prompt-07-execution-report.md) | reproducible Prompt 7 execution record for the first optimizer package |
 
 ## Coverage Notes
 
 - The `Code` category now includes the first Daml workflow skeleton package in addition to schema, bootstrap, and toolchain artifacts.
-- The architecture, CPL, policy-engine, and Daml-boundary packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
-- The `Demo artifacts` category now includes both a workflow smoke-run record and a real schema-valid policy-evaluation report artifact, but still not a Quickstart-backed end-to-end operator demo.
+- The architecture, CPL, policy-engine, optimizer, and Daml-boundary packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
+- The `Demo artifacts` category now includes a real schema-valid optimization report artifact in addition to the workflow smoke record and policy-evaluation report artifact, but still not a Quickstart-backed end-to-end operator demo.
 - The evidence set now records the rename to "Canton Collateral Control Plane" as a semantic clarification of the same subsystem stack rather than a new product direction.
-- Economic rationale is currently architecture-, control-, and market-practice-oriented rather than calibration-backed.
+- Economic rationale is now architecture-, control-, and optimization-objective-oriented rather than calibration-backed.

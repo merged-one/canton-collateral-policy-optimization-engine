@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from collections import defaultdict
@@ -35,6 +36,21 @@ def evaluate_policy(
     policy: dict[str, Any],
     inventory: dict[str, Any],
 ) -> dict[str, Any]:
+    screened = screen_inventory(policy, inventory)
+    return finalize_screened_inventory(
+        policy,
+        inventory,
+        screened["assetResults"],
+        portfolio_reasons=screened["portfolioReasons"],
+    )
+
+
+def screen_inventory(
+    policy: dict[str, Any],
+    inventory: dict[str, Any],
+) -> dict[str, Any]:
+    """Evaluate portfolio-level hard prerequisites and per-lot non-concentration checks."""
+
     _validate_inventory_shape(inventory)
 
     evaluation_context = inventory["evaluationContext"]
@@ -43,7 +59,6 @@ def evaluate_policy(
     )
     valuation_currency = evaluation_context["valuationCurrency"]
     settlement_currency = evaluation_context["settlementCurrency"]
-    policy_rounding = policy["haircuts"]["roundingMode"]
 
     portfolio_reasons = []
 
@@ -79,6 +94,38 @@ def evaluate_policy(
     asset_evaluations = [
         _evaluate_lot(policy, evaluation_context, lot) for lot in candidate_lots
     ]
+    for asset in asset_evaluations:
+        asset["reasons"] = _sorted_reasons(asset["reasons"])
+        asset["decision"] = _asset_decision(asset["reasons"])
+
+    return {
+        "candidateLots": candidate_lots,
+        "evaluationContext": evaluation_context,
+        "valuationCurrency": valuation_currency,
+        "settlementCurrency": settlement_currency,
+        "portfolioReasons": _sorted_reasons(portfolio_reasons),
+        "assetResults": asset_evaluations,
+    }
+
+
+def finalize_screened_inventory(
+    policy: dict[str, Any],
+    inventory: dict[str, Any],
+    screened_asset_results: list[dict[str, Any]],
+    *,
+    portfolio_reasons: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Finalize a policy report from pre-screened per-lot results."""
+
+    _validate_inventory_shape(inventory)
+    evaluation_context = inventory["evaluationContext"]
+    valuation_currency = evaluation_context["valuationCurrency"]
+    settlement_currency = evaluation_context["settlementCurrency"]
+    candidate_lots = sorted(
+        inventory["candidateLots"], key=lambda lot: lot.get("lotId", "")
+    )
+    asset_evaluations = copy.deepcopy(screened_asset_results)
+
     concentration_results, concentration_reasons = _evaluate_concentration_limits(
         policy,
         evaluation_context,
@@ -96,8 +143,8 @@ def evaluate_policy(
         asset["reasons"] = _sorted_reasons(asset["reasons"])
         asset["decision"] = _asset_decision(asset["reasons"])
 
-    portfolio_reasons = _sorted_reasons(
-        portfolio_reasons
+    final_portfolio_reasons = _sorted_reasons(
+        list(portfolio_reasons or [])
         + [
             result["reason"]
             for result in concentration_results
@@ -106,7 +153,7 @@ def evaluate_policy(
     )
 
     summary = _build_summary(asset_evaluations, concentration_results)
-    overall_decision = _overall_decision(asset_evaluations, portfolio_reasons)
+    overall_decision = _overall_decision(asset_evaluations, final_portfolio_reasons)
     evaluation_id = _evaluation_id(policy, inventory)
 
     return {
@@ -130,7 +177,7 @@ def evaluate_policy(
             "candidateLotCount": len(candidate_lots),
         },
         "summary": summary,
-        "portfolioReasons": portfolio_reasons,
+        "portfolioReasons": final_portfolio_reasons,
         "assetResults": asset_evaluations,
         "concentrationResults": concentration_results,
     }
