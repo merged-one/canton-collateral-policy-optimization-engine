@@ -1,0 +1,12 @@
+# Risk Register
+
+| ID | Risk | Why It Matters | Initial Mitigation | Evidence Needed | Status |
+| --- | --- | --- | --- | --- | --- |
+| R-001 | Eligibility or haircut policy is underspecified or non-deterministic. | Different parties could derive different coverage decisions from the same inputs. | Define versioned policy inputs and deterministic evaluation rules before implementation. | ADRs, invariant mapping, test vectors | Open |
+| R-002 | Confidential information leaks across parties or reports. | Margin and collateral data may be commercially sensitive. | Keep confidentiality in the architecture boundary from the start and track it in the threat model. | threat model, access-control tests, report review | Open |
+| R-003 | Substitution or return workflows are non-atomic. | Exposure could become temporarily uncovered or duplicated. | Treat atomic workflow semantics as a top-level invariant and implementation gate. | workflow specs, integration tests, execution evidence | Open |
+| R-004 | Double-encumbrance or replay bugs appear under retries or concurrency. | The same collateral could back multiple obligations incorrectly. | Model encumbrance and replay handling explicitly before coding. | invariants, state model, replay tests | Open |
+| R-005 | Execution reports diverge from committed workflow state. | Operators and reviewers could trust incorrect evidence. | Define report fidelity invariants and schema validation early. | report schema, demo artifacts, audit checks | Open |
+| R-006 | Dependency setup becomes non-reproducible. | Demos and verification would be hard to trust or repeat. | Require pinned versions and explicit bootstrap commands through ADRs. | setup docs, reproducible commands, lockfiles later | Open |
+| R-007 | Repository changes outpace documentation and evidence. | The safety case would erode even if code seems to work. | Enforce worklog, ADR, invariant, and evidence updates on every feature. | worklog, ADRs, evidence manifest | Open |
+| R-008 | Architecture assumptions do not match Canton Quickstart or token-standard realities. | Rework could invalidate early design and reports. | Pin versions, record interface assumptions, and validate integration surfaces before logic. | dependency ADRs, integration docs, prototypes later | Open |

@@ -1,0 +1,5 @@
+# Default ownership for the documentation-first prototype.
+# Replace handles if the canonical GitHub owner differs.
+
+* @charlesdusek
+/docs/ @charlesdusek
