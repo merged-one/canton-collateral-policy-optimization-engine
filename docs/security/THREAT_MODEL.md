@@ -4,7 +4,7 @@
 
 The future system will manage confidential collateral policy, inventory, valuation, workflow, and reporting state across multiple parties. This document records the threat posture implied by the architecture package and the design areas that must remain visible as implementation begins.
 
-The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, plus initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting. Those surfaces make privacy, determinism, and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
+The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, plus a pinned Quickstart bootstrap and compose-preflight layer. Those surfaces make privacy, determinism, and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
 
 ## Protected Assets
 
@@ -18,6 +18,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - encumbrance state
 - settlement instructions and control acknowledgments
 - execution reports and audit evidence
+- pinned Quickstart overlay configuration and upstream commit metadata
 
 ## Threat Actors
 
@@ -45,6 +46,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 | Schema downgrade or undeclared extension | Consumers could derive different results from materially different policy documents. | Pin `cplVersion`, reject unknown fields, and validate policy documents before load. |
 | Tool-download tampering or drift | A compromised or drifting bootstrap source could change local behavior invisibly. | Pin download URLs and SHA-256 checksums and install runtime tools repo-locally. |
 | Runtime overlay drift | Demo or LocalNet shortcuts could alter behavior relative to the documented architecture. | Separate runtime concerns from business semantics and keep overlay changes explicit. |
+| Quickstart runtime-version skew | Operators could treat the pinned LocalNet foundation as deployable even when the repo DAR is not yet compatible with the pinned Quickstart runtime line. | Record the version gap explicitly, stop automation at compose validation, and gate package deployment behind a separate bridge decision. |
 | Environment drift | The system could become impossible to reproduce or validate consistently. | Pinned dependencies, checksum-verified bootstrap commands, and release evidence. |
 
 ## Trust Boundaries
@@ -64,6 +66,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - what minimum report profiles satisfy auditability without over-disclosure?
 - what freshness and provenance guarantees must a valuation snapshot prove?
 - which asset-control semantics belong in the adapter layer versus the workflow package?
+- which Daml runtime bridge will let the repo DAR be deployed into the pinned Quickstart LocalNet without losing reproducibility?
 - when should future workflow-coupled optimization respect operational churn budgets or consent costs in addition to the current deterministic economic proxy objective?
 - how should the current workflow-party execution reports be transformed into narrower operator, auditor, or external-integration views?
 - how should future consumers reject or negotiate policies that require a newer `cplVersion` than they support?

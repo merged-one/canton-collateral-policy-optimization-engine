@@ -47,6 +47,8 @@ Current baseline verification:
 
 ```sh
 make bootstrap
+make localnet-bootstrap
+make localnet-smoke
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -59,4 +61,4 @@ make docs-lint
 make verify
 ```
 
-The bootstrap installs the pinned repo-local Daml and Java toolchain under `.runtime/` and keeps CPL validation isolated in `.venv/`. The policy engine and optimizer stay stdlib-only and validate their generated report artifacts against the committed report schemas.
+The bootstrap installs the pinned repo-local Daml and Java toolchain under `.runtime/` and keeps CPL validation isolated in `.venv/`. `make localnet-bootstrap` stages the pinned upstream CN Quickstart checkout under `.runtime/localnet/`, and `make localnet-smoke` validates the upstream compose topology without pretending the Control Plane DAR is already deployed. The policy engine and optimizer stay stdlib-only and validate their generated report artifacts against the committed report schemas.

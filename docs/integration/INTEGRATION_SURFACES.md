@@ -1,12 +1,12 @@
 # Integration Surfaces
 
-This document identifies the major system boundaries the Canton Collateral Control Plane is expected to expose or depend on. All surfaces are planned; none are implemented yet.
+This document identifies the major system boundaries the Canton Collateral Control Plane is expected to expose or depend on. The pinned Quickstart bootstrap and compose-preflight layer now exists; workflow deployment and asset adapters remain planned.
 
 ## Planned Surfaces
 
 | Surface | Purpose | Notes |
 | --- | --- | --- |
-| Canton Quickstart LocalNet | Host confidential multi-party workflow execution. | Version and topology to be pinned in a future ADR. |
+| Canton Quickstart LocalNet | Host confidential multi-party workflow execution. | Pinned through `infra/quickstart/overlay/upstream-pin.env` and exercised through `make localnet-bootstrap` plus `make localnet-smoke`; Control Plane package deployment remains deferred. |
 | Token-standard-style asset adapter | Represent collateral assets, control state, and encumbrance state in a reusable way. | Must support deterministic eligibility and control semantics. |
 | Daml Finance-style asset adapter | Provide a second reference integration path for existing Canton-oriented asset models. | Exact scope remains to be pinned after dependency review. |
 | CPL input surface | Accept versioned eligibility, haircut, concentration, wrong-way-risk, control, substitution-right, and settlement-window rules. | Must be portable across multiple workflow types. |

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, optimize the first collateral-allocation path, and execute the initial Daml workflow smoke scenario from a clean checkout.
+Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, optimize the first collateral-allocation path, execute the initial Daml workflow smoke scenario from a clean checkout, and stage the first pinned Quickstart-based LocalNet foundation.
 
 ## Supported Bootstrap Platforms
 
@@ -20,6 +20,7 @@ The bootstrap is intentionally repo-local. It installs the Daml SDK and JDK unde
 - `python3`
 - `rg`
 - either `shasum` or `sha256sum`
+- Docker plus Docker Compose for the Quickstart LocalNet foundation commands
 
 ## Bootstrap
 
@@ -40,6 +41,8 @@ This command:
 
 ```sh
 make status
+make localnet-bootstrap
+make localnet-smoke
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -54,6 +57,8 @@ make verify
 What each command does:
 
 - `make status`: show pinned versus installed tool versions, scaffold presence, and git state
+- `make localnet-bootstrap`: stage the pinned upstream CN Quickstart checkout and write `quickstart/.env.local` from the repo overlay
+- `make localnet-smoke`: run upstream Docker preflight checks and validate the composed Quickstart LocalNet configuration
 - `make validate-cpl`: validate `CPL v0.1` schema and the published example policies
 - `make policy-eval`: validate a policy input, evaluate candidate inventory, and validate the generated `PolicyEvaluationReport`
 - `make optimize`: validate a policy input, optimize against inventory plus obligation inputs, and validate the generated `OptimizationReport`
@@ -69,11 +74,13 @@ What each command does:
 - `.runtime/bin/`: repo-local `daml`, `daml-helper`, `java`, and `javac` entry points
 - `.runtime/tools/`: extracted pinned SDK and JDK archives
 - `.runtime/downloads/`: cached upstream tarballs
+- `.runtime/localnet/`: pinned upstream CN Quickstart checkout plus generated `.env.local`
 - `.venv/`: pinned schema-validation tooling
 - `.daml/dist/`: generated DAR artifacts from `make daml-build`
 
 ## Notes
 
 - The current repository now includes an initial deterministic policy engine, an initial deterministic optimizer, and initial Daml workflow skeletons, but it still does not implement live asset adapters, settlement-window enforcement, or workflow-coupled optimization reservation.
+- The Quickstart LocalNet foundation now stages a real upstream checkout and validates its compose topology, but it does not yet build the upstream stack automatically or deploy the repository's DAR into it.
 - Future Quickstart or Canton overlay assets should land under `infra/`, not inside the Daml or app package trees.
 - If the toolchain needs to be rebuilt from scratch, run `make clean-runtime` and then `make bootstrap`.

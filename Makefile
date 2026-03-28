@@ -6,6 +6,8 @@ RUNTIME_ENV := $(RUNTIME_DIR)/env.sh
 BOOTSTRAP_SCRIPT := scripts/bootstrap.sh
 STATUS_SCRIPT := scripts/dev-status.sh
 VERIFY_SCRIPT := scripts/verify.sh
+LOCALNET_BOOTSTRAP_SCRIPT := infra/quickstart/bootstrap-localnet.sh
+LOCALNET_SMOKE_SCRIPT := scripts/run-localnet-smoke.sh
 
 include scripts/toolchain.env
 
@@ -18,6 +20,9 @@ POLICY ?= examples/policies/central-bank-style-policy.json
 INVENTORY ?= examples/inventory/central-bank-eligible-inventory.json
 OBLIGATION ?= examples/obligations/central-bank-window-call.json
 REPORT ?=
+LOCALNET_PROFILE ?= lean
+LOCALNET_WORKDIR ?= $(REPO_ROOT)/.runtime/localnet/cn-quickstart
+LOCALNET_PARTY_HINT ?= canton-collateral-1
 CPL_EXAMPLES := \
 	examples/policies/central-bank-style-policy.json \
 	examples/policies/tri-party-style-policy.json \
@@ -90,6 +95,7 @@ REQUIRED_DOCS := \
 	docs/adrs/0008-policy-evaluation-engine.md \
 	docs/adrs/0009-optimization-objective-and-determinism.md \
 	docs/adrs/0010-rename-to-canton-collateral-control-plane.md \
+	docs/adrs/0011-quickstart-demo-foundation.md \
 	docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
@@ -102,10 +108,13 @@ REQUIRED_DOCS := \
 	docs/evidence/prompt-05-execution-report.md \
 	docs/evidence/prompt-06-execution-report.md \
 	docs/evidence/prompt-07-execution-report.md \
+	docs/evidence/prompt-08-execution-report.md \
 	docs/evidence/rename-to-collateral-control-plane-execution-report.md \
 	docs/runbooks/README.md \
 	docs/integration/INTEGRATION_SURFACES.md \
+	docs/integration/LOCALNET_DEMO_PLAN.md \
 	docs/integration/QUICKSTART_INTEGRATION_PLAN.md \
+	docs/integration/ASSET_ADAPTER_PLAN.md \
 	docs/integration/TOKEN_STANDARD_ALIGNMENT.md \
 	docs/domain/GLOSSARY.md \
 	docs/domain/COLLATERAL_DOMAIN_MODEL.md \
@@ -124,6 +133,13 @@ REQUIRED_DOCS := \
 	docs/testing/TEST_STRATEGY.md \
 	docs/security/THREAT_MODEL.md \
 	docs/change-control/CHANGE_CONTROL.md \
+	infra/quickstart/README.md \
+	infra/quickstart/bootstrap-localnet.sh \
+	infra/quickstart/overlay/README.md \
+	infra/quickstart/overlay/upstream-pin.env \
+	infra/quickstart/overlay/profiles/faithful.env.local \
+	infra/quickstart/overlay/profiles/lean.env.local \
+	scripts/run-localnet-smoke.sh \
 	$(CPL_SCHEMA) \
 	$(POLICY_EVAL_REPORT_SCHEMA) \
 	$(OPTIMIZATION_REPORT_SCHEMA) \
@@ -140,7 +156,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap docs-lint status verify validate-cpl policy-eval optimize test-policy-engine test-optimizer daml-build daml-test demo-run clean-runtime
+.PHONY: bootstrap localnet-bootstrap localnet-smoke docs-lint status verify validate-cpl policy-eval optimize test-policy-engine test-optimizer daml-build daml-test demo-run clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -157,13 +173,15 @@ docs-lint:
 	@for dir in $(REQUIRED_DIRS); do \
 		test -d "$$dir" || { echo "docs-lint: missing directory $$dir"; exit 1; }; \
 	done
-	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(VERIFY_SCRIPT); do \
+	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(VERIFY_SCRIPT) $(LOCALNET_BOOTSTRAP_SCRIPT) $(LOCALNET_SMOKE_SCRIPT); do \
 		test -x "$$script" || { echo "docs-lint: expected executable $$script"; exit 1; }; \
 	done
 	@grep -q "^sdk-version: $(DAML_SDK_VERSION)$$" daml.yaml || { echo "docs-lint: daml.yaml sdk-version mismatch"; exit 1; }
 	@grep -q "^python $(PYTHON_TOOL_VERSION)$$" .tool-versions || { echo "docs-lint: .tool-versions missing pinned python"; exit 1; }
 	@grep -q "^java temurin-$(JAVA_VERSION)$$" .tool-versions || { echo "docs-lint: .tool-versions missing pinned java"; exit 1; }
 	@grep -q "make bootstrap" README.md || { echo "docs-lint: README missing bootstrap command"; exit 1; }
+	@grep -q "make localnet-bootstrap" README.md || { echo "docs-lint: README missing localnet-bootstrap command"; exit 1; }
+	@grep -q "make localnet-smoke" README.md || { echo "docs-lint: README missing localnet-smoke command"; exit 1; }
 	@grep -q "make daml-build" README.md || { echo "docs-lint: README missing daml-build command"; exit 1; }
 	@grep -q "make daml-test" README.md || { echo "docs-lint: README missing daml-test command"; exit 1; }
 	@grep -q "make demo-run" README.md || { echo "docs-lint: README missing demo-run command"; exit 1; }
@@ -171,21 +189,28 @@ docs-lint:
 	@grep -q "make optimize" README.md || { echo "docs-lint: README missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" README.md || { echo "docs-lint: README missing test-policy-engine command"; exit 1; }
 	@grep -q "make test-optimizer" README.md || { echo "docs-lint: README missing test-optimizer command"; exit 1; }
+	@grep -q "make localnet-bootstrap" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-bootstrap command"; exit 1; }
+	@grep -q "make localnet-smoke" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-smoke command"; exit 1; }
 	@grep -q "make daml-test" AGENTS.md || { echo "docs-lint: AGENTS missing daml-test command"; exit 1; }
 	@grep -q "make policy-eval" AGENTS.md || { echo "docs-lint: AGENTS missing policy-eval command"; exit 1; }
 	@grep -q "make optimize" AGENTS.md || { echo "docs-lint: AGENTS missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" AGENTS.md || { echo "docs-lint: AGENTS missing test-policy-engine command"; exit 1; }
 	@grep -q "make test-optimizer" AGENTS.md || { echo "docs-lint: AGENTS missing test-optimizer command"; exit 1; }
+	@grep -q "make localnet-bootstrap" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-bootstrap command"; exit 1; }
+	@grep -q "make localnet-smoke" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-smoke command"; exit 1; }
 	@grep -q "make daml-test" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing daml-test command"; exit 1; }
 	@grep -q "make optimize" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing optimize command"; exit 1; }
 	@grep -q "make test-optimizer" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing test-optimizer command"; exit 1; }
 	@grep -q "workflowSmokeTest" daml.yaml || { echo "docs-lint: daml.yaml missing workflow smoke init script"; exit 1; }
 	@grep -q "Daml SDK $(DAML_SDK_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Daml SDK pin"; exit 1; }
 	@grep -q "Temurin JDK $(JAVA_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Java pin"; exit 1; }
+	@grep -q "make localnet-bootstrap" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-bootstrap"; exit 1; }
+	@grep -q "make localnet-smoke" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-smoke"; exit 1; }
 	@grep -q "make daml-test" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing daml-test"; exit 1; }
 	@grep -q "make policy-eval" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing policy-eval"; exit 1; }
 	@grep -q "make optimize" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing optimize"; exit 1; }
 	@grep -q "make test-optimizer" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing test-optimizer"; exit 1; }
+	@grep -q "make localnet-smoke" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing localnet-smoke"; exit 1; }
 	@grep -q "make demo-run" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-run"; exit 1; }
 	@grep -q "make daml-test" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing daml-test"; exit 1; }
 	@grep -q "make test-policy-engine" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-policy-engine"; exit 1; }
@@ -193,14 +218,29 @@ docs-lint:
 	@grep -q "make test-optimizer" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-optimizer"; exit 1; }
 	@grep -q "ADR 0006" docs/adrs/0006-runtime-foundation.md || { echo "docs-lint: ADR 0006 missing title"; exit 1; }
 	@grep -q "ADR 0007" docs/adrs/0007-daml-contract-boundaries.md || { echo "docs-lint: ADR 0007 missing title"; exit 1; }
+	@grep -q "ADR 0011" docs/adrs/0011-quickstart-demo-foundation.md || { echo "docs-lint: ADR 0011 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-07-execution-report.md || { echo "docs-lint: prompt 7 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-08-execution-report.md || { echo "docs-lint: prompt 8 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
 	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
-	@echo "docs-lint: policy engine, optimizer, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
+	@grep -q "Prompt 8 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 8 status"; exit 1; }
+	@echo "docs-lint: policy engine, optimizer, Quickstart foundation, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
+
+localnet-bootstrap:
+	@LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	$(LOCALNET_BOOTSTRAP_SCRIPT)
+
+localnet-smoke: localnet-bootstrap
+	@LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	$(LOCALNET_SMOKE_SCRIPT)
 
 validate-cpl: $(CHECK_JSONSCHEMA)
 	@$(CHECK_JSONSCHEMA) --check-metaschema $(CPL_SCHEMA)

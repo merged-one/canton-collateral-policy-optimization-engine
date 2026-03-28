@@ -14,6 +14,16 @@ The repository now pins the first executable foundation around:
 
 These versions support local package compilation and a minimal Daml smoke scenario today. Quickstart overlay wiring remains a follow-on task.
 
+## Prompt 8 Foundation Status
+
+The first concrete Quickstart foundation now exists under `infra/quickstart/`:
+
+- upstream CN Quickstart is pinned by commit SHA rather than by floating branch name
+- `make localnet-bootstrap` stages the upstream checkout and writes `.env.local` from repo-owned overlay profiles
+- `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed stack without claiming full workflow deployment
+
+The repo still does not deploy the Control Plane DAR into Quickstart. That remains blocked on the current version bridge between the repo Daml package (`2.10.4`) and the pinned Quickstart runtime line (`3.4.10`).
+
 ## Integration Principles
 
 - start from a pinned upstream Quickstart release

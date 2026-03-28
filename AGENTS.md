@@ -48,5 +48,6 @@ A task is not done until all applicable items are complete:
 - The first Daml contract boundary now exists for obligations, posting, substitution, return, settlement intent, and execution reporting.
 - A first deterministic `CPL v0.1` policy evaluation engine now exists for eligibility, haircut, lendable-value, concentration, control, and wrong-way-risk reporting against normalized inventory inputs.
 - A first deterministic optimizer now exists for best-to-post, substitution recommendation, concentration-aware allocation, and explanation-trace reporting against normalized obligation inputs.
+- A pinned CN Quickstart bootstrap and compose-config smoke foundation now exists under `infra/quickstart/`, but it does not yet deploy the Control Plane DAR or seed a confidential collateral scenario.
 - Live asset adapters, settlement-window enforcement, workflow-coupled optimizer reservation, and production-grade collateral business logic remain intentionally absent.
-- Reproducible control commands now include `make bootstrap`, `make validate-cpl`, `make policy-eval`, `make optimize`, `make test-policy-engine`, `make test-optimizer`, `make daml-build`, `make daml-test`, `make demo-run`, `make status`, and `make verify`.
+- Reproducible control commands now include `make bootstrap`, `make localnet-bootstrap`, `make localnet-smoke`, `make validate-cpl`, `make policy-eval`, `make optimize`, `make test-policy-engine`, `make test-optimizer`, `make daml-build`, `make daml-test`, `make demo-run`, `make status`, and `make verify`.

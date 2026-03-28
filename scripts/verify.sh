@@ -14,4 +14,5 @@ make --no-print-directory test-optimizer
 make --no-print-directory daml-build
 make --no-print-directory daml-test
 make --no-print-directory demo-run
-echo "verify: policy-engine, optimizer, and Daml workflow checks passed"
+make --no-print-directory localnet-smoke
+echo "verify: policy-engine, optimizer, Daml workflow, and Quickstart LocalNet foundation checks passed"

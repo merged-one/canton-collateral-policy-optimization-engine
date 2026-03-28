@@ -80,11 +80,18 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0059 | Economic rationale | [docs/economic/OPTIMIZATION_OBJECTIVES.md](../economic/OPTIMIZATION_OBJECTIVES.md) | institutional rationale for best-to-post, concentration control, substitution economics, and deterministic explainability |
 | E-0060 | Demo artifacts | [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json](../../reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json) | real generated optimization artifact from `make optimize` |
 | E-0061 | Demo artifacts | [docs/evidence/prompt-07-execution-report.md](./prompt-07-execution-report.md) | reproducible Prompt 7 execution record for the first optimizer package |
+| E-0062 | ADRs | [docs/adrs/0011-quickstart-demo-foundation.md](../adrs/0011-quickstart-demo-foundation.md) | pinned Quickstart demo foundation and overlay-first LocalNet decision |
+| E-0063 | Code | [infra/quickstart/bootstrap-localnet.sh](../../infra/quickstart/bootstrap-localnet.sh) | pinned upstream CN Quickstart bootstrap and `.env.local` overlay writer |
+| E-0064 | Code | [scripts/run-localnet-smoke.sh](../../scripts/run-localnet-smoke.sh) | upstream Docker preflight plus compose-config smoke for the pinned Quickstart stack |
+| E-0065 | Specs | [docs/integration/LOCALNET_DEMO_PLAN.md](../integration/LOCALNET_DEMO_PLAN.md) | staged path from the current Quickstart foundation to a real confidential collateral demo |
+| E-0066 | Specs | [docs/integration/ASSET_ADAPTER_PLAN.md](../integration/ASSET_ADAPTER_PLAN.md) | staged path from normalized inventory inputs to live token-standard-style asset adapters |
+| E-0067 | Code | [infra/quickstart/overlay](../../infra/quickstart/overlay) | pinned upstream metadata and overlay profiles for Quickstart LocalNet staging |
+| E-0068 | Demo artifacts | [docs/evidence/prompt-08-execution-report.md](./prompt-08-execution-report.md) | reproducible Prompt 8 execution record for the Quickstart LocalNet foundation |
 
 ## Coverage Notes
 
 - The `Code` category now includes the first Daml workflow skeleton package in addition to schema, bootstrap, and toolchain artifacts.
-- The architecture, CPL, policy-engine, optimizer, and Daml-boundary packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
-- The `Demo artifacts` category now includes a real schema-valid optimization report artifact in addition to the workflow smoke record and policy-evaluation report artifact, but still not a Quickstart-backed end-to-end operator demo.
+- The architecture, CPL, policy-engine, optimizer, Daml-boundary, and Quickstart-foundation packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
+- The `Demo artifacts` category now includes a pinned Quickstart compose-preflight execution record in addition to the workflow smoke record and generated policy and optimization artifacts, but still not a Quickstart-backed end-to-end operator demo.
 - The evidence set now records the rename to "Canton Collateral Control Plane" as a semantic clarification of the same subsystem stack rather than a new product direction.
 - Economic rationale is now architecture-, control-, and optimization-objective-oriented rather than calibration-backed.

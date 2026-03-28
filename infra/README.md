@@ -6,4 +6,5 @@ Current intent:
 
 - keep topology and environment configuration out of domain logic
 - make future LocalNet or Quickstart overlays land under `infra/`
+- keep the pinned CN Quickstart bootstrap and overlay assets under `infra/quickstart/`
 - preserve reproducible bootstrap and demo commands

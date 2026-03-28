@@ -23,6 +23,7 @@ This registry defines system properties that future code, reports, and tests mus
 - replay safety
 - workflow authority
 - runtime and demo separation
+- upstream overlay discipline
 - toolchain reproducibility
 - auditability
 
@@ -49,15 +50,17 @@ This registry defines system properties that future code, reports, and tests mus
 | WWR-001 | Wrong-way-risk explicitness | Wrong-way-risk exclusions must be machine-readable, attributable to a named rule, and enforced before an asset is accepted into eligible collateral. | CPL schema, example policies, negative-path scenarios |
 | REPL-001 | Replay safety | Retried or replayed messages, commands, or events must not create duplicate pledges, duplicate releases, or inconsistent reports. | idempotency design, replay tests, event-correlation evidence |
 | WF-001 | Workflow authority | Obligation, encumbrance, approval, and settlement state may change only through committed workflow transitions on Canton; off-ledger services may propose or report changes but may not authoritatively apply them. | `daml/CantonCollateral/*.daml`, ADR 0007, Daml test plan, execution evidence |
-| RUNTIME-001 | Runtime and demo separation | LocalNet overlays, demo bootstrap data, and runtime services must not alter policy semantics, bypass approvals, or fabricate successful reports. | deployment model, runbooks, demo evidence |
-| TOOL-001 | Toolchain reproducibility | Build, validation, and smoke-run commands must resolve to pinned Daml, Java, and validation-tool versions that are documented, checksum-verified where downloaded, and reproducible from a clean checkout. | dependency policy, bootstrap script, `make daml-build`, `make daml-test`, `make demo-run`, verification commands |
+| RUNTIME-001 | Runtime and demo separation | LocalNet overlays, demo bootstrap data, and runtime services must not alter policy semantics, bypass approvals, or fabricate successful reports. | deployment model, ADR 0011, Quickstart README, `make localnet-smoke`, demo evidence |
+| UPSTR-001 | Upstream overlay discipline | Quickstart-based LocalNet integration must pin an upstream source revision and prefer overlays or adjacent scripts over forks unless an ADR records why a fork is unavoidable. | ADR 0011, `infra/quickstart/overlay/`, `make localnet-bootstrap`, `make localnet-smoke`, LocalNet demo plan |
+| TOOL-001 | Toolchain reproducibility | Build, validation, and smoke-run commands must resolve to pinned Daml, Java, validation-tool, and Quickstart versions that are documented, checksum-verified or commit-pinned where downloaded, and reproducible from a clean checkout. | dependency policy, bootstrap script, Quickstart bootstrap script, `make daml-build`, `make daml-test`, `make demo-run`, `make localnet-smoke`, verification commands |
 | AUD-001 | Auditability | Every material state transition must be traceable to inputs, policy version, actors, timestamps, and resulting state changes without requiring hidden manual reconstruction. | execution report template, Daml mapping, lifecycle scripts, prompt execution evidence |
 | EXCP-001 | Exception-path determinism | Negative-path scenarios such as expired calls, insufficient lendable value, concentration breaches, unauthorized release attempts, or stale-snapshot failures must fail reproducibly with explicit reasons rather than implicit or silent failure modes. | conformance suite, negative-path scenarios, decision reports |
 
 ## Notes
 
-- The registry now carries 23 named invariants spanning schema discipline, timing, wrong-way risk, policy-report fidelity, explicit control-plane versus data-plane architecture, privacy, workflow authority, runtime discipline, and toolchain reproducibility in addition to the original control properties.
+- The registry now carries 24 named invariants spanning schema discipline, timing, wrong-way risk, policy-report fidelity, explicit control-plane versus data-plane architecture, privacy, workflow authority, runtime discipline, upstream overlay discipline, and toolchain reproducibility in addition to the original control properties.
 - The first Daml workflow skeleton now adds concrete contract, report, and script hooks for authorization, workflow authority, atomicity, report fidelity, and auditability invariants.
 - The first policy engine now adds executable evidence for deterministic eligibility, haircut, concentration, and failure-attribution invariants through schema-valid reports and scenario tests.
 - The first optimizer now adds executable evidence for allocation explainability, concentration-aware best-to-post behavior, substitution economics, and clean no-solution handling through schema-valid reports and scenario tests.
+- The Quickstart foundation now adds executable evidence that upstream pinning, overlay discipline, and runtime smoke commands are explicit rather than hidden inside undocumented environment drift.
 - Future invariant updates should extend the current Daml-script, policy-engine, and optimizer evidence into replay, expiry, privacy-profile, and workflow-coupled concentration scenarios.

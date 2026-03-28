@@ -102,18 +102,26 @@ Prompt 7 status:
 - `make optimize` and `make test-optimizer` now provide reproducible optimization and optimizer-test commands
 - optimization remains advisory and off-ledger; workflow reservation, consent, and settlement authority remain future Canton-layer work
 
+Prompt 8 status:
+
+- pinned CN Quickstart LocalNet foundation added under `infra/quickstart/` with commit-based upstream pinning, overlay profiles, and operator documentation
+- `make localnet-bootstrap` now stages the upstream checkout and writes a repo-owned `.env.local` overlay without modifying tracked upstream files
+- `make localnet-smoke` now reuses upstream Docker preflight checks and validates the composed Quickstart stack as the earliest real runnable LocalNet layer
+- LocalNet startup, Control Plane DAR deployment, token-standard-style assets, and confidential collateral seed data remain staged follow-on work because the current repo Daml package (`2.10.4`) is not yet bridged to the pinned Quickstart runtime line (`3.4.10`)
+
 ## Next 5 Tasks
 
-1. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
-2. Specify role-scoped `ExecutionReport` disclosure profiles beyond the current workflow-party report baseline.
-3. Define the first workflow-coupled optimizer reservation and consent interface without collapsing Canton authority.
-4. Expand the conformance-suite matrix to cover optimizer determinism, temporal, privacy, replay, substitution, and release scenarios on top of the new engine and Daml package surfaces.
+1. Close the Daml runtime bridge required to deploy the Control Plane DAR into the pinned Quickstart LocalNet.
+2. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
+3. Specify role-scoped `ExecutionReport` disclosure profiles beyond the current workflow-party report baseline.
+4. Define the first workflow-coupled optimizer reservation and consent interface without collapsing Canton authority.
 5. Define the first asset-adapter interface that will consume `SettlementInstruction` and `EncumbranceState` contracts without collapsing workflow authority.
 
 ## Blockers
 
-- No current blocker for continued optimizer, policy-engine, and report-contract work.
-- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the target Quickstart overlay and asset interface versions are pinned on top of the current Daml and Canton baseline.
+- There is no current blocker for continued documentation, policy-engine, optimizer, and report-contract work.
+- Full Quickstart-backed workflow deployment is blocked on the current runtime-version bridge between the repo Daml package (`2.10.4`) and the pinned upstream Quickstart runtime line (`3.4.10`).
+- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the LocalNet package-deployment path and asset interface versions are pinned explicitly.
 - Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
 
@@ -128,16 +136,19 @@ Current repo dependencies:
 - `tar`
 - `python3`
 - `rg` for lightweight verification
+- Docker
+- Docker Compose
 - repo-local `.runtime` bootstrap for pinned Daml and Java tooling
 - repo-local `.venv` bootstrap for pinned schema validation
 - Temurin JDK `17.0.18+8`
 - Daml SDK `2.10.4`
 - Canton `2.10.4` as the current runtime compatibility baseline
 - `check-jsonschema==0.37.1` via `requirements-cpl-validation.txt`
+- pinned CN Quickstart commit `fe56d460af650b71b8e20098b3e76693397a8bf9`
+- upstream Quickstart runtime metadata `DAML_RUNTIME_VERSION=3.4.10`, `SPLICE_VERSION=0.5.3`, and `JAVA_VERSION=21-jdk`
 
 Target dependencies to pin in future ADRs:
 
-- Canton Quickstart or equivalent LocalNet bundle
 - token-standard-style asset libraries or templates
 - Daml Finance-style reference assets or adapters where applicable
 - scenario-runner or conformance harness tooling
@@ -165,14 +176,17 @@ Target dependencies to pin in future ADRs:
 - [x] initial deterministic policy evaluation engine
 - [x] initial optimization report contract
 - [x] initial deterministic optimizer
+- [x] pinned Quickstart LocalNet bootstrap and smoke foundation
+- [x] staged asset-adapter integration plan
 - [x] executable demo artifacts
 - [x] implementation-linked tests
 - [x] Prompt 7 execution report
+- [x] Prompt 8 execution report
 
 ## Demo Checklist
 
-- [ ] reproducible LocalNet startup command
-- [ ] reproducible seed-data or bootstrap command
+- [x] reproducible LocalNet startup command
+- [x] reproducible seed-data or bootstrap command
 - [x] sample policy load command
 - [x] machine-readable optimization report generated by real optimization execution
 - [ ] end-to-end substitution or return demo command

@@ -806,3 +806,104 @@ Results:
 
 Next step:
 Define reference-data contracts and workflow-coupled reservation or consent interfaces so future optimizer recommendations can be bound to Canton execution without losing the current deterministic advisory boundary.
+
+## 2026-03-28 - Prompt 8 - Pre-Change
+
+Intent:
+Create the first credible Quickstart-based LocalNet demo foundation for the Canton Collateral Control Plane, with a pinned upstream bootstrap path, an overlay surface that avoids unnecessary forks, and explicit staged planning for later token-standard-style asset integration.
+
+Risks addressed:
+
+- the repository currently stops at IDE-ledger Daml smoke tests, leaving the Quickstart-backed LocalNet path unpinned and operationally ambiguous
+- an eager LocalNet integration could fork upstream CN Quickstart too early or hide environment authority inside repo-specific runtime shortcuts
+- token-standard-style asset integration assumptions could remain implicit, making later venue, custodian, issuer, and financing-app integration harder to defend
+- a partial runtime layer could be mistaken for a real confidential collateral demo unless mocked and deferred surfaces are stated explicitly
+
+Affected files:
+
+- `Makefile`
+- `README.md`
+- `AGENTS.md`
+- `CONTRIBUTING.md`
+- `infra/README.md`
+- `infra/quickstart/README.md`
+- `infra/quickstart/bootstrap-localnet.sh`
+- `infra/quickstart/overlay/`
+- `scripts/run-localnet-smoke.sh`
+- `scripts/dev-status.sh`
+- `docs/setup/LOCAL_DEV_SETUP.md`
+- `docs/runbooks/README.md`
+- `docs/testing/TEST_STRATEGY.md`
+- `docs/integration/LOCALNET_DEMO_PLAN.md`
+- `docs/integration/ASSET_ADAPTER_PLAN.md`
+- `docs/integration/INTEGRATION_SURFACES.md`
+- `docs/adrs/README.md`
+- `docs/adrs/0011-quickstart-demo-foundation.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/ROADMAP.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/mission-control/WORKLOG.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-08-execution-report.md`
+- `docs/risks/RISK_REGISTER.md`
+- `docs/security/THREAT_MODEL.md`
+
+Acceptance criteria:
+
+- the repo exposes a credible, documented Quickstart-based LocalNet demo foundation without pretending the full confidential collateral demo is finished
+- the LocalNet bootstrap and smoke commands are reproducible, pinned, and stay as close as practical to upstream CN Quickstart workflows
+- assumptions, mocks, and deferred integration surfaces are explicit for asset issuers, custodians, venues, financing apps, and margining applications
+- mission-control, invariant, evidence, and ADR traces are updated consistently
+- the implemented commands are run where feasible, the changes are committed, and the worktree is left clean
+
+Planned commands:
+
+```sh
+make localnet-bootstrap
+make localnet-smoke
+make docs-lint
+make verify
+git status --short --branch
+```
+
+## 2026-03-28 - Prompt 8 - Post-Change
+
+Outcome:
+Established the repository's first credible Quickstart-based LocalNet demo foundation by pinning an upstream CN Quickstart checkout, adding an overlay-first bootstrap and smoke path, documenting the staged route to live asset integration, and preserving a clear stop line before any fake confidential-collateral demo claims.
+
+Completed artifacts:
+
+- pinned Quickstart bootstrap, overlay metadata, and profile templates under `infra/quickstart/`
+- reproducible Quickstart smoke script under `scripts/run-localnet-smoke.sh`
+- new LocalNet and asset-adapter plans under `docs/integration/`
+- new Quickstart foundation ADR under `docs/adrs/0011-quickstart-demo-foundation.md`
+- README, setup, runbook, dependency, test-strategy, invariant, evidence, risk, security, roadmap, tracker, and decision-log updates for the new LocalNet layer
+- prompt execution evidence in `docs/evidence/prompt-08-execution-report.md`
+
+Commands run:
+
+```sh
+chmod +x infra/quickstart/bootstrap-localnet.sh scripts/run-localnet-smoke.sh
+sh -n infra/quickstart/bootstrap-localnet.sh scripts/run-localnet-smoke.sh scripts/dev-status.sh scripts/verify.sh
+make status
+make localnet-bootstrap
+make localnet-smoke
+make docs-lint
+make verify
+git status --short --branch
+```
+
+Results:
+
+- `sh -n ...` passed for the new and updated shell scripts
+- `make status` passed and reported the Quickstart pin plus the staged overlay values once the bootstrap finished
+- `make localnet-bootstrap` passed and staged the pinned CN Quickstart checkout at commit `fe56d460af650b71b8e20098b3e76693397a8bf9`
+- `make localnet-smoke` passed after switching to the upstream `compose-config` target and validated the composed Quickstart stack without claiming the LocalNet was running
+- `make docs-lint` passed after the Quickstart foundation docs, ADR, integration plans, and prompt evidence were added to the required documentation set
+- `make verify` passed and re-ran docs linting, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml lifecycle tests, workflow smoke execution, and the new Quickstart LocalNet smoke check
+- the Daml helper again emitted an informational notice that SDK `3.4.11` exists upstream; the repository remains intentionally pinned to `2.10.4`
+- `git status --short --branch` before commit showed only the expected Prompt 8 changes
+
+Next step:
+Resolve the Daml runtime bridge needed to deploy the Control Plane DAR into the pinned Quickstart LocalNet, then add the first real asset-adapter and seeded confidential collateral scenario on top of that bridge.

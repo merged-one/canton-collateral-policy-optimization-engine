@@ -80,6 +80,7 @@ Current scope:
 - initial deterministic `CPL v0.1` policy engine and machine-readable policy evaluation report contract
 - initial deterministic optimization engine and machine-readable optimization report contract
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
+- pinned Quickstart-based LocalNet bootstrap and compose-config smoke foundation that preserves upstream CN Quickstart workflows as closely as practical
 - first Daml domain model and lifecycle skeletons for obligations, posting, substitution, return, settlement intent, and execution reporting
 - executable Daml script checks for margin call, posting, substitution, and return skeletons
 - implementation-ready planning for CPL, policy-engine, optimization, workflow, and conformance phases
@@ -93,6 +94,7 @@ Current non-goals:
 - replacing venue-specific, repo-specific, or derivatives-specific applications
 - production-ready economic calibration
 - live integrations with custodians, CCPs, central-bank systems, or external pricing stacks
+- full deployment of the repository's Daml package into CN Quickstart before the runtime-version bridge is pinned
 - UI development
 - performance tuning
 - live funding-curve optimization, workflow-coupled reservation, settlement-window enforcement, and production-grade collateral business logic in this phase
@@ -118,6 +120,8 @@ Reproducible commands today:
 
 ```sh
 make bootstrap
+make localnet-bootstrap
+make localnet-smoke
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -131,7 +135,7 @@ make docs-lint
 make verify
 ```
 
-`make demo-run` now exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
+`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
 
 Current CPL artifacts:
 
