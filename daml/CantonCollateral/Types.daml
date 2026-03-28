@@ -1,0 +1,108 @@
+module CantonCollateral.Types where
+
+data PartyRole
+  = CollateralProviderRole
+  | SecuredPartyRole
+  | CustodianRole
+  | PolicyAdministratorRole
+  | ValuationOperatorRole
+  | OptimizationOperatorRole
+  | WorkflowOrchestratorRole
+  | ReportingOperatorRole
+  | AuditorRole
+  | DemoOrRuntimeOperatorRole
+  | ExternalIntegratingApplicationRole
+  deriving (Eq, Show)
+
+data WorkflowState
+  = Draft
+  | Submitted
+  | UnderEvaluation
+  | PendingApproval
+  | Approved
+  | Rejected
+  | PendingSettlement
+  | Settled
+  | ExceptionOpen
+  | Expired
+  | Closed
+  deriving (Eq, Show)
+
+data EncumbranceStatus
+  = EncumbranceFree
+  | EncumbranceReserved
+  | EncumbrancePledged
+  | EncumbrancePendingRelease
+  | EncumbranceReleased
+  deriving (Eq, Show)
+
+data ApprovalDecision
+  = ApprovalPending
+  | ApprovalGranted
+  | ApprovalRejected
+  deriving (Eq, Show)
+
+data WorkflowType
+  = MarginCallWorkflow
+  | PostingWorkflow
+  | SubstitutionWorkflow
+  | ReturnWorkflow
+  deriving (Eq, Show)
+
+data SettlementAction
+  = PostCollateral
+  | ReplaceCollateral
+  | ReturnCollateral
+  | ReleaseCollateral
+  deriving (Eq, Show)
+
+data ExecutionOutcome
+  = ExecutionCommitted
+  | ExecutionRejected
+  | ExecutionException
+  deriving (Eq, Show)
+
+data PolicyContext = PolicyContext
+  with
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+  deriving (Eq, Show)
+
+data LotAllocation = LotAllocation
+  with
+    lotId : Text
+    assetId : Text
+    quantity : Decimal
+    sourceAccount : Text
+    destinationAccount : Text
+  deriving (Eq, Show)
+
+data ExecutionEvent = ExecutionEvent
+  with
+    eventId : Text
+    eventState : WorkflowState
+    actor : Party
+    actorRole : PartyRole
+    description : Text
+    eventTime : Time
+  deriving (Eq, Show)
+
+approvalsSatisfied : Bool -> Bool -> ApprovalDecision -> ApprovalDecision -> Bool
+approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval custodianApproval =
+  (not requiresSecuredPartyApproval || securedPartyApproval == ApprovalGranted)
+    && (not requiresCustodianApproval || custodianApproval == ApprovalGranted)
+
+lotIds : [LotAllocation] -> [Text]
+lotIds [] = []
+lotIds (allocation :: rest) = allocation.lotId :: lotIds rest
+
+totalAllocatedQuantity : [LotAllocation] -> Decimal
+totalAllocatedQuantity [] = 0.0
+totalAllocatedQuantity (allocation :: rest) = allocation.quantity + totalAllocatedQuantity rest
+
+requireSome : Text -> Optional a -> a
+requireSome message value =
+  case value of
+    Some unwrapped -> unwrapped
+    None -> error message

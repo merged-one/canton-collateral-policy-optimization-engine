@@ -1,0 +1,52 @@
+module CantonCollateral.Report where
+
+import CantonCollateral.Types
+
+template ExecutionReportRecord
+  with
+    reportId : Text
+    reportOwner : Party
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    workflowType : WorkflowType
+    obligationId : Text
+    correlationId : Text
+    policyContext : PolicyContext
+    outcome : ExecutionOutcome
+    summary : Text
+    events : [ExecutionEvent]
+  where
+    signatory reportOwner
+    observer visibilityObservers
+
+mkExecutionReport :
+  Party ->
+  Party ->
+  Party ->
+  Party ->
+  [Party] ->
+  WorkflowType ->
+  Text ->
+  Text ->
+  PolicyContext ->
+  ExecutionOutcome ->
+  Text ->
+  [ExecutionEvent] ->
+  ExecutionReportRecord
+mkExecutionReport reportOwner provider securedParty custodian visibilityObservers workflowType obligationId correlationId policyContext outcome summary events =
+  ExecutionReportRecord with
+    reportId = correlationId <> "-report"
+    reportOwner
+    provider
+    securedParty
+    custodian
+    visibilityObservers
+    workflowType
+    obligationId
+    correlationId
+    policyContext
+    outcome
+    summary
+    events

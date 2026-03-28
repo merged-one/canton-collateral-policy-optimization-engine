@@ -42,6 +42,7 @@ printf '  make bootstrap\n'
 printf '  make status\n'
 printf '  make validate-cpl\n'
 printf '  make daml-build\n'
+printf '  make daml-test\n'
 printf '  make demo-run\n'
 printf '  make verify\n'
 

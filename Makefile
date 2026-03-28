@@ -39,6 +39,18 @@ REQUIRED_DOCS := \
 	infra/README.md \
 	daml/Foundation.daml \
 	daml/Bootstrap.daml \
+	daml/CantonCollateral/Types.daml \
+	daml/CantonCollateral/Roles.daml \
+	daml/CantonCollateral/Asset.daml \
+	daml/CantonCollateral/Inventory.daml \
+	daml/CantonCollateral/Encumbrance.daml \
+	daml/CantonCollateral/Settlement.daml \
+	daml/CantonCollateral/Report.daml \
+	daml/CantonCollateral/Obligation.daml \
+	daml/CantonCollateral/Posting.daml \
+	daml/CantonCollateral/Substitution.daml \
+	daml/CantonCollateral/Return.daml \
+	daml/CantonCollateral/Test.daml \
 	docs/mission-control/MASTER_TRACKER.md \
 	docs/mission-control/ROADMAP.md \
 	docs/mission-control/WORKLOG.md \
@@ -55,6 +67,7 @@ REQUIRED_DOCS := \
 	docs/adrs/0004-report-fidelity-and-evidence.md \
 	docs/adrs/0005-cpl-format-and-versioning.md \
 	docs/adrs/0006-runtime-foundation.md \
+	docs/adrs/0007-daml-contract-boundaries.md \
 	docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
@@ -64,6 +77,7 @@ REQUIRED_DOCS := \
 	docs/evidence/prompt-02-execution-report.md \
 	docs/evidence/prompt-03-execution-report.md \
 	docs/evidence/prompt-04-execution-report.md \
+	docs/evidence/prompt-05-execution-report.md \
 	docs/runbooks/README.md \
 	docs/integration/INTEGRATION_SURFACES.md \
 	docs/integration/QUICKSTART_INTEGRATION_PLAN.md \
@@ -72,9 +86,11 @@ REQUIRED_DOCS := \
 	docs/domain/COLLATERAL_DOMAIN_MODEL.md \
 	docs/domain/ACTORS_AND_ROLES.md \
 	docs/domain/LIFECYCLE_STATES.md \
+	docs/domain/DAML_MAPPING.md \
 	docs/specs/CPL_SPEC_v0_1.md \
 	docs/specs/CPL_EXAMPLES.md \
 	docs/testing/CPL_VALIDATION_TEST_PLAN.md \
+	docs/testing/DAML_TEST_PLAN.md \
 	docs/testing/TEST_STRATEGY.md \
 	docs/security/THREAT_MODEL.md \
 	docs/change-control/CHANGE_CONTROL.md \
@@ -92,7 +108,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap docs-lint status verify validate-cpl daml-build demo-run clean-runtime
+.PHONY: bootstrap docs-lint status verify validate-cpl daml-build daml-test demo-run clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -117,18 +133,22 @@ docs-lint:
 	@grep -q "^java temurin-$(JAVA_VERSION)$$" .tool-versions || { echo "docs-lint: .tool-versions missing pinned java"; exit 1; }
 	@grep -q "make bootstrap" README.md || { echo "docs-lint: README missing bootstrap command"; exit 1; }
 	@grep -q "make daml-build" README.md || { echo "docs-lint: README missing daml-build command"; exit 1; }
+	@grep -q "make daml-test" README.md || { echo "docs-lint: README missing daml-test command"; exit 1; }
 	@grep -q "make demo-run" README.md || { echo "docs-lint: README missing demo-run command"; exit 1; }
-	@grep -q "make bootstrap" AGENTS.md || { echo "docs-lint: AGENTS missing bootstrap command"; exit 1; }
-	@grep -q "make bootstrap" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing bootstrap command"; exit 1; }
-	@grep -q "foundationSmokeTest" daml.yaml || { echo "docs-lint: daml.yaml missing init script"; exit 1; }
+	@grep -q "make daml-test" AGENTS.md || { echo "docs-lint: AGENTS missing daml-test command"; exit 1; }
+	@grep -q "make daml-test" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing daml-test command"; exit 1; }
+	@grep -q "workflowSmokeTest" daml.yaml || { echo "docs-lint: daml.yaml missing workflow smoke init script"; exit 1; }
 	@grep -q "Daml SDK $(DAML_SDK_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Daml SDK pin"; exit 1; }
 	@grep -q "Temurin JDK $(JAVA_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Java pin"; exit 1; }
-	@grep -q "make bootstrap" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing bootstrap"; exit 1; }
+	@grep -q "make daml-test" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing daml-test"; exit 1; }
 	@grep -q "make demo-run" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-run"; exit 1; }
+	@grep -q "make daml-test" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing daml-test"; exit 1; }
 	@grep -q "ADR 0006" docs/adrs/0006-runtime-foundation.md || { echo "docs-lint: ADR 0006 missing title"; exit 1; }
+	@grep -q "ADR 0007" docs/adrs/0007-daml-contract-boundaries.md || { echo "docs-lint: ADR 0007 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
-	@grep -q "Daml runtime foundation" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 4 status"; exit 1; }
-	@echo "docs-lint: runtime foundation documentation and command surface are present"
+	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
+	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
+	@echo "docs-lint: runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 validate-cpl: $(CHECK_JSONSCHEMA)
 	@$(CHECK_JSONSCHEMA) --check-metaschema $(CPL_SCHEMA)
@@ -151,17 +171,30 @@ status:
 	@$(STATUS_SCRIPT)
 
 daml-build: bootstrap
-	@. "$(RUNTIME_ENV)"; \
+	@set -e; \
+		. "$(RUNTIME_ENV)"; \
+		rm -rf "$(REPO_ROOT)/.daml/dist"; \
 		"$$DAML_BIN" build --project-root "$(REPO_ROOT)"; \
 		dar_file=$$(find "$(REPO_ROOT)/.daml/dist" -maxdepth 1 -name '*.dar' | head -n 1); \
 		test -n "$$dar_file" || { echo "daml-build: no DAR produced"; exit 1; }; \
 		echo "daml-build: built $$dar_file"
 
+daml-test: daml-build
+	@set -e; \
+		. "$(RUNTIME_ENV)"; \
+		dar_file=$$(find "$(REPO_ROOT)/.daml/dist" -maxdepth 1 -name '*.dar' | head -n 1); \
+		test -n "$$dar_file" || { echo "daml-test: missing DAR file"; exit 1; }; \
+		"$$DAML_BIN" script --dar "$$dar_file" --script-name CantonCollateral.Test:marginCallLifecycleTest --ide-ledger >/dev/null; \
+		"$$DAML_BIN" script --dar "$$dar_file" --script-name CantonCollateral.Test:postingAndSubstitutionLifecycleTest --ide-ledger >/dev/null; \
+		"$$DAML_BIN" script --dar "$$dar_file" --script-name CantonCollateral.Test:returnLifecycleTest --ide-ledger >/dev/null; \
+		echo "daml-test: lifecycle scripts passed"
+
 demo-run: daml-build
-	@. "$(RUNTIME_ENV)"; \
+	@set -e; \
+		. "$(RUNTIME_ENV)"; \
 		dar_file=$$(find "$(REPO_ROOT)/.daml/dist" -maxdepth 1 -name '*.dar' | head -n 1); \
 		test -n "$$dar_file" || { echo "demo-run: missing DAR file"; exit 1; }; \
-		"$$DAML_BIN" script --dar "$$dar_file" --script-name Bootstrap:foundationSmokeTest --ide-ledger
+		"$$DAML_BIN" script --dar "$$dar_file" --script-name Bootstrap:workflowSmokeTest --ide-ledger
 
 verify:
 	@$(VERIFY_SCRIPT)

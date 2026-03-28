@@ -62,6 +62,8 @@ Current scope:
 - proposal-aligned architecture, milestone, invariant, and evidence structure
 - `CPL v0.1` prose specification, JSON Schema, validation plan, and example policy set
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
+- first Daml domain model and lifecycle skeletons for obligations, posting, substitution, return, settlement intent, and execution reporting
+- executable Daml script checks for margin call, posting, substitution, and return skeletons
 - implementation-ready planning for CPL, policy-engine, optimization, workflow, and conformance phases
 - reusable framing for margin, repo, securities-lending, treasury, and collateral-mobility workflows
 
@@ -75,7 +77,7 @@ Current non-goals:
 - live integrations with custodians, CCPs, central-bank systems, or external pricing stacks
 - UI development
 - performance tuning
-- implementation of collateral business logic in this phase
+- full policy evaluation, optimization, and production-grade collateral business logic in this phase
 
 ## Mission Control
 
@@ -100,13 +102,14 @@ Reproducible commands today:
 make bootstrap
 make validate-cpl
 make daml-build
+make daml-test
 make demo-run
 make status
 make docs-lint
 make verify
 ```
 
-`make demo-run` currently exercises a minimal Daml runtime-foundation smoke test. It proves the pinned toolchain and package layout work without claiming collateral workflow semantics yet.
+`make demo-run` now exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make daml-test` runs the script-level lifecycle checks individually.
 
 Current CPL artifacts:
 

@@ -391,3 +391,96 @@ Results:
 
 Next step:
 Define the first machine-readable `PolicyDecisionReport` and `ExecutionReport` contracts, then expand the Daml package boundary from the runtime-foundation smoke package into obligation, encumbrance, substitution, return, and settlement contracts.
+
+## 2026-03-28 - Prompt 5 - Pre-Change
+
+Intent:
+Implement the first Daml domain model and workflow skeletons for confidential collateral control, including obligation, inventory, encumbrance, substitution, return, settlement, and execution-report surfaces that preserve policy and optimization separation.
+
+Risks addressed:
+
+- privacy boundaries could erode if workflow templates expose more than the required role-specific state
+- substitution or return flows could accidentally encode non-atomic or implicitly successful paths
+- the first Daml package boundary could collapse policy, workflow, settlement, and reporting concerns into one opaque contract set
+- report and state vocabularies could drift from the documented lifecycle model and invariants if they are not pinned together now
+
+Affected files:
+
+- `daml.yaml`
+- `Makefile`
+- `daml/Bootstrap.daml`
+- `daml/CantonCollateral/*.daml`
+- `docs/domain/DAML_MAPPING.md`
+- `docs/adrs/0007-daml-contract-boundaries.md`
+- `docs/testing/DAML_TEST_PLAN.md`
+- `docs/testing/TEST_STRATEGY.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/mission-control/WORKLOG.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-05-execution-report.md`
+- `docs/risks/RISK_REGISTER.md`
+- `docs/security/THREAT_MODEL.md`
+- `README.md`
+- `scripts/dev-status.sh`
+- `scripts/verify.sh`
+
+Acceptance criteria:
+
+- Daml modules for roles, assets, lots, encumbrance, obligations, substitution, return, settlement, and execution reporting compile under the pinned SDK
+- the repository contains contract-level lifecycle skeletons for margin call creation, posting intent, substitution, approval or rejection, return request, and release or return settlement intent
+- the design preserves role separation, privacy intent, and policy-versus-workflow separation
+- reproducible build and script execution commands cover the new Daml package and tests
+
+Planned commands:
+
+```sh
+make bootstrap
+make daml-build
+make demo-run
+make verify
+git status --short --branch
+```
+
+## 2026-03-28 - Prompt 5 - Post-Change
+
+Outcome:
+Implemented the repository's first real Daml workflow package for confidential collateral control, including contract boundaries for obligations, posting intent, substitution, return, settlement instruction, encumbrance state, and execution reporting, then verified the package with executable Daml lifecycle scripts.
+
+Completed artifacts:
+
+- initial Daml workflow modules under `daml/CantonCollateral/` for shared types, roles, assets, inventory, encumbrance, obligations, posting, substitution, return, settlement, reporting, and tests
+- updated `daml/Bootstrap.daml`, `daml.yaml`, `Makefile`, and verification scripts so the new Daml package builds, tests, and smoke-runs from the pinned toolchain
+- new contract-boundary ADR in `docs/adrs/0007-daml-contract-boundaries.md`
+- new domain-to-Daml mapping in `docs/domain/DAML_MAPPING.md`
+- new Daml lifecycle test plan in `docs/testing/DAML_TEST_PLAN.md`
+- mission-control, invariant, evidence, risk, security, setup, and contribution docs updated to reflect the first workflow skeleton package
+- prompt execution record in `docs/evidence/prompt-05-execution-report.md`
+
+Commands run:
+
+```sh
+make bootstrap
+make status
+make validate-cpl
+make daml-build
+make daml-test
+make demo-run
+make verify
+git status --short --branch
+```
+
+Results:
+
+- `make bootstrap` passed
+- `make status` passed and reported `Current Phase: Milestone 1 / Phase 1 - CPL, Formal Model, Runtime Foundation, And Initial Daml Workflow Skeletons`
+- `make validate-cpl` passed
+- `make daml-build` passed and produced `.daml/dist/canton-collateral-policy-optimization-engine-0.1.0.dar`
+- `make daml-test` passed and executed the three lifecycle scripts
+- `make demo-run` passed and executed `Bootstrap:workflowSmokeTest`
+- `make verify` passed and exercised docs linting, CPL validation, Daml build, Daml lifecycle tests, and the workflow smoke run
+- `git status --short --branch` showed only the expected task-related changes before commit
+
+Next step:
+Define the first machine-readable `PolicyDecisionReport` contract and role-scoped `ExecutionReport` disclosure profiles, then pin the Quickstart overlay and asset-adapter interfaces that will consume the current Daml settlement and encumbrance contracts.

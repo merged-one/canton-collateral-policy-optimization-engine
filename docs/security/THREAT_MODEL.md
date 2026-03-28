@@ -4,6 +4,8 @@
 
 The future system will manage confidential collateral policy, inventory, valuation, workflow, and reporting state across multiple parties. This document records the threat posture implied by the architecture package and the design areas that must remain visible as implementation begins.
 
+The current repository state now includes initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting. Those templates make privacy and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile or replay-hardening implementation.
+
 ## Protected Assets
 
 - confidential policy and position data
@@ -28,9 +30,9 @@ The future system will manage confidential collateral policy, inventory, valuati
 
 | Threat | Why It Matters | Initial Control Direction |
 | --- | --- | --- |
-| Broken authorization or role separation | Users could approve or release collateral outside policy. | Explicit role model, auditable authorization checks, invariant tracking. |
-| Confidentiality leakage | Sensitive counterparty or position information could escape intended visibility. | Privacy-preserving workflow boundaries and minimal reporting disclosure. |
-| Over-broad contract visibility | Parties could see obligations, inventory, or settlement data unrelated to their role. | Narrow signatory and observer sets, separate templates, role-specific report profiles. |
+| Broken authorization or role separation | Users could approve or release collateral outside policy. | Explicit role model, auditable authorization checks, contract-specific controllers, and invariant tracking. |
+| Confidentiality leakage | Sensitive counterparty or position information could escape intended visibility. | Privacy-preserving workflow boundaries, explicit observer lists, and minimal reporting disclosure. |
+| Over-broad contract visibility | Parties could see obligations, inventory, or settlement data unrelated to their role. | Narrow signatory and observer sets, separate request and settlement templates, role-specific report profiles. |
 | Replay or duplicate execution | Repeated events could create duplicate pledges or releases. | Idempotent command design and replay-focused tests. |
 | Optimizer or reporter treated as authority | Off-ledger services could become hidden sources of truth. | Keep workflow state authoritative on Canton and derive reports from committed state only. |
 | Non-atomic substitution or return | Coverage could be lost during workflow transitions. | Treat atomic workflow completion as a blocking invariant. |
@@ -46,6 +48,7 @@ The future system will manage confidential collateral policy, inventory, valuati
 - policy evaluation versus optimization proposal generation
 - published CPL schema versus runtime policy ingestion
 - optimization proposal generation versus settlement authority
+- workflow request contracts versus settlement instructions versus execution-report contracts
 - confidential ledger state versus report-generation views
 - LocalNet overlay and adjacent services versus upstream Quickstart base
 - business roles versus demo and runtime operators
@@ -56,4 +59,5 @@ The future system will manage confidential collateral policy, inventory, valuati
 - what minimum report profiles satisfy auditability without over-disclosure?
 - what freshness and provenance guarantees must a valuation snapshot prove?
 - which asset-control semantics belong in the adapter layer versus the workflow package?
+- how should the current workflow-party execution reports be transformed into narrower operator, auditor, or external-integration views?
 - how should future consumers reject or negotiate policies that require a newer `cplVersion` than they support?

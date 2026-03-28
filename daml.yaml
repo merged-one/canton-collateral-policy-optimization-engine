@@ -6,4 +6,4 @@ dependencies:
   - daml-prim
   - daml-stdlib
   - daml-script
-init-script: Bootstrap:foundationSmokeTest
+init-script: Bootstrap:workflowSmokeTest

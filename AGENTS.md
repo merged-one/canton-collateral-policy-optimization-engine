@@ -43,6 +43,7 @@ A task is not done until all applicable items are complete:
 
 ## Current Repo Posture
 
-- This repository is in a documentation-and-controls plus runtime-foundation phase.
-- Collateral business logic is still intentionally absent.
-- Reproducible control commands now include `make bootstrap`, `make validate-cpl`, `make daml-build`, `make demo-run`, `make status`, and `make verify`.
+- This repository is in a documentation-and-controls, runtime-foundation, and initial Daml workflow-skeleton phase.
+- The first Daml contract boundary now exists for obligations, posting, substitution, return, settlement intent, and execution reporting.
+- Policy evaluation, optimization, and production-grade collateral business logic remain intentionally absent.
+- Reproducible control commands now include `make bootstrap`, `make validate-cpl`, `make daml-build`, `make daml-test`, `make demo-run`, `make status`, and `make verify`.

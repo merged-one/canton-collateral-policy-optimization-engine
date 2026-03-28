@@ -2,16 +2,11 @@ module Bootstrap where
 
 import Daml.Script
 
-import Foundation
+import CantonCollateral.Test
 
-foundationSmokeTest : Script Text
-foundationSmokeTest = script do
-  operator <- allocateParty "PrototypeOperator"
-  reviewer <- allocateParty "PrototypeReviewer"
-  foundationCid <- submit operator do
-    createCmd RuntimeFoundation with
-      operator
-      reviewer
-      stage = "runtime-foundation"
-  submit reviewer do
-    exerciseCmd foundationCid ConfirmFoundation
+workflowSmokeTest : Script Text
+workflowSmokeTest = script do
+  marginCallLifecycleTest
+  postingAndSubstitutionLifecycleTest
+  returnLifecycleTest
+  pure "workflow smoke tests completed"

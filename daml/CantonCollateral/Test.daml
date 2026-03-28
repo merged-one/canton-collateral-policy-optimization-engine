@@ -1,0 +1,359 @@
+module CantonCollateral.Test where
+
+import Daml.Script
+
+import CantonCollateral.Asset
+import CantonCollateral.Encumbrance
+import CantonCollateral.Inventory
+import CantonCollateral.Obligation
+import CantonCollateral.Posting
+import CantonCollateral.Report
+import CantonCollateral.Return
+import CantonCollateral.Roles
+import CantonCollateral.Substitution
+import CantonCollateral.Types
+
+testPolicyContext : PolicyContext
+testPolicyContext = PolicyContext with
+  policyVersion = "cpl-v0.1"
+  snapshotId = "snapshot-001"
+  decisionReference = "decision-trace-001"
+
+testAsset : CollateralAsset
+testAsset = CollateralAsset with
+  assetId = "asset-us-tbill"
+  issuer = "UST"
+  assetClass = "SovereignDebt"
+  currency = "USD"
+  settlementSystem = "Fedwire"
+  tokenAdapterReference = "adapter/us-tbill"
+  jurisdiction = "US"
+  transferabilityFlags = ["deliverable", "pledgeable"]
+
+lotAllocation : Text -> Decimal -> Text -> Text -> LotAllocation
+lotAllocation lotId quantity sourceAccount destinationAccount = LotAllocation with
+  lotId
+  assetId = testAsset.assetId
+  quantity
+  sourceAccount
+  destinationAccount
+
+expectActiveContract : (HasTemplateTypeRep t, HasToAnyTemplate t, HasFromAnyTemplate t, HasAgreement t) => Party -> ContractId t -> Text -> Script t
+expectActiveContract party cid missingMessage = do
+  contract <- queryContractId party cid
+  case contract of
+    Some activeContract -> pure activeContract
+    None -> error missingMessage
+
+findEncumbranceByLot : Party -> Text -> EncumbranceStatus -> Script (ContractId EncumbranceState, EncumbranceState)
+findEncumbranceByLot party targetLot targetStatus = do
+  encumbrances <- query @EncumbranceState party
+  case filter (\(_, encumbrance) -> encumbrance.lotId == targetLot && encumbrance.status == targetStatus) encumbrances of
+    matching :: _ -> pure matching
+    [] -> error ("missing encumbrance for lot " <> targetLot)
+
+registerBaselineRoles : Party -> Party -> Party -> Party -> Script ()
+registerBaselineRoles operator provider securedParty custodian = do
+  _ <- submit operator do
+    createCmd PartyRoleRegistration with
+      registryOperator = operator
+      participant = provider
+      role = CollateralProviderRole
+      label = "provider"
+  _ <- submit operator do
+    createCmd PartyRoleRegistration with
+      registryOperator = operator
+      participant = securedParty
+      role = SecuredPartyRole
+      label = "secured-party"
+  _ <- submit operator do
+    createCmd PartyRoleRegistration with
+      registryOperator = operator
+      participant = custodian
+      role = CustodianRole
+      label = "custodian"
+  pure ()
+
+marginCallLifecycleTest : Script ()
+marginCallLifecycleTest = script do
+  operator <- allocateParty "Operator"
+  provider <- allocateParty "Provider"
+  securedParty <- allocateParty "SecuredParty"
+  custodian <- allocateParty "Custodian"
+  now <- getTime
+
+  registerBaselineRoles operator provider securedParty custodian
+
+  draftCid <- submit securedParty do
+    createCmd CallObligation with
+      obligationId = "obligation-margin-001"
+      securedParty
+      provider
+      custodian
+      visibilityObservers = [provider]
+      policyContext = testPolicyContext
+      requiredCoverage = 100.0
+      uncoveredAmount = 0.0
+      dueAt = now
+      correlationId = "corr-margin-001"
+      state = Draft
+      requiresCallApproval = False
+      callApprover = securedParty
+      decisionSummary = "draft margin call"
+
+  underEvaluationCid <- submit securedParty do
+    exerciseCmd draftCid StartEvaluation
+
+  submittedCid <- submit securedParty do
+    exerciseCmd underEvaluationCid (ConfirmShortfall with nextUncoveredAmount = 100.0, nextDecisionSummary = "shortfall confirmed against pinned snapshot")
+
+  closedCid <- submit securedParty do
+    exerciseCmd submittedCid IssueCallWithoutApproval
+
+  closedObligation <- expectActiveContract provider closedCid "approved margin call should remain visible to the provider"
+  assertMsg "margin call should be closed after approval" (closedObligation.state == Closed)
+
+  reports <- query @ExecutionReportRecord provider
+  assertMsg "margin call should emit a single execution report" (length reports == 1)
+
+postingAndSubstitutionLifecycleTest : Script ()
+postingAndSubstitutionLifecycleTest = script do
+  operator <- allocateParty "Operator"
+  provider <- allocateParty "Provider"
+  securedParty <- allocateParty "SecuredParty"
+  custodian <- allocateParty "Custodian"
+  now <- getTime
+
+  registerBaselineRoles operator provider securedParty custodian
+
+  _ <- submit provider do
+    createCmd CollateralInventoryLot with
+      lotId = "lot-post-001"
+      owner = provider
+      custodian
+      visibilityObservers = [custodian]
+      asset = testAsset
+      custodyAccount = "acct-provider-1"
+      quantity = 100.0
+      availableQuantity = 100.0
+      controlMethod = "custody-control"
+      provenance = "allocated inventory"
+      availabilityStart = now
+      availabilityEnd = None
+
+  _ <- submit provider do
+    createCmd CollateralInventoryLot with
+      lotId = "lot-substitute-001"
+      owner = provider
+      custodian
+      visibilityObservers = [custodian]
+      asset = testAsset
+      custodyAccount = "acct-provider-1"
+      quantity = 150.0
+      availableQuantity = 150.0
+      controlMethod = "custody-control"
+      provenance = "replacement inventory"
+      availabilityStart = now
+      availabilityEnd = None
+
+  postingDraftCid <- submit provider do
+    createCmd CollateralPostingIntent with
+      postingId = "posting-001"
+      obligationId = "obligation-margin-001"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      nominatedLots = [lotAllocation "lot-post-001" 100.0 "acct-provider-1" "acct-secured-1"]
+      requiredCoverage = 100.0
+      correlationId = "corr-posting-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "draft posting intent"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  postingSubmittedCid <- submit provider do
+    exerciseCmd postingDraftCid SubmitPostingIntent
+
+  postingEvaluationCid <- submit provider do
+    exerciseCmd postingSubmittedCid StartPostingEvaluation
+
+  postingPendingApprovalCid <- submit provider do
+    exerciseCmd postingEvaluationCid (RecordFeasiblePosting with nextDecisionSummary = "policy decision and availability checks passed")
+
+  postingPendingApprovalCid2 <- submit securedParty do
+    exerciseCmd postingPendingApprovalCid ApprovePostingBySecuredParty
+
+  postingPendingSettlementCid <- submit custodian do
+    exerciseCmd postingPendingApprovalCid2 ApprovePostingByCustodian
+
+  postingClosedCid <- submit custodian do
+    exerciseCmd postingPendingSettlementCid ConfirmPostingSettlement
+
+  postingClosed <- expectActiveContract provider postingClosedCid "posting should remain visible after settlement"
+  assertMsg "posting workflow should close after settlement" (postingClosed.state == Closed)
+
+  (postedEncumbranceCid, _) <- findEncumbranceByLot provider "lot-post-001" EncumbrancePledged
+
+  substitutionDraftCid <- submit provider do
+    createCmd SubstitutionRequest with
+      substitutionId = "sub-001"
+      obligationId = "obligation-margin-001"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToRelease = [postedEncumbranceCid]
+      replacementLots = [lotAllocation "lot-substitute-001" 100.0 "acct-provider-1" "acct-secured-1"]
+      expiryAt = now
+      correlationId = "corr-sub-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "draft substitution request"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  substitutionSubmittedCid <- submit provider do
+    exerciseCmd substitutionDraftCid SubmitSubstitutionRequest
+
+  substitutionEvaluationCid <- submit provider do
+    exerciseCmd substitutionSubmittedCid StartSubstitutionEvaluation
+
+  substitutionPendingApprovalCid <- submit provider do
+    exerciseCmd substitutionEvaluationCid (RecordFeasibleSubstitution with nextDecisionSummary = "replacement preserves coverage against pinned inputs")
+
+  substitutionPendingApprovalCid2 <- submit securedParty do
+    exerciseCmd substitutionPendingApprovalCid ApproveSubstitutionBySecuredParty
+
+  substitutionApprovedCid <- submit custodian do
+    exerciseCmd substitutionPendingApprovalCid2 ApproveSubstitutionByCustodian
+
+  substitutionPendingSettlementCid <- submit provider do
+    exerciseCmd substitutionApprovedCid SubmitSubstitutionSettlementIntent
+
+  substitutionClosedCid <- submit custodian do
+    exerciseCmd substitutionPendingSettlementCid ConfirmSubstitutionSettlement
+
+  substitutionClosed <- expectActiveContract provider substitutionClosedCid "substitution should remain visible after settlement"
+  assertMsg "substitution should be closed after settlement" (substitutionClosed.state == Closed)
+
+  _ <- findEncumbranceByLot provider "lot-post-001" EncumbranceReleased
+  (replacementEncumbranceCid, _) <- findEncumbranceByLot provider "lot-substitute-001" EncumbrancePledged
+
+  rejectedSubstitutionDraftCid <- submit provider do
+    createCmd SubstitutionRequest with
+      substitutionId = "sub-002"
+      obligationId = "obligation-margin-001"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToRelease = [replacementEncumbranceCid]
+      replacementLots = [lotAllocation "lot-post-001" 100.0 "acct-provider-1" "acct-secured-1"]
+      expiryAt = now
+      correlationId = "corr-sub-002"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = False
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalGranted
+      decisionSummary = "draft rejection test"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  rejectedSubstitutionSubmittedCid <- submit provider do
+    exerciseCmd rejectedSubstitutionDraftCid SubmitSubstitutionRequest
+
+  rejectedSubstitutionEvaluationCid <- submit provider do
+    exerciseCmd rejectedSubstitutionSubmittedCid StartSubstitutionEvaluation
+
+  rejectedSubstitutionCid <- submit securedParty do
+    exerciseCmd rejectedSubstitutionEvaluationCid (RejectSubstitutionBySecuredParty with reason = "secured party rejected the proposed replacement set")
+
+  rejectedSubstitution <- expectActiveContract provider rejectedSubstitutionCid "rejected substitution should remain visible"
+  assertMsg "rejected substitution should remain in Rejected state" (rejectedSubstitution.state == Rejected)
+
+returnLifecycleTest : Script ()
+returnLifecycleTest = script do
+  operator <- allocateParty "Operator"
+  provider <- allocateParty "Provider"
+  securedParty <- allocateParty "SecuredParty"
+  custodian <- allocateParty "Custodian"
+  now <- getTime
+
+  registerBaselineRoles operator provider securedParty custodian
+
+  pledgedEncumbranceCid <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-001"
+      obligationId = "obligation-margin-002"
+      lotId = "lot-return-001"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 50.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-001"
+
+  returnDraftCid <- submit provider do
+    createCmd ReturnRequest with
+      returnRequestId = "return-001"
+      obligationId = "obligation-margin-002"
+      requestor = provider
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToReturn = [pledgedEncumbranceCid]
+      requestedReason = "excess collateral identified"
+      expiryAt = now
+      correlationId = "corr-return-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "draft return request"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  returnSubmittedCid <- submit provider do
+    exerciseCmd returnDraftCid SubmitReturnRequest
+
+  returnEvaluationCid <- submit provider do
+    exerciseCmd returnSubmittedCid StartReturnEvaluation
+
+  approvedReturnPendingApprovalCid <- submit provider do
+    exerciseCmd returnEvaluationCid (RecordFeasibleReturn with nextDecisionSummary = "post-return coverage remains compliant", settlementLots = [lotAllocation "lot-return-001" 50.0 "acct-secured-2" "acct-provider-2"])
+
+  approvedReturnPendingApprovalCid2 <- submit securedParty do
+    exerciseCmd approvedReturnPendingApprovalCid ApproveReturnBySecuredParty
+
+  approvedReturnCid <- submit custodian do
+    exerciseCmd approvedReturnPendingApprovalCid2 ApproveReturnByCustodian
+
+  pendingSettlementReturnCid <- submit provider do
+    exerciseCmd approvedReturnCid (SubmitReturnSettlementIntent with settlementLots = [lotAllocation "lot-return-001" 50.0 "acct-secured-2" "acct-provider-2"])
+
+  closedReturnCid <- submit custodian do
+    exerciseCmd pendingSettlementReturnCid ConfirmReturnSettlement
+
+  closedReturn <- expectActiveContract provider closedReturnCid "return should remain visible after settlement"
+  assertMsg "return workflow should close after settlement" (closedReturn.state == Closed)
+
+  _ <- findEncumbranceByLot provider "lot-return-001" EncumbranceReleased
+  reports <- query @ExecutionReportRecord provider
+  assertMsg "return workflow should emit a single execution report" (length reports == 1)

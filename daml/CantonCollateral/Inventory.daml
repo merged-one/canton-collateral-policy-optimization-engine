@@ -1,0 +1,43 @@
+module CantonCollateral.Inventory where
+
+import CantonCollateral.Asset
+
+template CollateralInventoryLot
+  with
+    lotId : Text
+    owner : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    asset : CollateralAsset
+    custodyAccount : Text
+    quantity : Decimal
+    availableQuantity : Decimal
+    controlMethod : Text
+    provenance : Text
+    availabilityStart : Time
+    availabilityEnd : Optional Time
+  where
+    signatory owner
+    observer visibilityObservers
+
+    ensure quantity > 0.0 && availableQuantity >= 0.0 && availableQuantity <= quantity
+
+    choice ReserveForWorkflow : ContractId CollateralInventoryLot
+      with
+        reservedQuantity : Decimal
+      controller owner
+      do
+        assertMsg "reserve quantity must be positive" (reservedQuantity > 0.0)
+        assertMsg "reserve quantity exceeds available inventory" (reservedQuantity <= availableQuantity)
+        create this with
+          availableQuantity = availableQuantity - reservedQuantity
+
+    choice RestoreAvailability : ContractId CollateralInventoryLot
+      with
+        restoredQuantity : Decimal
+      controller owner
+      do
+        assertMsg "restored quantity must be positive" (restoredQuantity > 0.0)
+        assertMsg "restored quantity exceeds total quantity" (availableQuantity + restoredQuantity <= quantity)
+        create this with
+          availableQuantity = availableQuantity + restoredQuantity

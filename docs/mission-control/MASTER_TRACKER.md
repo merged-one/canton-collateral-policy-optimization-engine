@@ -1,7 +1,7 @@
 # Master Tracker
 
 Last Updated: 2026-03-28
-Current Phase: Milestone 1 / Phase 1 - CPL, Formal Model, And Runtime Foundation
+Current Phase: Milestone 1 / Phase 1 - CPL, Formal Model, Runtime Foundation, And Initial Daml Workflow Skeletons
 
 ## Mission
 
@@ -71,18 +71,25 @@ Prompt 4 status:
 - minimal executable Daml package added under `daml/` to prove compile-and-run readiness without collateral business logic
 - future service-layer code now has reserved `app/`, `reports/`, `test/`, `examples/`, and `infra/` surfaces
 
+Prompt 5 status:
+
+- first Daml contract boundary added under `daml/CantonCollateral/` for roles, assets, inventory, encumbrance, obligations, posting, substitution, return, settlement instructions, and execution reporting
+- lifecycle skeletons now cover margin call issuance, collateral posting intent, substitution approval and rejection, margin return request, and settlement confirmation or exception paths
+- `make daml-test` and `Bootstrap:workflowSmokeTest` now provide executable lifecycle checks against the pinned SDK
+- policy evaluation, optimization, report disclosure profiles, and external asset-adapter integrations remain separate future layers
+
 ## Next 5 Tasks
 
-1. Specify machine-readable `PolicyDecisionReport` and `ExecutionReport` contracts plus disclosure profiles.
+1. Specify machine-readable `PolicyDecisionReport` contracts and role-scoped `ExecutionReport` disclosure profiles beyond the current workflow-party report baseline.
 2. Pin the target Quickstart release and overlay strategy that will sit on top of the current Daml and Canton baseline.
-3. Define the first Daml package boundary for obligations, encumbrance, substitution, return, and settlement instructions beyond the runtime-foundation smoke package.
-4. Define versioned reference-data contracts for valuation, FX, custodian, and issuer facts consumed by CPL evaluation.
-5. Expand the conformance-suite matrix to cover negative, temporal, privacy, atomicity, and runtime-bootstrap scenarios against the new foundation.
+3. Define versioned reference-data contracts for valuation, FX, custodian, and issuer facts consumed by CPL evaluation.
+4. Expand the conformance-suite matrix to cover negative, temporal, privacy, replay, and concentration scenarios against the new Daml skeleton package.
+5. Define the first asset-adapter interface that will consume `SettlementInstruction` and `EncumbranceState` contracts without collapsing workflow authority.
 
 ## Blockers
 
-- No current blocker for continued specification work.
-- Policy-engine and workflow implementation should not start until the target Quickstart overlay and asset interface versions are pinned on top of the current Daml and Canton baseline.
+- No current blocker for continued specification and contract-boundary work.
+- Implementation beyond the current Daml workflow skeletons should not proceed until the target Quickstart overlay and asset interface versions are pinned on top of the current Daml and Canton baseline.
 - Economic calibration is intentionally deferred until reference-data contracts and report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
 
@@ -130,8 +137,9 @@ Target dependencies to pin in future ADRs:
 - [x] schema validation toolchain and example policy set
 - [x] Prompt 3 execution report
 - [x] pinned dependency ADRs
-- [ ] executable demo artifacts
-- [ ] implementation-linked tests
+- [x] initial Daml workflow skeleton package
+- [x] executable demo artifacts
+- [x] implementation-linked tests
 
 ## Demo Checklist
 

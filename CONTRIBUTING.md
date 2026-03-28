@@ -49,6 +49,7 @@ Current baseline verification:
 make bootstrap
 make validate-cpl
 make daml-build
+make daml-test
 make demo-run
 make docs-lint
 make verify

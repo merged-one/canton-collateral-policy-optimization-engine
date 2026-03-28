@@ -1,0 +1,36 @@
+module CantonCollateral.Encumbrance where
+
+import CantonCollateral.Types
+
+template EncumbranceState
+  with
+    encumbranceId : Text
+    obligationId : Text
+    lotId : Text
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    quantity : Decimal
+    status : EncumbranceStatus
+    policyContext : PolicyContext
+    correlationId : Text
+  where
+    signatory provider
+    observer visibilityObservers
+
+    ensure quantity > 0.0
+
+    choice MarkPendingRelease : ContractId EncumbranceState
+      controller securedParty
+      do
+        assertMsg "encumbrance must be pledged before release" (status == EncumbrancePledged)
+        create this with
+          status = EncumbrancePendingRelease
+
+    choice ConfirmRelease : ContractId EncumbranceState
+      controller custodian
+      do
+        assertMsg "encumbrance must be pending release before release confirmation" (status == EncumbrancePendingRelease)
+        create this with
+          status = EncumbranceReleased

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, and execute the runtime-foundation smoke scenario from a clean checkout.
+Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, and execute the initial Daml workflow smoke scenario from a clean checkout.
 
 ## Supported Bootstrap Platforms
 
@@ -42,6 +42,7 @@ This command:
 make status
 make validate-cpl
 make daml-build
+make daml-test
 make demo-run
 make verify
 ```
@@ -51,8 +52,9 @@ What each command does:
 - `make status`: show pinned versus installed tool versions, scaffold presence, and git state
 - `make validate-cpl`: validate `CPL v0.1` schema and the published example policies
 - `make daml-build`: compile the repository's Daml package into `.daml/dist/`
-- `make demo-run`: execute the minimal `Bootstrap:foundationSmokeTest` Daml script
-- `make verify`: run the full runtime-foundation verification loop
+- `make daml-test`: run the Daml lifecycle scripts for margin call, posting, substitution, and return skeletons
+- `make demo-run`: execute the aggregate `Bootstrap:workflowSmokeTest` Daml script
+- `make verify`: run the full verification loop across docs, CPL validation, Daml build, Daml tests, and smoke execution
 
 ## Runtime Layout
 
@@ -64,6 +66,6 @@ What each command does:
 
 ## Notes
 
-- The current Daml package is intentionally minimal. It proves compilation and execution only; it does not implement collateral policy or settlement behavior.
+- The current Daml package now includes initial contract-level workflow skeletons, but it still does not implement a live policy engine, optimizer, or external settlement adapter.
 - Future Quickstart or Canton overlay assets should land under `infra/`, not inside the Daml or app package trees.
 - If the toolchain needs to be rebuilt from scratch, run `make clean-runtime` and then `make bootstrap`.

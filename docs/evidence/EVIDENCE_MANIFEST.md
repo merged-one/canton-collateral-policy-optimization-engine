@@ -54,14 +54,19 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0033 | Code | [daml.yaml](../../daml.yaml) | pinned Daml project definition and init script |
 | E-0034 | Code | [scripts/toolchain.env](../../scripts/toolchain.env) | shared version pins, download URLs, and checksums for the runtime bootstrap |
 | E-0035 | Code | [scripts/bootstrap.sh](../../scripts/bootstrap.sh) | repo-local checksum-verified toolchain bootstrap |
-| E-0036 | Code | [daml/Bootstrap.daml](../../daml/Bootstrap.daml) | minimal executable Daml smoke scenario proving compile-and-run readiness |
+| E-0036 | Code | [daml/Bootstrap.daml](../../daml/Bootstrap.daml) | aggregate executable Daml workflow smoke scenario over the initial lifecycle scripts |
 | E-0037 | Operational runbooks | [docs/setup/LOCAL_DEV_SETUP.md](../setup/LOCAL_DEV_SETUP.md) | reproducible local bootstrap and command guide |
 | E-0038 | Specs | [docs/setup/DEPENDENCY_POLICY.md](../setup/DEPENDENCY_POLICY.md) | pinned dependency and service-layer policy |
 | E-0039 | Demo artifacts | [docs/evidence/prompt-04-execution-report.md](./prompt-04-execution-report.md) | reproducible Prompt 4 execution record for the runtime foundation |
+| E-0040 | Specs | [docs/domain/DAML_MAPPING.md](../domain/DAML_MAPPING.md) | domain-to-Daml mapping for the first workflow package boundary |
+| E-0041 | ADRs | [docs/adrs/0007-daml-contract-boundaries.md](../adrs/0007-daml-contract-boundaries.md) | contract-boundary decision for the first Daml workflow package |
+| E-0042 | Code | [daml/CantonCollateral](../../daml/CantonCollateral) | initial Daml workflow modules for roles, inventory, encumbrance, obligations, posting, substitution, return, settlement, and reports |
+| E-0043 | Tests | [docs/testing/DAML_TEST_PLAN.md](../testing/DAML_TEST_PLAN.md) | executable Daml script coverage for the first lifecycle skeletons |
+| E-0044 | Demo artifacts | [docs/evidence/prompt-05-execution-report.md](./prompt-05-execution-report.md) | reproducible Prompt 5 execution record for the first Daml workflow skeleton package |
 
 ## Coverage Notes
 
-- The `Code` category now includes schema, bootstrap, toolchain, and minimal Daml foundation artifacts, but still no collateral business logic.
-- The architecture and CPL packages now provide stronger design evidence, but not executable workflow evidence.
-- The `Demo artifacts` category now includes a runtime-foundation smoke-run record, but still not end-to-end collateral workflow runs.
+- The `Code` category now includes the first Daml workflow skeleton package in addition to schema, bootstrap, and toolchain artifacts.
+- The architecture, CPL, and Daml-boundary packages now provide executable workflow evidence, though policy-engine and adapter evidence are still pending.
+- The `Demo artifacts` category now includes a workflow smoke-run record, but still not a Quickstart-backed end-to-end operator demo.
 - Economic rationale is currently architecture-, control-, and market-practice-oriented rather than calibration-backed.

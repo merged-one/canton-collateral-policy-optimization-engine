@@ -1,0 +1,83 @@
+module CantonCollateral.Settlement where
+
+import CantonCollateral.Types
+
+template SettlementInstruction
+  with
+    instructionId : Text
+    instructionOwner : Party
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    workflowType : WorkflowType
+    action : SettlementAction
+    obligationId : Text
+    correlationId : Text
+    lotIdsInScope : [Text]
+    fromAccount : Text
+    toAccount : Text
+    quantity : Decimal
+    policyContext : PolicyContext
+    state : WorkflowState
+    details : Text
+  where
+    signatory instructionOwner
+    observer visibilityObservers
+
+    ensure quantity > 0.0
+
+    choice AcknowledgeByCustodian : ContractId SettlementInstruction
+      controller custodian
+      do
+        assertMsg "instruction must be pending settlement" (state == PendingSettlement)
+        create this with
+          state = Settled
+
+    choice RejectByCustodian : ContractId SettlementInstruction
+      with
+        rejectionDetails : Text
+      controller custodian
+      do
+        assertMsg "instruction must be pending settlement" (state == PendingSettlement)
+        create this with
+          state = ExceptionOpen
+          details = rejectionDetails
+
+mkSettlementInstruction :
+  Party ->
+  Party ->
+  Party ->
+  Party ->
+  [Party] ->
+  WorkflowType ->
+  SettlementAction ->
+  Text ->
+  Text ->
+  [LotAllocation] ->
+  PolicyContext ->
+  Text ->
+  SettlementInstruction
+mkSettlementInstruction instructionOwner provider securedParty custodian visibilityObservers workflowType action obligationId correlationId allocations policyContext details =
+  SettlementInstruction with
+    instructionId = correlationId <> "-instruction"
+    instructionOwner
+    provider
+    securedParty
+    custodian
+    visibilityObservers
+    workflowType
+    action
+    obligationId
+    correlationId
+    lotIdsInScope = lotIds allocations
+    fromAccount = case allocations of
+      allocation :: _ -> allocation.sourceAccount
+      [] -> ""
+    toAccount = case allocations of
+      allocation :: _ -> allocation.destinationAccount
+      [] -> ""
+    quantity = totalAllocatedQuantity allocations
+    policyContext
+    state = PendingSettlement
+    details

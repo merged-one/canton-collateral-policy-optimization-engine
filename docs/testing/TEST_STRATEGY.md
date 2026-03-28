@@ -29,12 +29,13 @@ At this phase, the repository supports lightweight documentation and schema chec
 make bootstrap
 make validate-cpl
 make daml-build
+make daml-test
 make demo-run
 make docs-lint
 make verify
 ```
 
-`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The Daml runtime foundation adds a minimal smoke scenario that proves the pinned SDK, JDK, package layout, and multi-party script execution path work before collateral semantics are added.
+`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The current Daml package now proves compile-and-run readiness plus basic lifecycle execution for margin call, posting, substitution, and return skeletons.
 
 ## Proposal-Aligned Conformance Direction
 

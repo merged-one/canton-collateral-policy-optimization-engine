@@ -16,3 +16,4 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0004-report-fidelity-and-evidence.md](./0004-report-fidelity-and-evidence.md)
 - [0005-cpl-format-and-versioning.md](./0005-cpl-format-and-versioning.md)
 - [0006-runtime-foundation.md](./0006-runtime-foundation.md)
+- [0007-daml-contract-boundaries.md](./0007-daml-contract-boundaries.md)

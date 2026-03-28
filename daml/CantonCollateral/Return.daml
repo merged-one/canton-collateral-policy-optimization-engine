@@ -1,0 +1,165 @@
+module CantonCollateral.Return where
+
+import CantonCollateral.Encumbrance
+import CantonCollateral.Report
+import CantonCollateral.Settlement
+import CantonCollateral.Types
+
+archiveEncumbrancesAsReleased : Text -> [ContractId EncumbranceState] -> Update ()
+archiveEncumbrancesAsReleased correlationId encumbranceCids =
+  case encumbranceCids of
+    [] -> pure ()
+    encumbranceCid :: rest -> do
+      encumbrance <- fetch encumbranceCid
+      archive encumbranceCid
+      _ <- create encumbrance with
+        encumbranceId = correlationId <> "-return-" <> encumbrance.lotId
+        status = EncumbranceReleased
+        correlationId
+      archiveEncumbrancesAsReleased correlationId rest
+
+template ReturnRequest
+  with
+    returnRequestId : Text
+    obligationId : Text
+    requestor : Party
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    policyContext : PolicyContext
+    encumbrancesToReturn : [ContractId EncumbranceState]
+    requestedReason : Text
+    expiryAt : Time
+    correlationId : Text
+    state : WorkflowState
+    requiresSecuredPartyApproval : Bool
+    requiresCustodianApproval : Bool
+    securedPartyApproval : ApprovalDecision
+    custodianApproval : ApprovalDecision
+    decisionSummary : Text
+    rejectionReason : Text
+    settlementInstructionCid : Optional (ContractId SettlementInstruction)
+  where
+    signatory requestor
+    observer visibilityObservers
+
+    choice SubmitReturnRequest : ContractId ReturnRequest
+      controller requestor
+      do
+        assertMsg "return request must start in Draft" (state == Draft)
+        create this with
+          state = Submitted
+
+    choice StartReturnEvaluation : ContractId ReturnRequest
+      controller requestor
+      do
+        assertMsg "return request must be submitted before evaluation" (state == Submitted)
+        create this with
+          state = UnderEvaluation
+
+    choice RecordFeasibleReturn : ContractId ReturnRequest
+      with
+        nextDecisionSummary : Text
+        settlementLots : [LotAllocation]
+      controller requestor
+      do
+        assertMsg "return request must be under evaluation before feasibility is recorded" (state == UnderEvaluation)
+        if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval custodianApproval then do
+          instructionCid <- create (mkSettlementInstruction requestor provider securedParty custodian visibilityObservers ReturnWorkflow ReturnCollateral obligationId correlationId settlementLots policyContext "return settlement intent created without additional approval")
+          create this with
+            state = PendingSettlement
+            decisionSummary = nextDecisionSummary
+            settlementInstructionCid = Some instructionCid
+        else
+          create this with
+            state = PendingApproval
+            decisionSummary = nextDecisionSummary
+
+    choice ApproveReturnBySecuredParty : ContractId ReturnRequest
+      controller securedParty
+      do
+        assertMsg "return request must be pending approval" (state == PendingApproval)
+        assertMsg "secured-party approval is not required" requiresSecuredPartyApproval
+        assertMsg "secured-party approval already recorded" (securedPartyApproval == ApprovalPending)
+        create this with
+          state = if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval ApprovalGranted custodianApproval then Approved else PendingApproval
+          securedPartyApproval = ApprovalGranted
+
+    choice ApproveReturnByCustodian : ContractId ReturnRequest
+      controller custodian
+      do
+        assertMsg "return request must be pending approval" (state == PendingApproval)
+        assertMsg "custodian approval is not required" requiresCustodianApproval
+        assertMsg "custodian approval already recorded" (custodianApproval == ApprovalPending)
+        create this with
+          state = if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval ApprovalGranted then Approved else PendingApproval
+          custodianApproval = ApprovalGranted
+
+    choice RejectReturnBySecuredParty : ContractId ReturnRequest
+      with
+        reason : Text
+      controller securedParty
+      do
+        assertMsg "return request must be active to reject it" (state == Submitted || state == UnderEvaluation || state == PendingApproval || state == Approved)
+        now <- getTime
+        _ <- create (mkExecutionReport requestor provider securedParty custodian visibilityObservers ReturnWorkflow obligationId correlationId policyContext ExecutionRejected reason [ExecutionEvent with eventId = correlationId <> "-return-rejected"; eventState = Rejected; actor = securedParty; actorRole = SecuredPartyRole; description = reason; eventTime = now])
+        create this with
+          state = Rejected
+          rejectionReason = reason
+          securedPartyApproval = ApprovalRejected
+
+    choice RejectReturnByCustodian : ContractId ReturnRequest
+      with
+        reason : Text
+      controller custodian
+      do
+        assertMsg "return request must be active to reject it" (state == Submitted || state == UnderEvaluation || state == PendingApproval || state == Approved)
+        now <- getTime
+        _ <- create (mkExecutionReport requestor provider securedParty custodian visibilityObservers ReturnWorkflow obligationId correlationId policyContext ExecutionRejected reason [ExecutionEvent with eventId = correlationId <> "-return-rejected"; eventState = Rejected; actor = custodian; actorRole = CustodianRole; description = reason; eventTime = now])
+        create this with
+          state = Rejected
+          rejectionReason = reason
+          custodianApproval = ApprovalRejected
+
+    choice SubmitReturnSettlementIntent : ContractId ReturnRequest
+      with
+        settlementLots : [LotAllocation]
+      controller requestor
+      do
+        assertMsg "return request must be approved before settlement intent" (state == Approved)
+        instructionCid <- create (mkSettlementInstruction requestor provider securedParty custodian visibilityObservers ReturnWorkflow ReturnCollateral obligationId correlationId settlementLots policyContext "return settlement intent created after approvals")
+        create this with
+          state = PendingSettlement
+          settlementInstructionCid = Some instructionCid
+
+    choice ConfirmReturnSettlement : ContractId ReturnRequest
+      controller custodian
+      do
+        assertMsg "return request must be pending settlement" (state == PendingSettlement)
+        let instructionCid = requireSome "return settlement instruction is missing" settlementInstructionCid
+        instruction <- fetch instructionCid
+        now <- getTime
+        archive instructionCid
+        _ <- create instruction with
+          state = Settled
+        archiveEncumbrancesAsReleased correlationId encumbrancesToReturn
+        _ <- create (mkExecutionReport requestor provider securedParty custodian visibilityObservers ReturnWorkflow obligationId correlationId policyContext ExecutionCommitted "return settlement confirmed and encumbrances released" [ExecutionEvent with eventId = correlationId <> "-return-settled"; eventState = Closed; actor = custodian; actorRole = CustodianRole; description = "custodian confirmed return settlement"; eventTime = now])
+        create this with
+          state = Closed
+
+    choice FlagReturnSettlementException : ContractId ReturnRequest
+      with
+        reason : Text
+      controller custodian
+      do
+        assertMsg "return request must be pending settlement" (state == PendingSettlement)
+        let instructionCid = requireSome "return settlement instruction is missing" settlementInstructionCid
+        instruction <- fetch instructionCid
+        archive instructionCid
+        _ <- create instruction with
+          state = ExceptionOpen
+          details = reason
+        create this with
+          state = ExceptionOpen
+          rejectionReason = reason

@@ -1,0 +1,18 @@
+module CantonCollateral.Roles where
+
+import CantonCollateral.Types
+
+template PartyRoleRegistration
+  with
+    registryOperator : Party
+    participant : Party
+    role : PartyRole
+    label : Text
+  where
+    signatory registryOperator
+    observer participant
+
+    choice RetireRoleRegistration : ()
+      controller registryOperator
+      do
+        pure ()

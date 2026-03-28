@@ -1,0 +1,13 @@
+module CantonCollateral.Asset where
+
+data CollateralAsset = CollateralAsset
+  with
+    assetId : Text
+    issuer : Text
+    assetClass : Text
+    currency : Text
+    settlementSystem : Text
+    tokenAdapterReference : Text
+    jurisdiction : Text
+    transferabilityFlags : [Text]
+  deriving (Eq, Show)

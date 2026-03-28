@@ -1,0 +1,74 @@
+module CantonCollateral.Obligation where
+
+import CantonCollateral.Report
+import CantonCollateral.Types
+
+template CallObligation
+  with
+    obligationId : Text
+    securedParty : Party
+    provider : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    policyContext : PolicyContext
+    requiredCoverage : Decimal
+    uncoveredAmount : Decimal
+    dueAt : Time
+    correlationId : Text
+    state : WorkflowState
+    requiresCallApproval : Bool
+    callApprover : Party
+    decisionSummary : Text
+  where
+    signatory securedParty
+    observer visibilityObservers
+
+    ensure requiredCoverage > 0.0 && uncoveredAmount >= 0.0 && (not requiresCallApproval || elem callApprover visibilityObservers)
+
+    choice StartEvaluation : ContractId CallObligation
+      controller securedParty
+      do
+        assertMsg "margin call must start in Draft" (state == Draft)
+        create this with
+          state = UnderEvaluation
+
+    choice ConfirmShortfall : ContractId CallObligation
+      with
+        nextUncoveredAmount : Decimal
+        nextDecisionSummary : Text
+      controller securedParty
+      do
+        assertMsg "margin call must be under evaluation before submission" (state == UnderEvaluation)
+        assertMsg "shortfall must be positive" (nextUncoveredAmount > 0.0)
+        create this with
+          state = Submitted
+          uncoveredAmount = nextUncoveredAmount
+          decisionSummary = nextDecisionSummary
+
+    choice RouteForApproval : ContractId CallObligation
+      controller securedParty
+      do
+        assertMsg "margin call approval routing requires a submitted call" (state == Submitted)
+        assertMsg "call approval is not configured" requiresCallApproval
+        create this with
+          state = PendingApproval
+
+    choice IssueCallWithoutApproval : ContractId CallObligation
+      controller securedParty
+      do
+        assertMsg "direct issuance requires a submitted call" (state == Submitted)
+        assertMsg "call approval is configured and cannot be skipped" (not requiresCallApproval)
+        now <- getTime
+        _ <- create (mkExecutionReport securedParty provider securedParty custodian visibilityObservers MarginCallWorkflow obligationId correlationId policyContext ExecutionCommitted "margin call obligation issued without additional approval" [ExecutionEvent with eventId = correlationId <> "-margin-call-issued"; eventState = Closed; actor = securedParty; actorRole = SecuredPartyRole; description = "secured party committed the call obligation"; eventTime = now])
+        create this with
+          state = Closed
+
+    choice ApproveCallIssuance : ContractId CallObligation
+      controller callApprover
+      do
+        assertMsg "margin call must be pending approval" (state == PendingApproval)
+        assertMsg "call approval is not configured" requiresCallApproval
+        now <- getTime
+        _ <- create (mkExecutionReport securedParty provider securedParty custodian visibilityObservers MarginCallWorkflow obligationId correlationId policyContext ExecutionCommitted "margin call obligation approved and committed" [ExecutionEvent with eventId = correlationId <> "-margin-call-approved"; eventState = Closed; actor = callApprover; actorRole = SecuredPartyRole; description = "required call approver authorized the obligation"; eventTime = now])
+        create this with
+          state = Closed

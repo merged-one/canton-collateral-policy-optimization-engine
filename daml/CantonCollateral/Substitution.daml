@@ -1,0 +1,183 @@
+module CantonCollateral.Substitution where
+
+import CantonCollateral.Encumbrance
+import CantonCollateral.Report
+import CantonCollateral.Settlement
+import CantonCollateral.Types
+
+archiveAndReleaseEncumbrances : Text -> [ContractId EncumbranceState] -> Update ()
+archiveAndReleaseEncumbrances correlationId encumbranceCids =
+  case encumbranceCids of
+    [] -> pure ()
+    encumbranceCid :: rest -> do
+      encumbrance <- fetch encumbranceCid
+      archive encumbranceCid
+      _ <- create encumbrance with
+        encumbranceId = correlationId <> "-released-" <> encumbrance.lotId
+        status = EncumbranceReleased
+        correlationId
+      archiveAndReleaseEncumbrances correlationId rest
+
+createReplacementEncumbrances : Party -> Party -> Party -> [Party] -> Text -> PolicyContext -> Text -> [LotAllocation] -> Update ()
+createReplacementEncumbrances provider securedParty custodian visibilityObservers obligationId policyContext correlationId allocations =
+  case allocations of
+    [] -> pure ()
+    allocation :: rest -> do
+      _ <- create EncumbranceState with
+        encumbranceId = correlationId <> "-replacement-" <> allocation.lotId
+        obligationId
+        lotId = allocation.lotId
+        provider
+        securedParty
+        custodian
+        visibilityObservers
+        quantity = allocation.quantity
+        status = EncumbrancePledged
+        policyContext
+        correlationId
+      createReplacementEncumbrances provider securedParty custodian visibilityObservers obligationId policyContext correlationId rest
+
+template SubstitutionRequest
+  with
+    substitutionId : Text
+    obligationId : Text
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    policyContext : PolicyContext
+    encumbrancesToRelease : [ContractId EncumbranceState]
+    replacementLots : [LotAllocation]
+    expiryAt : Time
+    correlationId : Text
+    state : WorkflowState
+    requiresSecuredPartyApproval : Bool
+    requiresCustodianApproval : Bool
+    securedPartyApproval : ApprovalDecision
+    custodianApproval : ApprovalDecision
+    decisionSummary : Text
+    rejectionReason : Text
+    settlementInstructionCid : Optional (ContractId SettlementInstruction)
+  where
+    signatory provider
+    observer visibilityObservers
+
+    ensure totalAllocatedQuantity replacementLots > 0.0
+
+    choice SubmitSubstitutionRequest : ContractId SubstitutionRequest
+      controller provider
+      do
+        assertMsg "substitution request must start in Draft" (state == Draft)
+        create this with
+          state = Submitted
+
+    choice StartSubstitutionEvaluation : ContractId SubstitutionRequest
+      controller provider
+      do
+        assertMsg "substitution request must be submitted before evaluation" (state == Submitted)
+        create this with
+          state = UnderEvaluation
+
+    choice RecordFeasibleSubstitution : ContractId SubstitutionRequest
+      with
+        nextDecisionSummary : Text
+      controller provider
+      do
+        assertMsg "substitution must be under evaluation before feasibility is recorded" (state == UnderEvaluation)
+        if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval custodianApproval then do
+          instructionCid <- create (mkSettlementInstruction provider provider securedParty custodian visibilityObservers SubstitutionWorkflow ReplaceCollateral obligationId correlationId replacementLots policyContext "substitution settlement intent created without additional approval")
+          create this with
+            state = PendingSettlement
+            decisionSummary = nextDecisionSummary
+            settlementInstructionCid = Some instructionCid
+        else
+          create this with
+            state = PendingApproval
+            decisionSummary = nextDecisionSummary
+
+    choice ApproveSubstitutionBySecuredParty : ContractId SubstitutionRequest
+      controller securedParty
+      do
+        assertMsg "substitution must be pending approval" (state == PendingApproval)
+        assertMsg "secured-party approval is not required" requiresSecuredPartyApproval
+        assertMsg "secured-party approval already recorded" (securedPartyApproval == ApprovalPending)
+        create this with
+          state = if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval ApprovalGranted custodianApproval then Approved else PendingApproval
+          securedPartyApproval = ApprovalGranted
+
+    choice ApproveSubstitutionByCustodian : ContractId SubstitutionRequest
+      controller custodian
+      do
+        assertMsg "substitution must be pending approval" (state == PendingApproval)
+        assertMsg "custodian approval is not required" requiresCustodianApproval
+        assertMsg "custodian approval already recorded" (custodianApproval == ApprovalPending)
+        create this with
+          state = if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval ApprovalGranted then Approved else PendingApproval
+          custodianApproval = ApprovalGranted
+
+    choice RejectSubstitutionBySecuredParty : ContractId SubstitutionRequest
+      with
+        reason : Text
+      controller securedParty
+      do
+        assertMsg "substitution must be active to reject it" (state == Submitted || state == UnderEvaluation || state == PendingApproval || state == Approved)
+        now <- getTime
+        _ <- create (mkExecutionReport provider provider securedParty custodian visibilityObservers SubstitutionWorkflow obligationId correlationId policyContext ExecutionRejected reason [ExecutionEvent with eventId = correlationId <> "-substitution-rejected"; eventState = Rejected; actor = securedParty; actorRole = SecuredPartyRole; description = reason; eventTime = now])
+        create this with
+          state = Rejected
+          rejectionReason = reason
+          securedPartyApproval = ApprovalRejected
+
+    choice RejectSubstitutionByCustodian : ContractId SubstitutionRequest
+      with
+        reason : Text
+      controller custodian
+      do
+        assertMsg "substitution must be active to reject it" (state == Submitted || state == UnderEvaluation || state == PendingApproval || state == Approved)
+        now <- getTime
+        _ <- create (mkExecutionReport provider provider securedParty custodian visibilityObservers SubstitutionWorkflow obligationId correlationId policyContext ExecutionRejected reason [ExecutionEvent with eventId = correlationId <> "-substitution-rejected"; eventState = Rejected; actor = custodian; actorRole = CustodianRole; description = reason; eventTime = now])
+        create this with
+          state = Rejected
+          rejectionReason = reason
+          custodianApproval = ApprovalRejected
+
+    choice SubmitSubstitutionSettlementIntent : ContractId SubstitutionRequest
+      controller provider
+      do
+        assertMsg "substitution must be approved before settlement intent" (state == Approved)
+        instructionCid <- create (mkSettlementInstruction provider provider securedParty custodian visibilityObservers SubstitutionWorkflow ReplaceCollateral obligationId correlationId replacementLots policyContext "substitution settlement intent created after approvals")
+        create this with
+          state = PendingSettlement
+          settlementInstructionCid = Some instructionCid
+
+    choice ConfirmSubstitutionSettlement : ContractId SubstitutionRequest
+      controller custodian
+      do
+        assertMsg "substitution must be pending settlement" (state == PendingSettlement)
+        let instructionCid = requireSome "substitution settlement instruction is missing" settlementInstructionCid
+        instruction <- fetch instructionCid
+        now <- getTime
+        archive instructionCid
+        _ <- create instruction with
+          state = Settled
+        archiveAndReleaseEncumbrances correlationId encumbrancesToRelease
+        createReplacementEncumbrances provider securedParty custodian visibilityObservers obligationId policyContext correlationId replacementLots
+        _ <- create (mkExecutionReport provider provider securedParty custodian visibilityObservers SubstitutionWorkflow obligationId correlationId policyContext ExecutionCommitted "substitution settled atomically with replacement encumbrances" [ExecutionEvent with eventId = correlationId <> "-substitution-settled"; eventState = Closed; actor = custodian; actorRole = CustodianRole; description = "custodian confirmed substitution settlement"; eventTime = now])
+        create this with
+          state = Closed
+
+    choice FlagSubstitutionSettlementException : ContractId SubstitutionRequest
+      with
+        reason : Text
+      controller custodian
+      do
+        assertMsg "substitution must be pending settlement" (state == PendingSettlement)
+        let instructionCid = requireSome "substitution settlement instruction is missing" settlementInstructionCid
+        instruction <- fetch instructionCid
+        archive instructionCid
+        _ <- create instruction with
+          state = ExceptionOpen
+          details = reason
+        create this with
+          state = ExceptionOpen
+          rejectionReason = reason
