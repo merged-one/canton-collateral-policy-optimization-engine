@@ -22,4 +22,5 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0010-rename-to-canton-collateral-control-plane.md](./0010-rename-to-canton-collateral-control-plane.md)
 - [0011-margin-call-demo-shape.md](./0011-margin-call-demo-shape.md)
 - [0012-substitution-atomicity.md](./0012-substitution-atomicity.md)
-- [0013-quickstart-demo-foundation.md](./0013-quickstart-demo-foundation.md)
+- [0013-return-and-release-control.md](./0013-return-and-release-control.md)
+- [0014-quickstart-demo-foundation.md](./0014-quickstart-demo-foundation.md)

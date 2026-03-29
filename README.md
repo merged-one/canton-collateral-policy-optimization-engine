@@ -80,6 +80,7 @@ Current scope:
 - initial deterministic `CPL v0.1` policy engine and machine-readable policy evaluation report contract
 - initial deterministic optimization engine and machine-readable optimization report contract
 - first end-to-end margin-call demo command with a machine-readable execution report, Markdown summary, and timeline artifacts
+- first end-to-end return demo command with a machine-readable return report, Markdown summary, and timeline artifacts
 - first end-to-end substitution demo command with a machine-readable substitution report, Markdown summary, and timeline artifacts
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
 - pinned Quickstart-based LocalNet bootstrap and compose-config smoke foundation that preserves upstream CN Quickstart workflows as closely as practical
@@ -133,13 +134,14 @@ make daml-build
 make daml-test
 make demo-run
 make demo-margin-call
+make demo-return
 make demo-substitution
 make status
 make docs-lint
 make verify
 ```
 
-`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
+`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-return` evaluates the currently encumbered set, derives the returned lots from a deterministic retained-set recommendation, enforces approvals plus replay-safe release control on the Daml boundary, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
 
 Current CPL artifacts:
 
@@ -186,6 +188,16 @@ Current substitution-report artifacts:
 - [reports/generated/substitution-demo-report.json](./reports/generated/substitution-demo-report.json)
 - [reports/generated/substitution-demo-summary.md](./reports/generated/substitution-demo-summary.md)
 - [reports/generated/substitution-demo-timeline.md](./reports/generated/substitution-demo-timeline.md)
+
+Current return-report artifacts:
+
+- [docs/specs/RETURN_REPORT_SPEC.md](./docs/specs/RETURN_REPORT_SPEC.md)
+- [reports/schemas/return-report.schema.json](./reports/schemas/return-report.schema.json)
+- [docs/runbooks/RETURN_DEMO_RUNBOOK.md](./docs/runbooks/RETURN_DEMO_RUNBOOK.md)
+- [examples/demo-scenarios/return/demo-config.json](./examples/demo-scenarios/return/demo-config.json)
+- [reports/generated/return-demo-report.json](./reports/generated/return-demo-report.json)
+- [reports/generated/return-demo-summary.md](./reports/generated/return-demo-summary.md)
+- [reports/generated/return-demo-timeline.md](./reports/generated/return-demo-timeline.md)
 
 ## Upcoming Phases
 

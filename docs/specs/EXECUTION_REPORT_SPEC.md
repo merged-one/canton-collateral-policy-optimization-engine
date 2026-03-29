@@ -107,7 +107,7 @@ The current `ExecutionReport` contract covers:
 
 The current contract does not yet cover:
 
-- substitution-specific workflow reporting, which now lives in `SubstitutionReport`
+- return-specific and substitution-specific workflow reporting, which now live in `ReturnReport` and `SubstitutionReport`
 - role-scoped disclosure profiles
 - Quickstart-backed workflow execution
 - live asset-adapter evidence

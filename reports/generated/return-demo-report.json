@@ -1,0 +1,795 @@
+{
+  "$schema": "../../reports/schemas/return-report.schema.json",
+  "reportType": "ReturnReport",
+  "reportVersion": "0.1.0",
+  "returnReportId": "rrr-ff59db691b1065c2",
+  "generatedAt": "2026-03-29T00:44:00Z",
+  "overallStatus": "PASS",
+  "demo": {
+    "demoId": "return-prototype",
+    "demoVersion": "0.1.0",
+    "command": "make demo-return",
+    "manifestPath": "examples/demo-scenarios/return/demo-config.json",
+    "outputDirectory": "reports/generated",
+    "primaryOptimizationArtifact": "reports/generated/positive-return-optimization-report.json",
+    "scenarioCount": 4,
+    "positiveScenarioCount": 1,
+    "negativeScenarioCount": 3
+  },
+  "artifacts": {
+    "returnReportPath": "reports/generated/return-demo-report.json",
+    "markdownSummaryPath": "reports/generated/return-demo-summary.md",
+    "timelinePath": "reports/generated/return-demo-timeline.md"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "positive-return",
+      "mode": "POSITIVE",
+      "description": "Excess collateral is identified from the currently encumbered set, approvals are enforced, and the selected lot is returned while the retained lots remain pledged.",
+      "result": "SUCCESS",
+      "summary": "The optimizer retained ret-current-fannie, ret-current-kfw, selected ret-current-ust for release, and the Daml workflow closed with the returned encumbrances moved to released state.",
+      "observedReasonCodes": [],
+      "expectedReasonCodes": [],
+      "policyEvaluationReportPath": "reports/generated/positive-return-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/positive-return-optimization-report.json",
+      "workflowInputPath": "reports/generated/positive-return-workflow-input.json",
+      "workflowResultPath": "reports/generated/positive-return-workflow-result.json",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "ret-current-ust",
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "retainedLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "returnLotIds": [
+        "ret-current-ust"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "workflow": {
+        "executionReports": [
+          {
+            "eventStates": [
+              "Closed"
+            ],
+            "outcome": "ExecutionCommitted",
+            "eventIds": [
+              "corr-return-demo-001-return-settled"
+            ],
+            "summary": "return settlement confirmed and approved encumbrances released",
+            "workflowType": "ReturnWorkflow",
+            "reportId": "corr-return-demo-001-report"
+          }
+        ],
+        "executionReportCount": 1,
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "return-positive-obligation",
+        "atomicityOutcome": "COMMITTED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded"
+          }
+        ],
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "securedPartyApproval": "ApprovalGranted",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "ret-request-positive",
+        "scenarioId": "positive-return",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnState": "Closed",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after confirming the release condition against the selected retained set"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent for the selected release lots"
+          },
+          {
+            "actor": "custodian",
+            "step": 10,
+            "state": "Closed",
+            "phase": "SETTLEMENT",
+            "detail": "custodian confirmed settlement and the selected encumbrances moved to released state"
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-unauthorized-return",
+      "mode": "NEGATIVE",
+      "description": "The return request reaches pending settlement, but the provider cannot confirm the release or mutate encumbrance state without custodian authority.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "The workflow stayed in state PendingSettlement and blocked the control path with checks APPROVAL_GATE_BLOCKED, UNAUTHORIZED_RETURN_BLOCKED.",
+      "observedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "UNAUTHORIZED_RETURN_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "UNAUTHORIZED_RETURN_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-unauthorized-return-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-unauthorized-return-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-unauthorized-return-workflow-result.json",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "ret-current-ust",
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "retainedLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "returnLotIds": [
+        "ret-current-ust"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "return-negative-unauthorized-obligation",
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded"
+          },
+          {
+            "checkId": "UNAUTHORIZED_RETURN_BLOCKED",
+            "status": "PASS",
+            "detail": "the workflow blocked the provider from confirming release without custodian authority"
+          }
+        ],
+        "returnedLotIds": [],
+        "securedPartyApproval": "ApprovalGranted",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "ret-request-unauthorized",
+        "scenarioId": "negative-unauthorized-return",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "ret-current-kfw",
+          "ret-current-ust",
+          "ret-current-fannie"
+        ],
+        "returnState": "PendingSettlement",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after confirming the release condition against the selected retained set"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent for the selected release lots"
+          },
+          {
+            "actor": "provider",
+            "step": 10,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider attempted to confirm release without custodian authority and the encumbrance state stayed unchanged"
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-replayed-return-instruction",
+      "mode": "NEGATIVE",
+      "description": "The original return settles successfully, but a replayed return instruction using the same request identifier is rejected deterministically.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "The original return settled for ret-current-ust, and the workflow then blocked the replay path with control checks APPROVAL_GATE_BLOCKED, REPLAY_RETURN_BLOCKED.",
+      "observedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "REPLAY_RETURN_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "REPLAY_RETURN_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-replayed-return-instruction-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-replayed-return-instruction-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "ret-current-ust",
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "retainedLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "returnLotIds": [
+        "ret-current-ust"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "workflow": {
+        "executionReports": [
+          {
+            "eventStates": [
+              "Closed"
+            ],
+            "outcome": "ExecutionCommitted",
+            "eventIds": [
+              "corr-return-demo-replay-001-return-settled"
+            ],
+            "summary": "return settlement confirmed and approved encumbrances released",
+            "workflowType": "ReturnWorkflow",
+            "reportId": "corr-return-demo-replay-001-report"
+          }
+        ],
+        "executionReportCount": 1,
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "return-negative-replay-obligation",
+        "atomicityOutcome": "COMMITTED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded"
+          },
+          {
+            "checkId": "REPLAY_RETURN_BLOCKED",
+            "status": "PASS",
+            "detail": "the workflow rejected the replayed return instruction by preserving the active request identifier"
+          }
+        ],
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "securedPartyApproval": "ApprovalGranted",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "ret-request-replay",
+        "scenarioId": "negative-replayed-return-instruction",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnState": "Closed",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after confirming the release condition against the selected retained set"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent for the selected release lots"
+          },
+          {
+            "actor": "custodian",
+            "step": 10,
+            "state": "Closed",
+            "phase": "SETTLEMENT",
+            "detail": "custodian confirmed settlement and the selected encumbrances moved to released state"
+          },
+          {
+            "actor": "provider",
+            "step": 11,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider attempted to replay the same return instruction and the duplicate request was rejected"
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-obligation-state-mismatch",
+      "mode": "NEGATIVE",
+      "description": "The retained-set recommendation was built from a stale obligation amount, so the workflow blocks the return when the actual remaining coverage requirement is higher.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "The workflow stayed in state UnderEvaluation and blocked the control path with checks OBLIGATION_STATE_MISMATCH_BLOCKED.",
+      "observedReasonCodes": [
+        "OBLIGATION_STATE_MISMATCH_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "OBLIGATION_STATE_MISMATCH_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-obligation-state-mismatch-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "ret-current-ust",
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "retainedLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "returnLotIds": [
+        "ret-current-ust"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 300000.0,
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "custodianApproval": "ApprovalPending",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "return-negative-mismatch-obligation",
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "OBLIGATION_STATE_MISMATCH_BLOCKED",
+            "status": "PASS",
+            "detail": "the workflow rejected the return request because the requested release did not match the remaining obligation state"
+          }
+        ],
+        "returnedLotIds": [],
+        "securedPartyApproval": "ApprovalPending",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": false,
+        "returnRequestId": "ret-request-mismatch",
+        "scenarioId": "negative-obligation-state-mismatch",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 300000.0,
+        "remainingEncumberedLotIds": [
+          "ret-current-kfw",
+          "ret-current-ust",
+          "ret-current-fannie"
+        ],
+        "returnState": "UnderEvaluation",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "the workflow rejected the return request because the requested release would breach the remaining obligation coverage"
+          }
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "sequence": 1,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:51Z",
+      "finishedAt": "2026-03-29T00:43:51Z",
+      "artifactPath": "reports/generated/positive-return-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for positive scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 2,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:51Z",
+      "finishedAt": "2026-03-29T00:43:51Z",
+      "artifactPath": "reports/generated/positive-return-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario positive-return with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 3,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:51Z",
+      "finishedAt": "2026-03-29T00:43:53Z",
+      "artifactPath": "reports/generated/positive-return-workflow-result.json",
+      "detail": "Recorded the Daml return workflow for scenario positive-return and confirmed settlement-driven encumbrance release."
+    },
+    {
+      "sequence": 4,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:53Z",
+      "finishedAt": "2026-03-29T00:43:53Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 5,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:53Z",
+      "finishedAt": "2026-03-29T00:43:53Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-unauthorized-return with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 6,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:53Z",
+      "finishedAt": "2026-03-29T00:43:55Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-workflow-result.json",
+      "detail": "Recorded the Daml return control failure for scenario negative-unauthorized-return with workflow state PendingSettlement."
+    },
+    {
+      "sequence": 7,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:55Z",
+      "finishedAt": "2026-03-29T00:43:55Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 8,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:55Z",
+      "finishedAt": "2026-03-29T00:43:56Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-replayed-return-instruction with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 9,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:56Z",
+      "finishedAt": "2026-03-29T00:43:58Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+      "detail": "Recorded the Daml return workflow for scenario negative-replayed-return-instruction, settled the original return, and blocked a replayed instruction."
+    },
+    {
+      "sequence": 10,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:58Z",
+      "finishedAt": "2026-03-29T00:43:58Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 11,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:58Z",
+      "finishedAt": "2026-03-29T00:43:58Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-obligation-state-mismatch with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 12,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-29T00:43:58Z",
+      "finishedAt": "2026-03-29T00:44:00Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
+      "detail": "Recorded the Daml return control failure for scenario negative-obligation-state-mismatch with workflow state UnderEvaluation."
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariantId": "PDR-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-policy-evaluation-report.json"
+      ],
+      "note": "The positive return path used a generated policy-evaluation report derived from declared inputs."
+    },
+    {
+      "invariantId": "ALLOC-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-optimization-report.json"
+      ],
+      "note": "The optimizer selected the retained encumbered set deterministically and the returned lots were derived from that recommendation."
+    },
+    {
+      "invariantId": "CTRL-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/negative-unauthorized-return-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+        "reports/generated/negative-obligation-state-mismatch-workflow-result.json"
+      ],
+      "note": "The return workflow blocked unauthorized release, replay, and obligation-state mismatch paths with explicit control checks instead of silently mutating encumbrance state."
+    },
+    {
+      "invariantId": "ATOM-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+        "reports/generated/negative-obligation-state-mismatch-workflow-result.json"
+      ],
+      "note": "The positive path released only the selected encumbrances, while blocked return paths preserved the incumbent encumbrance set."
+    },
+    {
+      "invariantId": "REPL-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json"
+      ],
+      "note": "The replayed return instruction was rejected because the active return request identifier remained reserved after the committed release."
+    },
+    {
+      "invariantId": "REPT-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-workflow-result.json",
+        "reports/generated/positive-return-policy-evaluation-report.json",
+        "reports/generated/positive-return-optimization-report.json"
+      ],
+      "note": "The return report references real workflow, policy, and optimization artifacts rather than operator-authored placeholders."
+    },
+    {
+      "invariantId": "EXCP-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
+        "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
+        "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-optimization-report.json",
+        "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-optimization-report.json",
+        "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
+        "reports/generated/negative-unauthorized-return-workflow-result.json"
+      ],
+      "note": "The negative return scenarios failed deterministically for unauthorized release, replayed return instruction, and obligation-state mismatch conditions."
+    }
+  ]
+}

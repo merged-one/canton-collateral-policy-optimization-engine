@@ -1,0 +1,95 @@
+{
+  "scenarioId": "negative-replayed-return-instruction",
+  "obligationId": "return-negative-replay-obligation",
+  "returnRequestId": "ret-request-replay",
+  "correlationId": "corr-return-demo-replay-001",
+  "policyVersion": "1.0.0",
+  "snapshotId": "return-positive-inventory::2026-04-16T14:00:00Z",
+  "decisionReference": "per-c614e3603ba3c7c0",
+  "currentSecuredAmount": 450000.0,
+  "remainingRequiredCoverage": 250000.0,
+  "currentPostedLots": [
+    {
+      "lotId": "ret-current-ust",
+      "assetId": "ret-current-ust-asset",
+      "issuer": "us-treasury",
+      "assetClass": "SOVEREIGN_BOND",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "demo/adapter/ret-current-ust-asset",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable",
+        "segregated"
+      ],
+      "custodyAccount": "acct-provider-return-pledge-window",
+      "quantity": 180000.0,
+      "sourceAccount": "acct-secured-return-demo",
+      "destinationAccount": "acct-provider-return-demo"
+    },
+    {
+      "lotId": "ret-current-fannie",
+      "assetId": "ret-current-fannie-asset",
+      "issuer": "fannie-mae",
+      "assetClass": "AGENCY_BOND",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "demo/adapter/ret-current-fannie-asset",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable",
+        "segregated"
+      ],
+      "custodyAccount": "acct-provider-return-pledge-window",
+      "quantity": 150000.0,
+      "sourceAccount": "acct-secured-return-demo",
+      "destinationAccount": "acct-provider-return-demo"
+    },
+    {
+      "lotId": "ret-current-kfw",
+      "assetId": "ret-current-kfw-asset",
+      "issuer": "kfw",
+      "assetClass": "AGENCY_BOND",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "demo/adapter/ret-current-kfw-asset",
+      "jurisdiction": "DE",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable",
+        "segregated"
+      ],
+      "custodyAccount": "acct-provider-return-pledge-window",
+      "quantity": 120000.0,
+      "sourceAccount": "acct-secured-return-demo",
+      "destinationAccount": "acct-provider-return-demo"
+    }
+  ],
+  "returnLots": [
+    {
+      "lotId": "ret-current-ust",
+      "assetId": "ret-current-ust-asset",
+      "issuer": "us-treasury",
+      "assetClass": "SOVEREIGN_BOND",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "demo/adapter/ret-current-ust-asset",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable",
+        "segregated"
+      ],
+      "custodyAccount": "acct-provider-return-pledge-window",
+      "quantity": 180000.0,
+      "sourceAccount": "acct-secured-return-demo",
+      "destinationAccount": "acct-provider-return-demo"
+    }
+  ],
+  "requiresSecuredPartyApproval": true,
+  "requiresCustodianApproval": true,
+  "simulateUnauthorizedReleaseAttempt": false,
+  "simulateReplayAttempt": true
+}

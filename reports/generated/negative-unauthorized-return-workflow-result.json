@@ -1,0 +1,88 @@
+{
+  "executionReports": [],
+  "executionReportCount": 0,
+  "custodianApproval": "ApprovalGranted",
+  "currentSecuredAmount": 450000.0000000000,
+  "obligationId": "return-negative-unauthorized-obligation",
+  "atomicityOutcome": "BLOCKED_ATOMICALLY",
+  "controlChecks": [{
+    "checkId": "APPROVAL_GATE_BLOCKED",
+    "status": "PASS",
+    "detail": "provider could not create a return settlement intent until the required approvals were recorded"
+  }, {
+    "checkId": "UNAUTHORIZED_RETURN_BLOCKED",
+    "status": "PASS",
+    "detail": "the workflow blocked the provider from confirming release without custodian authority"
+  }],
+  "returnedLotIds": [],
+  "securedPartyApproval": "ApprovalGranted",
+  "currentEncumberedLotIds": ["ret-current-ust", "ret-current-fannie", "ret-current-kfw"],
+  "releaseConditionSatisfied": true,
+  "returnRequestId": "ret-request-unauthorized",
+  "scenarioId": "negative-unauthorized-return",
+  "requestedReturnQuantity": 180000.0000000000,
+  "remainingRequiredCoverage": 250000.0000000000,
+  "remainingEncumberedLotIds": ["ret-current-kfw", "ret-current-ust", "ret-current-fannie"],
+  "returnState": "PendingSettlement",
+  "steps": [{
+    "actor": "provider",
+    "step": 1,
+    "state": "Encumbered",
+    "phase": "BASELINE",
+    "detail": "provider started from an already pledged collateral set"
+  }, {
+    "actor": "provider",
+    "step": 2,
+    "state": "Draft",
+    "phase": "RETURN",
+    "detail": "provider created the draft return request"
+  }, {
+    "actor": "provider",
+    "step": 3,
+    "state": "Submitted",
+    "phase": "RETURN",
+    "detail": "provider submitted the return request"
+  }, {
+    "actor": "provider",
+    "step": 4,
+    "state": "UnderEvaluation",
+    "phase": "RETURN",
+    "detail": "provider moved the return request into evaluation"
+  }, {
+    "actor": "provider",
+    "step": 5,
+    "state": "PendingApproval",
+    "phase": "RETURN",
+    "detail": "provider recorded a feasible return after confirming the release condition against the selected retained set"
+  }, {
+    "actor": "provider",
+    "step": 6,
+    "state": "Blocked",
+    "phase": "CONTROL",
+    "detail": "provider could not create the settlement intent before the required approvals were recorded"
+  }, {
+    "actor": "secured-party",
+    "step": 7,
+    "state": "PendingApproval",
+    "phase": "RETURN",
+    "detail": "secured party approved the return request"
+  }, {
+    "actor": "custodian",
+    "step": 8,
+    "state": "Approved",
+    "phase": "RETURN",
+    "detail": "custodian approved the return request"
+  }, {
+    "actor": "provider",
+    "step": 9,
+    "state": "PendingSettlement",
+    "phase": "SETTLEMENT",
+    "detail": "provider submitted the approved return settlement intent for the selected release lots"
+  }, {
+    "actor": "provider",
+    "step": 10,
+    "state": "Blocked",
+    "phase": "CONTROL",
+    "detail": "provider attempted to confirm release without custodian authority and the encumbrance state stayed unchanged"
+  }]
+}

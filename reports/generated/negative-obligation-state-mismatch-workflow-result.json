@@ -1,0 +1,54 @@
+{
+  "executionReports": [],
+  "executionReportCount": 0,
+  "custodianApproval": "ApprovalPending",
+  "currentSecuredAmount": 450000.0000000000,
+  "obligationId": "return-negative-mismatch-obligation",
+  "atomicityOutcome": "BLOCKED_ATOMICALLY",
+  "controlChecks": [{
+    "checkId": "OBLIGATION_STATE_MISMATCH_BLOCKED",
+    "status": "PASS",
+    "detail": "the workflow rejected the return request because the requested release did not match the remaining obligation state"
+  }],
+  "returnedLotIds": [],
+  "securedPartyApproval": "ApprovalPending",
+  "currentEncumberedLotIds": ["ret-current-ust", "ret-current-fannie", "ret-current-kfw"],
+  "releaseConditionSatisfied": false,
+  "returnRequestId": "ret-request-mismatch",
+  "scenarioId": "negative-obligation-state-mismatch",
+  "requestedReturnQuantity": 180000.0000000000,
+  "remainingRequiredCoverage": 300000.0000000000,
+  "remainingEncumberedLotIds": ["ret-current-kfw", "ret-current-ust", "ret-current-fannie"],
+  "returnState": "UnderEvaluation",
+  "steps": [{
+    "actor": "provider",
+    "step": 1,
+    "state": "Encumbered",
+    "phase": "BASELINE",
+    "detail": "provider started from an already pledged collateral set"
+  }, {
+    "actor": "provider",
+    "step": 2,
+    "state": "Draft",
+    "phase": "RETURN",
+    "detail": "provider created the draft return request"
+  }, {
+    "actor": "provider",
+    "step": 3,
+    "state": "Submitted",
+    "phase": "RETURN",
+    "detail": "provider submitted the return request"
+  }, {
+    "actor": "provider",
+    "step": 4,
+    "state": "UnderEvaluation",
+    "phase": "RETURN",
+    "detail": "provider moved the return request into evaluation"
+  }, {
+    "actor": "provider",
+    "step": 5,
+    "state": "Blocked",
+    "phase": "CONTROL",
+    "detail": "the workflow rejected the return request because the requested release would breach the remaining obligation coverage"
+  }]
+}

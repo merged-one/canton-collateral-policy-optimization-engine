@@ -8,6 +8,7 @@ import CantonCollateral.Inventory
 import CantonCollateral.Obligation
 import CantonCollateral.Posting
 import CantonCollateral.Report
+import CantonCollateral.Return
 import CantonCollateral.Roles
 import CantonCollateral.Substitution
 import CantonCollateral.Types
@@ -117,6 +118,54 @@ data SubstitutionDemoResult = SubstitutionDemoResult
     steps : [MarginCallDemoStep]
   deriving (Eq, Show)
 
+data ReturnDemoInput = ReturnDemoInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    returnRequestId : Text
+    correlationId : Text
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    currentSecuredAmount : Decimal
+    remainingRequiredCoverage : Decimal
+    currentPostedLots : [DemoSelectedLot]
+    returnLots : [DemoSelectedLot]
+    requiresSecuredPartyApproval : Bool
+    requiresCustodianApproval : Bool
+    simulateUnauthorizedReleaseAttempt : Bool
+    simulateReplayAttempt : Bool
+  deriving (Eq, Show)
+
+data ReturnDemoControlCheck = ReturnDemoControlCheck
+  with
+    checkId : Text
+    status : Text
+    detail : Text
+  deriving (Eq, Show)
+
+data ReturnDemoResult = ReturnDemoResult
+  with
+    scenarioId : Text
+    obligationId : Text
+    returnRequestId : Text
+    returnState : Text
+    securedPartyApproval : Text
+    custodianApproval : Text
+    currentEncumberedLotIds : [Text]
+    returnedLotIds : [Text]
+    remainingEncumberedLotIds : [Text]
+    requestedReturnQuantity : Decimal
+    currentSecuredAmount : Decimal
+    remainingRequiredCoverage : Decimal
+    releaseConditionSatisfied : Bool
+    atomicityOutcome : Text
+    executionReportCount : Int
+    executionReports : [MarginCallDemoExecutionReport]
+    controlChecks : [ReturnDemoControlCheck]
+    steps : [MarginCallDemoStep]
+  deriving (Eq, Show)
+
 registerBaselineRoles : Party -> Party -> Party -> Party -> Script ()
 registerBaselineRoles operator provider securedParty custodian = do
   _ <- submit operator do
@@ -174,6 +223,16 @@ mkAllocationFromLot selectedLot = LotAllocation with
 selectedDemoLotIds : [DemoSelectedLot] -> [Text]
 selectedDemoLotIds [] = []
 selectedDemoLotIds (selectedLot :: rest) = selectedLot.lotId :: selectedDemoLotIds rest
+
+selectedDemoLotQuantity : [DemoSelectedLot] -> Decimal
+selectedDemoLotQuantity [] = 0.0
+selectedDemoLotQuantity (selectedLot :: rest) = selectedLot.quantity + selectedDemoLotQuantity rest
+
+allTextsPresent : [Text] -> [Text] -> Bool
+allTextsPresent required available =
+  case required of
+    [] -> True
+    value :: rest -> containsText value available && allTextsPresent rest available
 
 reportEventIds : [ExecutionEvent] -> [Text]
 reportEventIds [] = []
@@ -546,6 +605,251 @@ substitutionDemoWorkflow input = script do
     activeEncumberedLotIds = pledgedLotIds encumbrances
     atomicityOutcome =
       if finalSubstitution.state == Closed then "COMMITTED_ATOMICALLY" else "BLOCKED_ATOMICALLY"
+    executionReportCount = length reports
+    executionReports = reportSummaries reports
+    controlChecks = controlChecks
+    steps = workflowSteps
+
+returnDemoWorkflow : ReturnDemoInput -> Script ReturnDemoResult
+returnDemoWorkflow input = script do
+  let currentLotIds = selectedDemoLotIds input.currentPostedLots
+  let returnLotIdsList = selectedDemoLotIds input.returnLots
+  let currentPostedQuantity = selectedDemoLotQuantity input.currentPostedLots
+  let requestedReturnQuantity = selectedDemoLotQuantity input.returnLots
+  let releaseConditionSatisfied =
+        input.currentSecuredAmount - requestedReturnQuantity >= input.remainingRequiredCoverage
+
+  assertMsg "return demo requires at least one currently encumbered lot" (not (null input.currentPostedLots))
+  assertMsg "return demo requires at least one lot to return" (not (null input.returnLots))
+  assertMsg "return demo return lots must be a subset of the current encumbered set" (allTextsPresent returnLotIdsList currentLotIds)
+  assertMsg "return demo must retain at least one currently encumbered lot" (length returnLotIdsList < length currentLotIds)
+  assertMsg "return demo requires positive secured amount" (input.currentSecuredAmount > 0.0)
+  assertMsg "return demo requires non-negative remaining coverage" (input.remainingRequiredCoverage >= 0.0)
+  assertMsg "return demo secured amount must match the current encumbered quantity" (input.currentSecuredAmount == currentPostedQuantity)
+  assertMsg "return demo supports only one negative control branch per run" (not (input.simulateUnauthorizedReleaseAttempt && input.simulateReplayAttempt))
+
+  operator <- allocateParty "DemoOperator"
+  provider <- allocateParty "CollateralProvider"
+  securedParty <- allocateParty "SecuredParty"
+  custodian <- allocateParty "Custodian"
+  now <- getTime
+
+  registerBaselineRoles operator provider securedParty custodian
+
+  let policyContext = PolicyContext with
+        policyVersion = input.policyVersion
+        snapshotId = input.snapshotId
+        decisionReference = input.decisionReference
+  let currentAllocations = map mkAllocationFromLot input.currentPostedLots
+  let returnAllocations = map mkAllocationFromLot input.returnLots
+  let baseSteps =
+        [ MarginCallDemoStep with step = 1, phase = "BASELINE", actor = "provider", state = "Encumbered", detail = "provider started from an already pledged collateral set"
+        , MarginCallDemoStep with step = 2, phase = "RETURN", actor = "provider", state = "Draft", detail = "provider created the draft return request"
+        , MarginCallDemoStep with step = 3, phase = "RETURN", actor = "provider", state = "Submitted", detail = "provider submitted the return request"
+        , MarginCallDemoStep with step = 4, phase = "RETURN", actor = "provider", state = "UnderEvaluation", detail = "provider moved the return request into evaluation"
+        ]
+  let approvalSteps =
+        [ MarginCallDemoStep with step = 5, phase = "RETURN", actor = "provider", state = "PendingApproval", detail = "provider recorded a feasible return after confirming the release condition against the selected retained set"
+        , MarginCallDemoStep with step = 6, phase = "CONTROL", actor = "provider", state = "Blocked", detail = "provider could not create the settlement intent before the required approvals were recorded"
+        , MarginCallDemoStep with step = 7, phase = "RETURN", actor = "secured-party", state = "PendingApproval", detail = "secured party approved the return request"
+        , MarginCallDemoStep with step = 8, phase = "RETURN", actor = "custodian", state = "Approved", detail = "custodian approved the return request"
+        ]
+  let successSteps =
+        [ MarginCallDemoStep with step = 9, phase = "SETTLEMENT", actor = "provider", state = "PendingSettlement", detail = "provider submitted the approved return settlement intent for the selected release lots"
+        , MarginCallDemoStep with step = 10, phase = "SETTLEMENT", actor = "custodian", state = "Closed", detail = "custodian confirmed settlement and the selected encumbrances moved to released state"
+        ]
+  let unauthorizedSteps =
+        [ MarginCallDemoStep with step = 9, phase = "SETTLEMENT", actor = "provider", state = "PendingSettlement", detail = "provider submitted the approved return settlement intent for the selected release lots"
+        , MarginCallDemoStep with step = 10, phase = "CONTROL", actor = "provider", state = "Blocked", detail = "provider attempted to confirm release without custodian authority and the encumbrance state stayed unchanged"
+        ]
+  let replaySteps =
+        [ MarginCallDemoStep with step = 11, phase = "CONTROL", actor = "provider", state = "Blocked", detail = "provider attempted to replay the same return instruction and the duplicate request was rejected"
+        ]
+  let mismatchSteps =
+        [ MarginCallDemoStep with step = 5, phase = "CONTROL", actor = "provider", state = "Blocked", detail = "the workflow rejected the return request because the requested release would breach the remaining obligation coverage"
+        ]
+
+  _ <- mapA
+    (\selectedLot -> submit provider do
+      createCmd CollateralInventoryLot with
+        lotId = selectedLot.lotId
+        owner = provider
+        custodian
+        visibilityObservers = [securedParty, custodian]
+        asset = mkAssetFromLot selectedLot
+        custodyAccount = selectedLot.custodyAccount
+        quantity = selectedLot.quantity
+        availableQuantity = selectedLot.quantity
+        controlMethod = "policy-approved-control"
+        provenance = "return demo inventory"
+        availabilityStart = now
+        availabilityEnd = None
+    )
+    input.currentPostedLots
+
+  encumbrancePairs <- mapA
+    (\allocation -> do
+      encumbranceCid <- submit provider do
+        createCmd EncumbranceState with
+          encumbranceId = input.correlationId <> "-current-" <> allocation.lotId
+          obligationId = input.obligationId
+          lotId = allocation.lotId
+          provider
+          securedParty
+          custodian
+          visibilityObservers = [securedParty, custodian]
+          quantity = allocation.quantity
+          status = EncumbrancePledged
+          policyContext
+          correlationId = input.correlationId <> "-baseline"
+      pure (allocation.lotId, encumbranceCid)
+    )
+    currentAllocations
+
+  let returnEncumbranceCids =
+        map snd (filter (\(lotId, _) -> containsText lotId returnLotIdsList) encumbrancePairs)
+  let draftReturn = ReturnRequest with
+        returnRequestId = input.returnRequestId
+        obligationId = input.obligationId
+        requestor = provider
+        provider
+        securedParty
+        custodian
+        visibilityObservers = [securedParty, custodian]
+        policyContext
+        encumbrancesToReturn = returnEncumbranceCids
+        returnLots = returnAllocations
+        requestedReturnQuantity
+        currentSecuredAmount = input.currentSecuredAmount
+        remainingRequiredCoverage = input.remainingRequiredCoverage
+        requestedReason = "release condition satisfied for excess collateral under the retained-set recommendation"
+        expiryAt = now
+        correlationId = input.correlationId
+        state = Draft
+        requiresSecuredPartyApproval = input.requiresSecuredPartyApproval
+        requiresCustodianApproval = input.requiresCustodianApproval
+        securedPartyApproval = if input.requiresSecuredPartyApproval then ApprovalPending else ApprovalGranted
+        custodianApproval = if input.requiresCustodianApproval then ApprovalPending else ApprovalGranted
+        decisionSummary = "draft return request created from deterministic retained-set selection"
+        rejectionReason = ""
+        settlementInstructionCid = None
+
+  draftReturnCid <- submit provider do
+    createCmd draftReturn
+
+  submittedReturnCid <- submit provider do
+    exerciseCmd draftReturnCid SubmitReturnRequest
+
+  evaluationReturnCid <- submit provider do
+    exerciseCmd submittedReturnCid StartReturnEvaluation
+
+  (finalReturnCid, controlChecks, workflowSteps) <-
+    if not releaseConditionSatisfied then do
+      submitMustFail provider do
+        exerciseCmd evaluationReturnCid $
+          RecordFeasibleReturn with
+            nextDecisionSummary = "return request would breach the remaining obligation coverage"
+            settlementLots = returnAllocations
+      pure
+        ( evaluationReturnCid
+        , [ ReturnDemoControlCheck with
+              checkId = "OBLIGATION_STATE_MISMATCH_BLOCKED"
+              status = "PASS"
+              detail = "the workflow rejected the return request because the requested release did not match the remaining obligation state"
+          ]
+        , baseSteps ++ mismatchSteps
+        )
+    else do
+      feasibleReturnCid <- submit provider do
+        exerciseCmd evaluationReturnCid $
+          RecordFeasibleReturn with
+            nextDecisionSummary = "selected collateral can be returned while preserving the required retained coverage"
+            settlementLots = returnAllocations
+
+      approvalGateChecks <-
+        if input.requiresSecuredPartyApproval || input.requiresCustodianApproval then do
+          submitMustFail provider do
+            exerciseCmd feasibleReturnCid $
+              SubmitReturnSettlementIntent with settlementLots = returnAllocations
+          pure
+            [ ReturnDemoControlCheck with
+                checkId = "APPROVAL_GATE_BLOCKED"
+                status = "PASS"
+                detail = "provider could not create a return settlement intent until the required approvals were recorded"
+            ]
+        else pure []
+
+      afterSecuredPartyApprovalCid <-
+        if input.requiresSecuredPartyApproval then
+          submit securedParty do
+            exerciseCmd feasibleReturnCid ApproveReturnBySecuredParty
+        else pure feasibleReturnCid
+
+      afterCustodianApprovalCid <-
+        if input.requiresCustodianApproval then
+          submit custodian do
+            exerciseCmd afterSecuredPartyApprovalCid ApproveReturnByCustodian
+        else pure afterSecuredPartyApprovalCid
+
+      approvedReturn <- expectActiveContract provider afterCustodianApprovalCid "approved return request should remain visible to the provider"
+
+      pendingSettlementCid <-
+        if approvedReturn.state == PendingSettlement then pure afterCustodianApprovalCid else
+          submit provider do
+            exerciseCmd afterCustodianApprovalCid $
+              SubmitReturnSettlementIntent with settlementLots = returnAllocations
+
+      if input.simulateUnauthorizedReleaseAttempt then do
+        submitMustFail provider do
+          exerciseCmd pendingSettlementCid ConfirmReturnSettlement
+        pure
+          ( pendingSettlementCid
+          , approvalGateChecks
+              ++ [ ReturnDemoControlCheck with
+                    checkId = "UNAUTHORIZED_RETURN_BLOCKED"
+                    status = "PASS"
+                    detail = "the workflow blocked the provider from confirming release without custodian authority"
+                 ]
+          , baseSteps ++ approvalSteps ++ unauthorizedSteps
+          )
+      else do
+        closedReturnCid <- submit custodian do
+          exerciseCmd pendingSettlementCid ConfirmReturnSettlement
+        if input.simulateReplayAttempt then do
+          submitMustFail provider do
+            createCmd draftReturn
+          pure
+            ( closedReturnCid
+            , approvalGateChecks
+                ++ [ ReturnDemoControlCheck with
+                      checkId = "REPLAY_RETURN_BLOCKED"
+                      status = "PASS"
+                      detail = "the workflow rejected the replayed return instruction by preserving the active request identifier"
+                   ]
+            , baseSteps ++ approvalSteps ++ successSteps ++ replaySteps
+            )
+        else pure (closedReturnCid, approvalGateChecks, baseSteps ++ approvalSteps ++ successSteps)
+
+  finalReturn <- expectActiveContract provider finalReturnCid "final return request should remain visible to the provider"
+  reports <- query @ExecutionReportRecord provider
+  encumbrances <- query @EncumbranceState provider
+
+  pure ReturnDemoResult with
+    scenarioId = input.scenarioId
+    obligationId = input.obligationId
+    returnRequestId = input.returnRequestId
+    returnState = show finalReturn.state
+    securedPartyApproval = show finalReturn.securedPartyApproval
+    custodianApproval = show finalReturn.custodianApproval
+    currentEncumberedLotIds = currentLotIds
+    returnedLotIds = releasedEncumbranceLotIds encumbrances
+    remainingEncumberedLotIds = pledgedLotIds encumbrances
+    requestedReturnQuantity
+    currentSecuredAmount = input.currentSecuredAmount
+    remainingRequiredCoverage = input.remainingRequiredCoverage
+    releaseConditionSatisfied
+    atomicityOutcome =
+      if finalReturn.state == Closed then "COMMITTED_ATOMICALLY" else "BLOCKED_ATOMICALLY"
     executionReportCount = length reports
     executionReports = reportSummaries reports
     controlChecks = controlChecks

@@ -4,7 +4,7 @@
 
 The future system will manage confidential collateral policy, inventory, valuation, workflow, and reporting state across multiple parties. This document records the threat posture implied by the architecture package and the design areas that must remain visible as implementation begins.
 
-The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, first end-to-end margin-call and substitution demo runners plus their machine-readable report contracts, and a pinned Quickstart bootstrap and compose-preflight layer. Those surfaces make privacy, determinism, and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
+The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, first end-to-end margin-call, return, and substitution demo runners plus their machine-readable report contracts, and a pinned Quickstart bootstrap and compose-preflight layer. Those surfaces make privacy, determinism, and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
 
 ## Protected Assets
 
@@ -15,8 +15,10 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - valuation inputs and haircut parameters
 - policy evaluation reports and machine-readable failure reasons
 - optimization reports, substitution deltas, and explanation traces
+- retained-set recommendations and return lot selections
 - substitution request scope, required-release lot sets, and atomicity flags
 - margin-call demo manifests and workflow-input payloads
+- return demo manifests, workflow-input payloads, and return reports
 - substitution demo manifests, workflow-input payloads, and substitution reports
 - encumbrance state
 - settlement instructions and control acknowledgments
@@ -40,6 +42,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 | Confidentiality leakage | Sensitive counterparty or position information could escape intended visibility. | Privacy-preserving workflow boundaries, explicit observer lists, and minimal reporting disclosure. |
 | Over-broad contract visibility | Parties could see obligations, inventory, or settlement data unrelated to their role. | Narrow signatory and observer sets, separate request and settlement templates, role-specific report profiles. |
 | Replay or duplicate execution | Repeated events could create duplicate pledges or releases. | Idempotent command design and replay-focused tests. |
+| Stale obligation state at release time | A return could release too much collateral if the workflow trusts stale retained-coverage data. | Carry current secured amount and remaining required coverage into the Daml request and reject mismatches on-ledger. |
 | Optimizer or reporter treated as authority | Off-ledger services could become hidden sources of truth. | Keep workflow state authoritative on Canton and derive reports from committed state only. |
 | Hidden optimizer objective drift or non-deterministic tie handling | Similar requests could yield different substitutions or recommendations that operators cannot defend. | Publish the objective in ADRs and report contracts, keep search order deterministic, and retain explanation traces plus no-churn handling for equal economics. |
 | Substitution scope drift or partial settlement acceptance | A request that was approved for one replacement scope could settle a different or incomplete scope. | Carry replacement scope explicitly, enforce atomicity on the Daml boundary, and fail retained-lot or partial-settlement attempts closed. |
@@ -76,3 +79,4 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - when should future workflow-coupled optimization respect operational churn budgets or consent costs in addition to the current deterministic economic proxy objective?
 - how should the current workflow-party execution reports be transformed into narrower operator, auditor, or external-integration views?
 - how should future consumers reject or negotiate policies that require a newer `cplVersion` than they support?
+- when should the current scenario-derived return approval requirements become first-class CPL return-right clauses?

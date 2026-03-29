@@ -322,7 +322,7 @@ returnLifecycleTest = script do
 
   registerBaselineRoles operator provider securedParty custodian
 
-  pledgedEncumbranceCid <- submit provider do
+  primaryEncumbranceCid <- submit provider do
     createCmd EncumbranceState with
       encumbranceId = "enc-return-001"
       obligationId = "obligation-margin-002"
@@ -332,6 +332,20 @@ returnLifecycleTest = script do
       custodian
       visibilityObservers = [securedParty, custodian]
       quantity = 50.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-001"
+
+  secondaryEncumbranceCid <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-002"
+      obligationId = "obligation-margin-002"
+      lotId = "lot-return-002"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 30.0
       status = EncumbrancePledged
       policyContext = testPolicyContext
       correlationId = "corr-return-001"
@@ -346,7 +360,11 @@ returnLifecycleTest = script do
       custodian
       visibilityObservers = [securedParty, custodian]
       policyContext = testPolicyContext
-      encumbrancesToReturn = [pledgedEncumbranceCid]
+      encumbrancesToReturn = [primaryEncumbranceCid]
+      returnLots = [lotAllocation "lot-return-001" 50.0 "acct-secured-2" "acct-provider-2"]
+      requestedReturnQuantity = 50.0
+      currentSecuredAmount = 80.0
+      remainingRequiredCoverage = 30.0
       requestedReason = "excess collateral identified"
       expiryAt = now
       correlationId = "corr-return-001"
@@ -384,5 +402,184 @@ returnLifecycleTest = script do
   assertMsg "return workflow should close after settlement" (closedReturn.state == Closed)
 
   _ <- findEncumbranceByLot provider "lot-return-001" EncumbranceReleased
+  _ <- findEncumbranceByLot provider "lot-return-002" EncumbrancePledged
   reports <- query @ExecutionReportRecord provider
   assertMsg "return workflow should emit a single execution report" (length reports == 1)
+
+  submitMustFail provider do
+    createCmd ReturnRequest with
+      returnRequestId = "return-001"
+      obligationId = "obligation-margin-002"
+      requestor = provider
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToReturn = [secondaryEncumbranceCid]
+      returnLots = [lotAllocation "lot-return-002" 30.0 "acct-secured-2" "acct-provider-2"]
+      requestedReturnQuantity = 30.0
+      currentSecuredAmount = 30.0
+      remainingRequiredCoverage = 0.0
+      requestedReason = "replayed return instruction"
+      expiryAt = now
+      correlationId = "corr-return-replay-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "duplicate return request should be rejected by key"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  mismatchReturnEncumbranceCid <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-005"
+      obligationId = "obligation-margin-003"
+      lotId = "lot-return-005"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 30.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-mismatch-001"
+
+  _ <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-006"
+      obligationId = "obligation-margin-003"
+      lotId = "lot-return-006"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 20.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-mismatch-001"
+
+  mismatchReturnDraftCid <- submit provider do
+    createCmd ReturnRequest with
+      returnRequestId = "return-002"
+      obligationId = "obligation-margin-003"
+      requestor = provider
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToReturn = [mismatchReturnEncumbranceCid]
+      returnLots = [lotAllocation "lot-return-005" 30.0 "acct-secured-3" "acct-provider-3"]
+      requestedReturnQuantity = 30.0
+      currentSecuredAmount = 50.0
+      remainingRequiredCoverage = 25.0
+      requestedReason = "coverage mismatch test"
+      expiryAt = now
+      correlationId = "corr-return-mismatch-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = False
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalGranted
+      decisionSummary = "draft mismatch return request"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  mismatchReturnSubmittedCid <- submit provider do
+    exerciseCmd mismatchReturnDraftCid SubmitReturnRequest
+
+  mismatchReturnEvaluationCid <- submit provider do
+    exerciseCmd mismatchReturnSubmittedCid StartReturnEvaluation
+
+  submitMustFail provider do
+    exerciseCmd mismatchReturnEvaluationCid (RecordFeasibleReturn with nextDecisionSummary = "should fail because the remaining obligation would be undersecured", settlementLots = [lotAllocation "lot-return-005" 30.0 "acct-secured-3" "acct-provider-3"])
+
+  mismatchReturn <- expectActiveContract provider mismatchReturnEvaluationCid "mismatch return request should remain visible after the failed evaluation"
+  assertMsg "coverage-mismatch return should remain under evaluation" (mismatchReturn.state == UnderEvaluation)
+  _ <- findEncumbranceByLot provider "lot-return-005" EncumbrancePledged
+  _ <- findEncumbranceByLot provider "lot-return-006" EncumbrancePledged
+
+  unauthorizedEncumbranceCid <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-003"
+      obligationId = "obligation-margin-004"
+      lotId = "lot-return-003"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 40.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-unauthorized-001"
+
+  _ <- submit provider do
+    createCmd EncumbranceState with
+      encumbranceId = "enc-return-004"
+      obligationId = "obligation-margin-004"
+      lotId = "lot-return-004"
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      quantity = 35.0
+      status = EncumbrancePledged
+      policyContext = testPolicyContext
+      correlationId = "corr-return-unauthorized-001"
+
+  unauthorizedReturnDraftCid <- submit provider do
+    createCmd ReturnRequest with
+      returnRequestId = "return-003"
+      obligationId = "obligation-margin-004"
+      requestor = provider
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      policyContext = testPolicyContext
+      encumbrancesToReturn = [unauthorizedEncumbranceCid]
+      returnLots = [lotAllocation "lot-return-003" 40.0 "acct-secured-4" "acct-provider-4"]
+      requestedReturnQuantity = 40.0
+      currentSecuredAmount = 75.0
+      remainingRequiredCoverage = 35.0
+      requestedReason = "unauthorized release control test"
+      expiryAt = now
+      correlationId = "corr-return-unauthorized-001"
+      state = Draft
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "draft unauthorized return request"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  unauthorizedReturnSubmittedCid <- submit provider do
+    exerciseCmd unauthorizedReturnDraftCid SubmitReturnRequest
+
+  unauthorizedReturnEvaluationCid <- submit provider do
+    exerciseCmd unauthorizedReturnSubmittedCid StartReturnEvaluation
+
+  unauthorizedPendingApprovalCid <- submit provider do
+    exerciseCmd unauthorizedReturnEvaluationCid (RecordFeasibleReturn with nextDecisionSummary = "approved retained coverage remains intact", settlementLots = [lotAllocation "lot-return-003" 40.0 "acct-secured-4" "acct-provider-4"])
+
+  unauthorizedPendingApprovalCid2 <- submit securedParty do
+    exerciseCmd unauthorizedPendingApprovalCid ApproveReturnBySecuredParty
+
+  unauthorizedApprovedCid <- submit custodian do
+    exerciseCmd unauthorizedPendingApprovalCid2 ApproveReturnByCustodian
+
+  unauthorizedPendingSettlementCid <- submit provider do
+    exerciseCmd unauthorizedApprovedCid (SubmitReturnSettlementIntent with settlementLots = [lotAllocation "lot-return-003" 40.0 "acct-secured-4" "acct-provider-4"])
+
+  submitMustFail provider do
+    exerciseCmd unauthorizedPendingSettlementCid ConfirmReturnSettlement
+
+  unauthorizedReturn <- expectActiveContract provider unauthorizedPendingSettlementCid "unauthorized return should remain visible after the blocked confirmation"
+  assertMsg "unauthorized return should remain pending settlement" (unauthorizedReturn.state == PendingSettlement)
+  _ <- findEncumbranceByLot provider "lot-return-003" EncumbrancePledged
+  _ <- findEncumbranceByLot provider "lot-return-004" EncumbrancePledged
+  pure ()

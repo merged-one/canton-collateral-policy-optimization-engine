@@ -1,0 +1,210 @@
+{
+  "demoId": "return-prototype",
+  "demoVersion": "0.1.0",
+  "scenarios": [
+    {
+      "scenarioId": "positive-return",
+      "mode": "POSITIVE",
+      "description": "Excess collateral is identified from the currently encumbered set, approvals are enforced, and the selected lot is returned while the retained lots remain pledged.",
+      "policy": "return-policy.json",
+      "inventory": "positive-inventory.json",
+      "obligation": "positive-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "workflow": {
+        "scriptName": "CantonCollateral.Demo:returnDemoWorkflow",
+        "returnRequestId": "ret-request-positive",
+        "correlationId": "corr-return-demo-001",
+        "custodyAccount": "acct-provider-return-pledge-window",
+        "sourceAccount": "acct-secured-return-demo",
+        "destinationAccount": "acct-provider-return-demo",
+        "settlementSystem": "Fedwire",
+        "tokenAdapterReferencePrefix": "demo/adapter",
+        "transferabilityFlags": [
+          "deliverable",
+          "pledgeable",
+          "segregated"
+        ]
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "Closed",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "COMMITTED_ATOMICALLY",
+        "minimumExecutionReportCount": 1,
+        "reasonCodes": []
+      }
+    },
+    {
+      "scenarioId": "negative-unauthorized-return",
+      "mode": "NEGATIVE",
+      "description": "The return request reaches pending settlement, but the provider cannot confirm the release or mutate encumbrance state without custodian authority.",
+      "policy": "return-policy.json",
+      "inventory": "positive-inventory.json",
+      "obligation": "negative-unauthorized-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "workflow": {
+        "scriptName": "CantonCollateral.Demo:returnDemoWorkflow",
+        "returnRequestId": "ret-request-unauthorized",
+        "correlationId": "corr-return-demo-unauthorized-001",
+        "custodyAccount": "acct-provider-return-pledge-window",
+        "sourceAccount": "acct-secured-return-demo",
+        "destinationAccount": "acct-provider-return-demo",
+        "settlementSystem": "Fedwire",
+        "tokenAdapterReferencePrefix": "demo/adapter",
+        "transferabilityFlags": [
+          "deliverable",
+          "pledgeable",
+          "segregated"
+        ],
+        "simulateUnauthorizedReleaseAttempt": true
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "PendingSettlement",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "APPROVAL_GATE_BLOCKED",
+          "UNAUTHORIZED_RETURN_BLOCKED"
+        ],
+        "reasonCodes": [
+          "APPROVAL_GATE_BLOCKED",
+          "UNAUTHORIZED_RETURN_BLOCKED"
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-replayed-return-instruction",
+      "mode": "NEGATIVE",
+      "description": "The original return settles successfully, but a replayed return instruction using the same request identifier is rejected deterministically.",
+      "policy": "return-policy.json",
+      "inventory": "positive-inventory.json",
+      "obligation": "negative-replay-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "workflow": {
+        "scriptName": "CantonCollateral.Demo:returnDemoWorkflow",
+        "returnRequestId": "ret-request-replay",
+        "correlationId": "corr-return-demo-replay-001",
+        "custodyAccount": "acct-provider-return-pledge-window",
+        "sourceAccount": "acct-secured-return-demo",
+        "destinationAccount": "acct-provider-return-demo",
+        "settlementSystem": "Fedwire",
+        "tokenAdapterReferencePrefix": "demo/adapter",
+        "transferabilityFlags": [
+          "deliverable",
+          "pledgeable",
+          "segregated"
+        ],
+        "simulateReplayAttempt": true
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "Closed",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "COMMITTED_ATOMICALLY",
+        "minimumExecutionReportCount": 1,
+        "requiredControlChecks": [
+          "APPROVAL_GATE_BLOCKED",
+          "REPLAY_RETURN_BLOCKED"
+        ],
+        "reasonCodes": [
+          "APPROVAL_GATE_BLOCKED",
+          "REPLAY_RETURN_BLOCKED"
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-obligation-state-mismatch",
+      "mode": "NEGATIVE",
+      "description": "The retained-set recommendation was built from a stale obligation amount, so the workflow blocks the return when the actual remaining coverage requirement is higher.",
+      "policy": "return-policy.json",
+      "inventory": "positive-inventory.json",
+      "obligation": "negative-mismatch-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "workflow": {
+        "scriptName": "CantonCollateral.Demo:returnDemoWorkflow",
+        "returnRequestId": "ret-request-mismatch",
+        "correlationId": "corr-return-demo-mismatch-001",
+        "custodyAccount": "acct-provider-return-pledge-window",
+        "sourceAccount": "acct-secured-return-demo",
+        "destinationAccount": "acct-provider-return-demo",
+        "settlementSystem": "Fedwire",
+        "tokenAdapterReferencePrefix": "demo/adapter",
+        "transferabilityFlags": [
+          "deliverable",
+          "pledgeable",
+          "segregated"
+        ],
+        "remainingRequiredCoverageOverride": 300000.0
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "UnderEvaluation",
+        "currentEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "ret-current-ust",
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "releaseConditionSatisfied": false,
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "OBLIGATION_STATE_MISMATCH_BLOCKED"
+        ],
+        "reasonCodes": [
+          "OBLIGATION_STATE_MISMATCH_BLOCKED"
+        ]
+      }
+    }
+  ]
+}

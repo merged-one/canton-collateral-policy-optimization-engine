@@ -38,12 +38,13 @@ make daml-build
 make daml-test
 make demo-run
 make demo-margin-call
+make demo-return
 make demo-substitution
 make docs-lint
 make verify
 ```
 
-`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The optimizer scenario coverage is documented in [OPTIMIZER_TEST_PLAN.md](./OPTIMIZER_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The Quickstart LocalNet foundation now adds a pinned upstream checkout plus a compose-preflight smoke check. The current repository now proves deterministic policy evaluation, deterministic collateral optimization, basic workflow lifecycle execution, the first end-to-end margin-call and substitution demos with explicit negative paths, and the earliest real LocalNet bootstrap layer.
+`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The optimizer scenario coverage is documented in [OPTIMIZER_TEST_PLAN.md](./OPTIMIZER_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The Quickstart LocalNet foundation now adds a pinned upstream checkout plus a compose-preflight smoke check. The current repository now proves deterministic policy evaluation, deterministic collateral optimization, basic workflow lifecycle execution, the first end-to-end margin-call, return, and substitution demos with explicit negative paths, and the earliest real LocalNet bootstrap layer.
 
 ## Proposal-Aligned Conformance Direction
 
@@ -55,9 +56,10 @@ The proposal implies a conformance suite that should eventually cover at least:
 - no double encumbrance
 - authorization and secured-party control
 - atomic substitution and atomic settlement across legs
+- return release-condition validation and retained-coverage safety
 - replay safety
 - report fidelity
-- negative paths for ineligible assets, expired calls, insufficient lendable value, concentration breaches, unauthorized release, attempted partial substitution under atomicity, and replayed instructions
+- negative paths for ineligible assets, expired calls, insufficient lendable value, concentration breaches, unauthorized release, replayed return instructions, stale obligation-state mismatches, attempted partial substitution under atomicity, and replayed instructions
 
 ## Traceability Expectations
 

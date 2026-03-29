@@ -1,0 +1,13 @@
+{
+  "obligationId": "return-negative-unauthorized-obligation",
+  "obligationVersion": "1.0.0",
+  "asOf": "2026-04-16T14:00:00Z",
+  "settlementCurrency": "USD",
+  "coverageMetric": "LENDABLE_VALUE",
+  "obligationAmount": 250000.0,
+  "currentPostedLotIds": [
+    "ret-current-ust",
+    "ret-current-fannie",
+    "ret-current-kfw"
+  ]
+}

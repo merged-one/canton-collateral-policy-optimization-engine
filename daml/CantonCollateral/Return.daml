@@ -5,6 +5,17 @@ import CantonCollateral.Report
 import CantonCollateral.Settlement
 import CantonCollateral.Types
 
+sumReturnableEncumbranceQuantity : Text -> [ContractId EncumbranceState] -> Update Decimal
+sumReturnableEncumbranceQuantity obligationId encumbranceCids =
+  case encumbranceCids of
+    [] -> pure 0.0
+    encumbranceCid :: rest -> do
+      encumbrance <- fetch encumbranceCid
+      assertMsg "return encumbrance obligation must match the request obligation" (encumbrance.obligationId == obligationId)
+      assertMsg "return encumbrance must still be pledged" (encumbrance.status == EncumbrancePledged)
+      remainingQuantity <- sumReturnableEncumbranceQuantity obligationId rest
+      pure (encumbrance.quantity + remainingQuantity)
+
 archiveEncumbrancesAsReleased : Text -> [ContractId EncumbranceState] -> Update ()
 archiveEncumbrancesAsReleased correlationId encumbranceCids =
   case encumbranceCids of
@@ -29,6 +40,10 @@ template ReturnRequest
     visibilityObservers : [Party]
     policyContext : PolicyContext
     encumbrancesToReturn : [ContractId EncumbranceState]
+    returnLots : [LotAllocation]
+    requestedReturnQuantity : Decimal
+    currentSecuredAmount : Decimal
+    remainingRequiredCoverage : Decimal
     requestedReason : Text
     expiryAt : Time
     correlationId : Text
@@ -43,6 +58,17 @@ template ReturnRequest
   where
     signatory requestor
     observer visibilityObservers
+
+    ensure
+      not (null encumbrancesToReturn)
+        && totalAllocatedQuantity returnLots > 0.0
+        && requestedReturnQuantity > 0.0
+        && totalAllocatedQuantity returnLots == requestedReturnQuantity
+        && currentSecuredAmount > 0.0
+        && remainingRequiredCoverage >= 0.0
+
+    key (requestor, returnRequestId) : (Party, Text)
+    maintainer key._1
 
     choice SubmitReturnRequest : ContractId ReturnRequest
       controller requestor
@@ -65,6 +91,12 @@ template ReturnRequest
       controller requestor
       do
         assertMsg "return request must be under evaluation before feasibility is recorded" (state == UnderEvaluation)
+        assertMsg "return settlement scope must match the requested return lots" (sameAllocationScope returnLots settlementLots)
+        actualReturnQuantity <- sumReturnableEncumbranceQuantity obligationId encumbrancesToReturn
+        assertMsg "requested return quantity must match the pledged encumbrance quantity" (actualReturnQuantity == requestedReturnQuantity)
+        assertMsg "requested return quantity must match the settlement quantity" (totalAllocatedQuantity settlementLots == requestedReturnQuantity)
+        assertMsg "requested return exceeds the currently secured collateral amount" (currentSecuredAmount >= requestedReturnQuantity)
+        assertMsg "requested return would leave the obligation undersecured" (currentSecuredAmount - requestedReturnQuantity >= remainingRequiredCoverage)
         if approvalsSatisfied requiresSecuredPartyApproval requiresCustodianApproval securedPartyApproval custodianApproval then do
           instructionCid <- create (mkSettlementInstruction requestor provider securedParty custodian visibilityObservers ReturnWorkflow ReturnCollateral obligationId correlationId settlementLots policyContext "return settlement intent created without additional approval")
           create this with
@@ -128,6 +160,8 @@ template ReturnRequest
       controller requestor
       do
         assertMsg "return request must be approved before settlement intent" (state == Approved)
+        assertMsg "return settlement scope must match the approved return lots" (sameAllocationScope returnLots settlementLots)
+        assertMsg "return settlement quantity must match the approved return quantity" (totalAllocatedQuantity settlementLots == requestedReturnQuantity)
         instructionCid <- create (mkSettlementInstruction requestor provider securedParty custodian visibilityObservers ReturnWorkflow ReturnCollateral obligationId correlationId settlementLots policyContext "return settlement intent created after approvals")
         create this with
           state = PendingSettlement
@@ -144,7 +178,7 @@ template ReturnRequest
         _ <- create instruction with
           state = Settled
         archiveEncumbrancesAsReleased correlationId encumbrancesToReturn
-        _ <- create (mkExecutionReport requestor provider securedParty custodian visibilityObservers ReturnWorkflow obligationId correlationId policyContext ExecutionCommitted "return settlement confirmed and encumbrances released" [ExecutionEvent with eventId = correlationId <> "-return-settled"; eventState = Closed; actor = custodian; actorRole = CustodianRole; description = "custodian confirmed return settlement"; eventTime = now])
+        _ <- create (mkExecutionReport requestor provider securedParty custodian visibilityObservers ReturnWorkflow obligationId correlationId policyContext ExecutionCommitted "return settlement confirmed and approved encumbrances released" [ExecutionEvent with eventId = correlationId <> "-return-settled"; eventState = Closed; actor = custodian; actorRole = CustodianRole; description = "custodian confirmed return settlement"; eventTime = now])
         create this with
           state = Closed
 

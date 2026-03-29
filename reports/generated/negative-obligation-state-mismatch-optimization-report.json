@@ -1,0 +1,553 @@
+{
+  "$schema": "../../reports/schemas/optimization-report.schema.json",
+  "reportType": "OptimizationReport",
+  "reportVersion": "0.1.0",
+  "optimizationId": "opr-cad29cece8f87de4",
+  "status": "OPTIMAL",
+  "recommendedAction": "SUBSTITUTE",
+  "objective": {
+    "objectiveId": "MINIMIZE_MARKET_VALUE_THEN_HAIRCUT_COST_THEN_EXCESS",
+    "sequence": [
+      "market_value_amount",
+      "haircut_cost_amount",
+      "excess_amount",
+      "lot_count",
+      "lot_ids_lexical_tie_break"
+    ]
+  },
+  "policy": {
+    "policyId": "return-release-control-policy",
+    "policyVersion": "1.0.0",
+    "cplVersion": "0.1.0",
+    "profile": "central_bank"
+  },
+  "inventory": {
+    "inventorySetId": "return-positive-inventory",
+    "inventoryVersion": "1.0.0",
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "candidateLotCount": 3
+  },
+  "obligation": {
+    "obligationId": "return-negative-mismatch-obligation",
+    "obligationVersion": "1.0.0",
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "coverageMetric": "LENDABLE_VALUE",
+    "obligationAmount": 250000.0,
+    "currentPostedLotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw",
+      "ret-current-ust"
+    ],
+    "substitutionRequest": null
+  },
+  "candidateUniverse": {
+    "candidateLotCount": 3,
+    "admissibleLotCount": 3,
+    "blockedLotCount": 0,
+    "consideredCombinationCount": 7,
+    "feasibleCombinationCount": 4,
+    "screeningResults": [
+      {
+        "lotId": "ret-current-fannie",
+        "assetId": "ret-current-fannie-asset",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "fannie-mae",
+        "marketValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "ret-current-kfw",
+        "assetId": "ret-current-kfw-asset",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "kfw",
+        "marketValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "ret-current-ust",
+        "assetId": "ret-current-ust-asset",
+        "assetClass": "SOVEREIGN_BOND",
+        "issuerId": "us-treasury",
+        "marketValue": 180000.0,
+        "lendableValue": 176400.0,
+        "totalHaircutBps": 200,
+        "admissible": true,
+        "reasonCodes": []
+      }
+    ]
+  },
+  "currentPortfolio": {
+    "lotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw",
+      "ret-current-ust"
+    ],
+    "policyEvaluationId": "per-27bc7b1e5b77dc7f",
+    "policyDecision": "ACCEPT",
+    "isFeasible": true,
+    "requiredAmount": 250000.0,
+    "allocatedMarketValue": 450000.0,
+    "allocatedLendableValue": 427500.0,
+    "shortfallAmount": 0.0,
+    "excessAmount": 177500.0,
+    "haircutCostAmount": 22500.0,
+    "lotCount": 3,
+    "objectiveVector": {
+      "marketValueAmount": 450000.0,
+      "haircutCostAmount": 22500.0,
+      "excessAmount": 177500.0,
+      "lotCount": 3,
+      "tieBreakLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw",
+        "ret-current-ust"
+      ]
+    },
+    "blockingReasonCodes": [],
+    "selectedLots": [
+      {
+        "lotId": "ret-current-fannie",
+        "assetId": "ret-current-fannie-asset",
+        "issuerId": "fannie-mae",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 150000.0,
+        "valuationBasisValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "ret-current-kfw",
+        "assetId": "ret-current-kfw-asset",
+        "issuerId": "kfw",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 120000.0,
+        "valuationBasisValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "ret-current-ust",
+        "assetId": "ret-current-ust-asset",
+        "issuerId": "us-treasury",
+        "assetClass": "SOVEREIGN_BOND",
+        "marketValue": 180000.0,
+        "valuationBasisValue": 180000.0,
+        "lendableValue": 176400.0,
+        "totalHaircutBps": 200
+      }
+    ],
+    "concentrationResults": [
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "fannie-mae",
+        "bucketValue": 150000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.333333,
+        "relatedLotIds": [
+          "ret-current-fannie"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "kfw",
+        "bucketValue": 120000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.266667,
+        "relatedLotIds": [
+          "ret-current-kfw"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "us-treasury",
+        "bucketValue": 180000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.4,
+        "relatedLotIds": [
+          "ret-current-ust"
+        ],
+        "reason": null
+      }
+    ]
+  },
+  "recommendedPortfolio": {
+    "lotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw"
+    ],
+    "policyEvaluationId": "per-8b5126f3cfe32939",
+    "policyDecision": "ACCEPT",
+    "isFeasible": true,
+    "requiredAmount": 250000.0,
+    "allocatedMarketValue": 270000.0,
+    "allocatedLendableValue": 251100.0,
+    "shortfallAmount": 0.0,
+    "excessAmount": 1100.0,
+    "haircutCostAmount": 18900.0,
+    "lotCount": 2,
+    "objectiveVector": {
+      "marketValueAmount": 270000.0,
+      "haircutCostAmount": 18900.0,
+      "excessAmount": 1100.0,
+      "lotCount": 2,
+      "tieBreakLotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ]
+    },
+    "blockingReasonCodes": [],
+    "selectedLots": [
+      {
+        "lotId": "ret-current-fannie",
+        "assetId": "ret-current-fannie-asset",
+        "issuerId": "fannie-mae",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 150000.0,
+        "valuationBasisValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "ret-current-kfw",
+        "assetId": "ret-current-kfw-asset",
+        "issuerId": "kfw",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 120000.0,
+        "valuationBasisValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700
+      }
+    ],
+    "concentrationResults": [
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "fannie-mae",
+        "bucketValue": 150000.0,
+        "denominatorValue": 270000.0,
+        "observedRatio": 0.555556,
+        "relatedLotIds": [
+          "ret-current-fannie"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "kfw",
+        "bucketValue": 120000.0,
+        "denominatorValue": 270000.0,
+        "observedRatio": 0.444444,
+        "relatedLotIds": [
+          "ret-current-kfw"
+        ],
+        "reason": null
+      }
+    ]
+  },
+  "substitutionRecommendation": {
+    "requestId": null,
+    "atomicityRequired": false,
+    "mustReplaceLotIds": [],
+    "currentPostedLotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw",
+      "ret-current-ust"
+    ],
+    "recommendedLotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw"
+    ],
+    "retainedLotIds": [
+      "ret-current-fannie",
+      "ret-current-kfw"
+    ],
+    "removeLotIds": [
+      "ret-current-ust"
+    ],
+    "addLotIds": [],
+    "improvesObjective": true
+  },
+  "explanationTrace": [
+    {
+      "step": 1,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot ret-current-fannie for non-concentration policy feasibility.",
+      "lotIds": [
+        "ret-current-fannie"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 2,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot ret-current-kfw for non-concentration policy feasibility.",
+      "lotIds": [
+        "ret-current-kfw"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 3,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot ret-current-ust for non-concentration policy feasibility.",
+      "lotIds": [
+        "ret-current-ust"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 4,
+      "stage": "CURRENT_PORTFOLIO",
+      "outcome": "FEASIBLE",
+      "message": "Evaluated the currently posted lot set against coverage and portfolio-level policy constraints.",
+      "lotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw",
+        "ret-current-ust"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 427500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 450000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 177500.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw",
+          "ret-current-ust"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset ret-current-fannie.",
+      "lotIds": [
+        "ret-current-fannie"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 139500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 150000.0,
+        "haircutCostAmount": 10500.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "ret-current-fannie"
+        ]
+      }
+    },
+    {
+      "step": 6,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset ret-current-kfw.",
+      "lotIds": [
+        "ret-current-kfw"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 111600.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 120000.0,
+        "haircutCostAmount": 8400.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "ret-current-kfw"
+        ]
+      }
+    },
+    {
+      "step": 7,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset ret-current-ust.",
+      "lotIds": [
+        "ret-current-ust"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 176400.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 180000.0,
+        "haircutCostAmount": 3600.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "ret-current-ust"
+        ]
+      }
+    },
+    {
+      "step": 8,
+      "stage": "SEARCH",
+      "outcome": "NEW_INCUMBENT",
+      "message": "Evaluated subset ret-current-fannie,ret-current-kfw.",
+      "lotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 251100.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 270000.0,
+        "haircutCostAmount": 18900.0,
+        "excessAmount": 1100.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ]
+      }
+    },
+    {
+      "step": 9,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset ret-current-fannie,ret-current-ust.",
+      "lotIds": [
+        "ret-current-fannie",
+        "ret-current-ust"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 315900.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 330000.0,
+        "haircutCostAmount": 14100.0,
+        "excessAmount": 65900.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "ret-current-fannie",
+          "ret-current-ust"
+        ]
+      }
+    },
+    {
+      "step": 10,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset ret-current-kfw,ret-current-ust.",
+      "lotIds": [
+        "ret-current-kfw",
+        "ret-current-ust"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 288000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 300000.0,
+        "haircutCostAmount": 12000.0,
+        "excessAmount": 38000.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "ret-current-kfw",
+          "ret-current-ust"
+        ]
+      }
+    },
+    {
+      "step": 11,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset ret-current-fannie,ret-current-kfw,ret-current-ust.",
+      "lotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw",
+        "ret-current-ust"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 427500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 450000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 177500.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw",
+          "ret-current-ust"
+        ]
+      }
+    },
+    {
+      "step": 12,
+      "stage": "DECISION",
+      "outcome": "SUBSTITUTE",
+      "message": "Selected the final optimizer recommendation.",
+      "lotIds": [
+        "ret-current-fannie",
+        "ret-current-kfw"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 251100.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 270000.0,
+        "haircutCostAmount": 18900.0,
+        "excessAmount": 1100.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ]
+      }
+    }
+  ]
+}

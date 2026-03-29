@@ -21,6 +21,118 @@ make verify
 git status --short --branch
 ```
 
+## 2026-03-28 - Prompt 11 - Pre-Change
+
+Intent:
+Implement the first end-to-end confidential margin return and release prototype for the Canton Collateral Control Plane, including a real `make demo-return` command, Daml workflow support for return and release control, operator documentation, machine-readable return reporting, and deterministic negative-path evidence.
+
+Risks addressed:
+
+- return and release handling are safety-critical, and the current prototype does not yet prove authorization-gated collateral release
+- encumbrance state could drift if the return workflow does not reconcile requested amounts, released lots, and post-release obligation state deterministically
+- replayed return instructions or unauthorized release attempts could appear to succeed unless the workflow and demo artifacts make the control failures explicit
+- proposal and demo reviewers need machine-readable evidence that the Control Plane enforces secured-party control, authorization, and release-state integrity without relying on narrative-only summaries
+
+Affected files:
+
+- `Makefile`
+- `README.md`
+- `AGENTS.md`
+- `CONTRIBUTING.md`
+- `app/README.md`
+- `app/orchestration/return_cli.py`
+- `app/orchestration/return_demo.py`
+- `daml/Bootstrap.daml`
+- `daml/CantonCollateral/Return.daml`
+- `daml/CantonCollateral/Test.daml`
+- `examples/README.md`
+- `examples/demo-scenarios/return/`
+- `reports/README.md`
+- `reports/generated/`
+- `reports/schemas/return-report.schema.json`
+- `docs/specs/RETURN_REPORT_SPEC.md`
+- `docs/runbooks/RETURN_DEMO_RUNBOOK.md`
+- `docs/testing/DAML_TEST_PLAN.md`
+- `docs/testing/TEST_STRATEGY.md`
+- `docs/runbooks/README.md`
+- `docs/adrs/README.md`
+- `docs/adrs/0013-return-and-release-control.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/mission-control/WORKLOG.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-11-execution-report.md`
+- `docs/risks/RISK_REGISTER.md`
+- `docs/security/THREAT_MODEL.md`
+
+Acceptance criteria:
+
+- the prototype demonstrates a real positive return workflow from declared scenario inputs through Daml execution
+- authorization, secured-party control, replay protection, and obligation-state checks are explicit in the workflow and report artifacts
+- return execution updates encumbrance state deterministically and emits a machine-readable return report plus operator-facing Markdown artifacts
+- negative-path scenarios cover unauthorized release, replayed return instruction, and obligation-versus-request amount mismatch without fabricating success
+- mission-control, invariants, evidence, ADR, runbook, and reproducible command surfaces are updated for proposal and demo use
+- relevant commands are run, the changes are committed, and the worktree is left clean
+
+Planned commands:
+
+```sh
+make demo-return
+make daml-test
+make test-policy-engine
+make test-optimizer
+make docs-lint
+make verify
+git status --short --branch
+```
+
+## 2026-03-28 - Prompt 11 - Post-Change
+
+Outcome:
+Implemented the repository's first end-to-end confidential return and release prototype by tightening the Daml return workflow, adding a retained-set-based return orchestration layer, publishing a machine-readable `ReturnReport` contract, generating real positive and negative return artifacts, and aligning the mission-control, ADR, runbook, and evidence surfaces to the new control model.
+
+Completed artifacts:
+
+- new return orchestration surface under `app/orchestration/` with a real `make demo-return` command
+- expanded Daml return workflow, parameterized return demo script, and lifecycle tests under `daml/CantonCollateral/`
+- new return scenario bundle under `examples/demo-scenarios/return/`
+- new return-report schema and specification under `reports/schemas/return-report.schema.json` and `docs/specs/RETURN_REPORT_SPEC.md`
+- new operator runbook under `docs/runbooks/RETURN_DEMO_RUNBOOK.md`
+- new ADR under `docs/adrs/0013-return-and-release-control.md` plus renumbered Quickstart ADR under `docs/adrs/0014-quickstart-demo-foundation.md`
+- regenerated real demo artifacts under `reports/generated/` including the return report, Markdown summary, timeline, positive workflow result, and the negative-path policy, optimization, and workflow artifacts
+- mission-control, invariant, risk, threat, README, setup, testing, evidence, and command-surface updates aligned to the new prototype
+- prompt execution evidence under `docs/evidence/prompt-11-execution-report.md`
+
+Commands run:
+
+```sh
+make status
+make demo-return
+make test-policy-engine
+make test-optimizer
+make daml-test
+make docs-lint
+make verify
+git diff --check
+git status --short --branch
+```
+
+Results:
+
+- `make status` passed and reported `Current Phase: Milestone 4 / Phase 4 - Initial Margin Call, Return, And Substitution Demo Reporting`
+- `make demo-return` passed and generated `reports/generated/return-demo-report.json` plus the supporting JSON and Markdown artifacts for one positive and three negative scenarios
+- `make test-policy-engine` passed and regenerated the committed baseline `PolicyEvaluationReport` artifact
+- `make test-optimizer` passed and regenerated the committed baseline `OptimizationReport` artifact
+- `make daml-test` passed and extended the Daml lifecycle-script baseline for return replay blocking, unauthorized release prevention, and obligation-state mismatch handling
+- `make docs-lint` passed after the new return docs, ADR, runbook, tracker, and evidence surfaces were added to the required documentation set
+- `make verify` passed and re-ran docs linting, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml lifecycle tests, all three end-to-end demos, and the Quickstart compose-preflight smoke path
+- `git diff --check` passed with no whitespace or patch-format issues
+- `git status --short --branch` before commit showed only the expected Prompt 11 code, documentation, schema, example, generated-artifact, and ADR-renumbering changes
+
+Next step:
+Bridge the repo Daml package into the pinned Quickstart runtime line, then define role-scoped execution, return, and substitution report profiles plus workflow-coupled reservation and consent interfaces on top of the current demo set.
+
 Expected artifacts:
 
 - repository operating instructions
@@ -838,7 +950,7 @@ Affected files:
 - `docs/integration/ASSET_ADAPTER_PLAN.md`
 - `docs/integration/INTEGRATION_SURFACES.md`
 - `docs/adrs/README.md`
-- `docs/adrs/0013-quickstart-demo-foundation.md`
+- `docs/adrs/0014-quickstart-demo-foundation.md`
 - `docs/mission-control/MASTER_TRACKER.md`
 - `docs/mission-control/ROADMAP.md`
 - `docs/mission-control/DECISION_LOG.md`
@@ -877,7 +989,7 @@ Completed artifacts:
 - pinned Quickstart bootstrap, overlay metadata, and profile templates under `infra/quickstart/`
 - reproducible Quickstart smoke script under `scripts/run-localnet-smoke.sh`
 - new LocalNet and asset-adapter plans under `docs/integration/`
-- new Quickstart foundation ADR under `docs/adrs/0013-quickstart-demo-foundation.md`
+- new Quickstart foundation ADR under `docs/adrs/0014-quickstart-demo-foundation.md`
 - README, setup, runbook, dependency, test-strategy, invariant, evidence, risk, security, roadmap, tracker, and decision-log updates for the new LocalNet layer
 - prompt execution evidence in `docs/evidence/prompt-08-execution-report.md`
 
@@ -985,7 +1097,7 @@ Completed artifacts:
 - new margin-call scenario bundle under `examples/demo-scenarios/margin-call/`
 - new execution-report schema and specification under `reports/schemas/execution-report.schema.json` and `docs/specs/EXECUTION_REPORT_SPEC.md`
 - new operator runbook under `docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md`
-- new ADR under `docs/adrs/0011-margin-call-demo-shape.md` plus renumbered Quickstart ADR under `docs/adrs/0013-quickstart-demo-foundation.md`
+- new ADR under `docs/adrs/0011-margin-call-demo-shape.md` plus renumbered Quickstart ADR under `docs/adrs/0014-quickstart-demo-foundation.md`
 - regenerated real demo artifacts under `reports/generated/` including the execution report, Markdown summary, timeline, positive workflow result, and negative-path artifacts
 - mission-control, invariant, risk, threat, README, setup, testing, evidence, and command-surface updates aligned to the new prototype
 - prompt execution evidence under `docs/evidence/prompt-09-execution-report.md`
@@ -1016,7 +1128,7 @@ Completed artifacts:
 - new substitution scenario bundle under `examples/demo-scenarios/substitution/`
 - new substitution-report schema and specification under `reports/schemas/substitution-report.schema.json` and `docs/specs/SUBSTITUTION_REPORT_SPEC.md`
 - new operator runbook under `docs/runbooks/SUBSTITUTION_DEMO_RUNBOOK.md`
-- new ADR under `docs/adrs/0012-substitution-atomicity.md` plus renumbered Quickstart ADR under `docs/adrs/0013-quickstart-demo-foundation.md`
+- new ADR under `docs/adrs/0012-substitution-atomicity.md` plus renumbered Quickstart ADR under `docs/adrs/0014-quickstart-demo-foundation.md`
 - regenerated real demo artifacts under `reports/generated/` including the substitution report, Markdown summary, timeline, positive workflow result, and negative-path policy, optimization, and workflow artifacts
 - mission-control, invariant, risk, threat, README, setup, testing, evidence, and command-surface updates aligned to the new prototype
 - prompt execution evidence under `docs/evidence/prompt-10-execution-report.md`

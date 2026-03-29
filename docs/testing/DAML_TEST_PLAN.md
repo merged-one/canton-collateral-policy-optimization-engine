@@ -11,6 +11,7 @@ make daml-build
 make daml-test
 make demo-run
 make demo-margin-call
+make demo-return
 make demo-substitution
 ```
 
@@ -20,8 +21,9 @@ make demo-substitution
 | --- | --- | --- |
 | `CantonCollateral.Test:marginCallLifecycleTest` | margin call creation, approval gating, execution-report emission | `AUTH-001`, `WF-001`, `REPT-001`, `AUD-001` |
 | `CantonCollateral.Test:postingAndSubstitutionLifecycleTest` | posting intent, approval routing, settlement, substitution approval, substitution rejection, encumbrance replacement | `CTRL-001`, `ENC-001`, `ATOM-001`, `WF-001`, `REPT-001` |
-| `CantonCollateral.Test:returnLifecycleTest` | return request approval and settlement-confirmed release path | `CTRL-001`, `ATOM-001`, `WF-001`, `REPT-001` |
+| `CantonCollateral.Test:returnLifecycleTest` | return request approval, replay blocking, obligation-state mismatch rejection, and unauthorized release prevention | `CTRL-001`, `ATOM-001`, `REPL-001`, `WF-001`, `REPT-001` |
 | `CantonCollateral.Demo:marginCallDemoWorkflow` | parameterized positive margin-call issuance and posting path driven by optimizer-selected lots | `WF-001`, `REPT-001`, `AUD-001` |
+| `CantonCollateral.Demo:returnDemoWorkflow` | parameterized return path from currently encumbered collateral through retained-set selection, approval-gated release, replay blocking, or deterministic control failure | `CTRL-001`, `ATOM-001`, `REPL-001`, `WF-001`, `REPT-001`, `EXCP-001` |
 | `CantonCollateral.Demo:substitutionDemoWorkflow` | parameterized substitution path from existing encumbrances through approval-gated atomic replacement or deterministic control failure | `CTRL-001`, `ATOM-001`, `WF-001`, `REPT-001`, `EXCP-001` |
 | `Bootstrap:workflowSmokeTest` | aggregate smoke run over the three lifecycle scripts | command-surface validation and operator reproducibility |
 
@@ -32,6 +34,7 @@ make demo-substitution
 - substitution archives released encumbrances and creates replacement encumbrances only when settlement is confirmed
 - return workflow releases encumbrances only after return settlement confirmation
 - the end-to-end margin-call demo passes optimizer-selected lots into a Daml Script and records both the issued call and the settled posting path
+- the end-to-end return demo starts from currently encumbered lots, derives the release scope from the retained-set recommendation, and records only a fully approved release path as committed
 - the end-to-end substitution demo starts from currently encumbered lots, applies optimizer-selected replacements, and records only a fully approved atomic replacement path as committed
 
 ## Negative Paths
@@ -40,11 +43,13 @@ make demo-substitution
 - substitution can be rejected without mutating the currently pledged encumbrance set
 - settlement exception choices keep the workflow in `ExceptionOpen` rather than fabricating success
 - `make demo-margin-call` now covers the operator-facing negative paths for ineligible collateral, insufficient lendable value, and an expired policy window before the Daml workflow step is invoked
+- `make demo-return` now covers operator-facing negative paths for unauthorized release, replayed return instructions, and stale obligation-state mismatch before any encumbrance mutation is committed
 - `make demo-substitution` now covers operator-facing negative paths for replacement ineligibility, concentration-blocked replacement, unauthorized release attempts, and attempted partial settlement when atomicity is required
 
 ## Current Limits
 
 - the scripts use pinned policy references, not a live policy engine
 - the parameterized margin-call demo uses the Daml IDE ledger rather than the pinned Quickstart LocalNet
+- the parameterized return demo uses quantity-based retained-coverage checks in Daml rather than a full on-ledger lendable-value model
 - privacy is checked structurally through stakeholder choices and query scope, not yet through a full disclosure-profile suite
 - replay, Daml-enforced expiry, and fuller concentration-limit workflow coverage remain future work

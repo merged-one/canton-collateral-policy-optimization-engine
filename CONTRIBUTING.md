@@ -58,9 +58,10 @@ make daml-build
 make daml-test
 make demo-run
 make demo-margin-call
+make demo-return
 make demo-substitution
 make docs-lint
 make verify
 ```
 
-The bootstrap installs the pinned repo-local Daml and Java toolchain under `.runtime/` and keeps CPL validation isolated in `.venv/`. `make localnet-bootstrap` stages the pinned upstream CN Quickstart checkout under `.runtime/localnet/`, and `make localnet-smoke` validates the upstream compose topology without pretending the Control Plane DAR is already deployed. `make demo-margin-call` provides the first end-to-end operator demo for margin-call posting. `make demo-substitution` proves encumbered-collateral replacement, approval enforcement, and atomic substitution failure handling. The policy engine and optimizer stay stdlib-only and validate their generated report artifacts against the committed report schemas.
+The bootstrap installs the pinned repo-local Daml and Java toolchain under `.runtime/` and keeps CPL validation isolated in `.venv/`. `make localnet-bootstrap` stages the pinned upstream CN Quickstart checkout under `.runtime/localnet/`, and `make localnet-smoke` validates the upstream compose topology without pretending the Control Plane DAR is already deployed. `make demo-margin-call` provides the first end-to-end operator demo for margin-call posting. `make demo-return` proves retained-set-driven collateral return, approval enforcement, replay blocking, and release-state integrity. `make demo-substitution` proves encumbered-collateral replacement, approval enforcement, and atomic substitution failure handling. The policy engine and optimizer stay stdlib-only and validate their generated report artifacts against the committed report schemas.
