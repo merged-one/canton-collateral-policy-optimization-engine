@@ -6,17 +6,18 @@ Turn the current repository into a real confidential-collateral demo on top of a
 
 ## Current Implemented Layer
 
-This prompt implements Stage 0 only:
+The repository now implements Stage 0 and Stage 2:
 
 - pinned upstream CN Quickstart checkout at commit `fe56d460af650b71b8e20098b3e76693397a8bf9`
 - repo-owned `.env.local` overlay profiles under `infra/quickstart/overlay/`
 - reproducible bootstrap through `make localnet-bootstrap`
 - reproducible compose-preflight smoke through `make localnet-smoke`
+- reproducible Quickstart-compatible DAR build through `make localnet-build-dar`
+- reproducible package installation into a running pinned Quickstart LocalNet through `make localnet-deploy-dar`
 - documented operator path that stays with upstream `make check-docker`, `make build`, `make start`, and `make status`
 
 This prompt does not yet:
 
-- deploy the Control Plane DAR into Quickstart
 - seed confidential collateral data or live parties
 - move assets through a token-standard-style application
 - emit a Quickstart-backed `ExecutionReport`
@@ -42,11 +43,11 @@ Status: documented, not automated here
 
 ### Stage 2: Control Plane Package Bridge
 
-Status: deferred
+Status: implemented
 
-- reconcile the current repo Daml SDK `2.10.4` package with the pinned Quickstart runtime line (`DAML_RUNTIME_VERSION=3.4.10`)
-- decide whether the bridge is achieved through a repo upgrade, a separately built compatible DAR, or a version-pinned sidecar package boundary
-- only after that bridge exists, upload the Control Plane DAR and allocate or onboard the demo parties
+- keep the repo-default host toolchain on Daml `2.10.4` while building Quickstart-compatible DARs through a containerized Daml `3.4.10` plus Java `21` bridge
+- preserve one shared Control Plane Daml source tree rather than splitting into host-only and Quickstart-only package variants
+- upload the Control Plane DAR into the running app-provider and app-user participants through the upstream onboarding container
 
 ### Stage 3: Confidential Collateral Seed Scenario
 
@@ -71,8 +72,8 @@ Status: deferred
 | Quickstart topology | upstream CN Quickstart modular Docker Compose stack | stay close to supported workflows and reduce repo-owned runtime code |
 | Auth path | OAuth2 remains the default overlay choice | keeps the future confidential demo close to the upstream security posture |
 | Observability | optional in `lean`, enabled in `faithful` | preserve a lightweight preflight while keeping a higher-fidelity path available |
-| LocalNet start | documented but not auto-executed by repo Make targets | avoids claiming end-to-end success before the Daml version bridge is pinned |
-| Control Plane package load | deferred | repo Daml artifacts are not yet aligned with the pinned Quickstart runtime line |
+| LocalNet start | documented but not auto-executed by repo Make targets | keeps upstream runtime ownership explicit even though the package-install path is now real |
+| Control Plane package load | real | the repo now builds and uploads a Quickstart-compatible DAR through the documented bridge |
 | Asset movement | mocked as future adapter work | avoids fake settlement or fake token movement in the main execution path |
 
 ## Integration Hooks For Other Canton Projects
@@ -92,6 +93,8 @@ From the repository root:
 ```sh
 make localnet-bootstrap
 make localnet-smoke
+make localnet-build-dar
+make localnet-deploy-dar
 ```
 
 From the staged upstream checkout after bootstrap:

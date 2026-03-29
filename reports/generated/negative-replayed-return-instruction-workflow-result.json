@@ -29,7 +29,7 @@
   "scenarioId": "negative-replayed-return-instruction",
   "requestedReturnQuantity": 180000.0000000000,
   "remainingRequiredCoverage": 250000.0000000000,
-  "remainingEncumberedLotIds": ["ret-current-fannie", "ret-current-kfw"],
+  "remainingEncumberedLotIds": ["ret-current-kfw", "ret-current-fannie"],
   "returnState": "Closed",
   "steps": [{
     "actor": "provider",

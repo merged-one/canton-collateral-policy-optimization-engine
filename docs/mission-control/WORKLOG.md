@@ -2,6 +2,121 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-29 - Prompt 13 Quickstart Runtime Bridge - Pre-Change
+
+Intent:
+Choose and implement the smallest credible runtime-bridge strategy that lets the Canton Collateral Control Plane DAR build and attempt deployment into the pinned upstream Quickstart LocalNet instead of leaving the Quickstart path blocked at version mismatch.
+
+Task summary:
+
+- determine whether the correct bridge is a repo Daml upgrade, a dual-runtime bridge, or a Quickstart re-pin
+- implement the chosen runtime strategy across toolchain pins, bootstrap scripts, and deployment command surface
+- add an ADR, operator evidence, and mission-control updates so the Quickstart deployment path is explicit, reproducible, and no longer documented only as an unresolved blocker
+
+Expected affected files:
+
+- `daml.yaml`
+- `Makefile`
+- `scripts/toolchain.env`
+- `scripts/bootstrap.sh`
+- `scripts/dev-status.sh`
+- `infra/quickstart/bootstrap-localnet.sh`
+- `infra/quickstart/README.md`
+- `docs/adrs/0016-quickstart-runtime-bridge.md`
+- `docs/setup/DEPENDENCY_POLICY.md`
+- `docs/setup/LOCAL_DEV_SETUP.md`
+- `docs/integration/QUICKSTART_INTEGRATION_PLAN.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/ROADMAP.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-13-execution-report.md`
+- `docs/mission-control/WORKLOG.md`
+- additional repo-surface documentation updated only where required to keep the command surface and tracker consistent
+
+Risk assessment:
+
+- upgrading the repo Daml line could break existing IDE-ledger workflow scripts or require a Java baseline change that ripples through bootstrap and verification
+- introducing a dual-runtime path could make the repo harder to reproduce if the bootstrap, status, and docs do not make the split explicit and deterministic
+- re-pinning Quickstart to an older runtime could move the repo away from the current upstream LocalNet direction and weaken the existing overlay-first foundation
+- deployment into Quickstart may still be environment-sensitive if Docker or the upstream stack is not fully built and running, so failure handling and evidence need to stay explicit
+
+Acceptance criteria:
+
+- one explicit runtime strategy is chosen and justified in a new ADR
+- the Control Plane DAR builds under the chosen strategy
+- the repository exposes a real deployment-oriented Quickstart command that checks readiness and fails clearly
+- dependency, setup, Quickstart, tracker, and evidence docs consistently reflect the chosen strategy
+- execution evidence records the exact commands run, what passed or failed, and the remaining residual risks
+
+## 2026-03-29 - Prompt 13 Quickstart Runtime Bridge - Post-Change
+
+Outcome:
+Closed the Quickstart runtime bridge through an ADR-backed dual-runtime strategy that keeps the repo-default host toolchain on Daml `2.10.4` plus JDK `17` while building and deploying Quickstart-compatible DARs in Docker on Daml `3.4.10` plus Java `21`.
+
+Completed changes:
+
+- added ADR 0016 and aligned the tracker, roadmap, decision log, dependency policy, local setup guide, Quickstart integration docs, evidence manifest, risk register, threat model, runbook index, README surfaces, and Prompt 13 execution evidence around the explicit dual-runtime bridge decision
+- added `scripts/build-quickstart-dar.sh`, `scripts/localnet-deploy-dar.sh`, `make localnet-build-dar`, and `make localnet-deploy-dar` so the Control Plane DAR can be built against the pinned Quickstart runtime line and installed into a running pinned Quickstart LocalNet
+- updated `scripts/bootstrap.sh`, `scripts/dev-status.sh`, `scripts/toolchain.env`, and `infra/quickstart/bootstrap-localnet.sh` so the host-native versus Quickstart-bridge split is visible to operators
+- updated the Daml source to compile on both runtime lines by replacing the return replay key path with `ReturnRequestRegistry` and by switching the shared Daml Script contract-query helpers to template-specific variants
+- verified the bridge against a live pinned Quickstart LocalNet by building the upstream Quickstart licensing DAR in Docker, bringing up the upstream runtime slice with Keycloak enabled, and uploading the Control Plane DAR into the app-provider and app-user participants
+
+Architecture and ADR note:
+
+- ADR 0016 was added because the runtime-bridge choice changes how the repository builds, deploys, and documents Daml packages against the pinned Quickstart runtime line
+
+Commands run:
+
+```sh
+make localnet-bootstrap
+make daml-build
+make daml-test
+make localnet-build-dar
+cd .runtime/localnet/cn-quickstart/quickstart && make check-docker
+cd .runtime/localnet/cn-quickstart/quickstart && . /Users/charlesdusek/Code/canton-collateral-control-plane/.runtime/env.sh && make build
+. ./scripts/toolchain.env && docker run --rm -i -v "$PWD/.runtime/localnet/cn-quickstart/quickstart:/workspace" -w /workspace/daml/licensing -e QUICKSTART_DAML_SDK_VERSION="$QUICKSTART_DAML_SDK_VERSION" -e QUICKSTART_DAML_SDK_LINUX_AARCH64_ARCHIVE="$QUICKSTART_DAML_SDK_LINUX_AARCH64_ARCHIVE" -e QUICKSTART_DAML_SDK_LINUX_AARCH64_URL="$QUICKSTART_DAML_SDK_LINUX_AARCH64_URL" -e QUICKSTART_DAML_SDK_LINUX_AARCH64_SHA256="$QUICKSTART_DAML_SDK_LINUX_AARCH64_SHA256" ubuntu:24.04 /bin/sh <<'EOF'
+set -eu
+export DEBIAN_FRONTEND=noninteractive
+apt-get update >/dev/null
+apt-get install -y ca-certificates curl gzip openjdk-21-jdk-headless tar >/dev/null
+curl -fsSL "$QUICKSTART_DAML_SDK_LINUX_AARCH64_URL" -o "/tmp/$QUICKSTART_DAML_SDK_LINUX_AARCH64_ARCHIVE"
+echo "$QUICKSTART_DAML_SDK_LINUX_AARCH64_SHA256  /tmp/$QUICKSTART_DAML_SDK_LINUX_AARCH64_ARCHIVE" | sha256sum -c - >/dev/null
+tar -xzf "/tmp/$QUICKSTART_DAML_SDK_LINUX_AARCH64_ARCHIVE" -C /tmp
+sdk_dir="/tmp/sdk-$QUICKSTART_DAML_SDK_VERSION"
+export PATH="$sdk_dir/daml:$sdk_dir/daml-helper:$PATH"
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export DAML_HOME=/tmp/daml-home
+mkdir -p "$DAML_HOME/sdk" "$DAML_HOME/bin"
+ln -s "$sdk_dir" "$DAML_HOME/sdk/$QUICKSTART_DAML_SDK_VERSION"
+ln -s "$sdk_dir/daml/daml" "$DAML_HOME/bin/daml"
+cat > "$DAML_HOME/daml-config.yaml" <<CFG
+update-check: never
+auto-install: false
+CFG
+daml build --project-root /workspace/daml/licensing
+EOF
+cd .runtime/localnet/cn-quickstart/quickstart && export MODULES_DIR="$PWD/docker/modules" LOCALNET_DIR="$PWD/docker/modules/localnet" LOCALNET_ENV_DIR="$PWD/docker/modules/localnet/env" IMAGE_TAG="$(sed -n 's/^SPLICE_VERSION=//p' .env)" && docker compose --profile app-provider --profile app-user --profile sv --profile swagger-ui --profile pqs-app-provider --profile keycloak -f compose.yaml -f "$LOCALNET_DIR/compose.yaml" -f "$MODULES_DIR/keycloak/compose.yaml" -f "$MODULES_DIR/splice-onboarding/compose.yaml" -f "$MODULES_DIR/pqs/compose.yaml" --env-file .env --env-file .env.local --env-file "$LOCALNET_DIR/compose.env" --env-file "$LOCALNET_ENV_DIR/common.env" --env-file "$MODULES_DIR/keycloak/compose.env" --env-file "$MODULES_DIR/pqs/compose.env" up -d --build keycloak nginx-keycloak canton splice splice-onboarding
+make localnet-deploy-dar
+make docs-lint
+make verify-portable
+make verify
+git diff --check
+git status --short --branch
+```
+
+Results:
+
+- `make daml-build`, `make daml-test`, `make localnet-build-dar`, `make localnet-deploy-dar`, `make docs-lint`, `make verify-portable`, `make verify`, and `git diff --check` all passed
+- the first host-side upstream `make build` attempt failed at Quickstart's Daml `3.4.10` verification step, which confirmed that the repo should keep the host-native `2.10.4` path and use the documented containerized bridge for Quickstart-compatible DAR production instead
+- the first deployment attempts surfaced and then resolved repo-owned bridge issues in the container stdin wiring, env sourcing, and metadata path normalization before the final Quickstart upload succeeded
+- the final `make localnet-deploy-dar` execution uploaded the Control Plane DAR into both pinned Quickstart participants and confirmed package presence by package id `fc0d45f0d0ee032245807bdeba0be201d3c5c9518fa150cf804985440b05efe8`
+
+Residual risks and follow-up:
+
+- the bridge remains dual-runtime, so future Daml source changes must continue to be checked on both the host-native and Quickstart-compatible build paths
+- the package is now installable into Quickstart, but seeded Quickstart-backed workflow execution, role-scoped report disclosure, and live asset adapters remain future work
+
 ## 2026-03-29 - Test Harness Enhancements - Pre-Change
 
 Intent:

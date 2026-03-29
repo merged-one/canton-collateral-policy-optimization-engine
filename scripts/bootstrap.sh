@@ -95,6 +95,9 @@ export DAML_BIN="$bin_dir/daml"
 export DAML_HELPER_BIN="$bin_dir/daml-helper"
 export PYTHON_BIN="$venv_dir/bin/python"
 export CHECK_JSONSCHEMA_BIN="$venv_dir/bin/check-jsonschema"
+export QUICKSTART_BUILD_CONTAINER_IMAGE="$QUICKSTART_BUILD_CONTAINER_IMAGE"
+export QUICKSTART_DAML_SDK_VERSION="$QUICKSTART_DAML_SDK_VERSION"
+export QUICKSTART_JAVA_VERSION="$QUICKSTART_JAVA_VERSION"
 EOF
 }
 
@@ -170,3 +173,4 @@ write_env_file "$java_home" "$daml_home_dir" "$daml_install"
 "$JAVA_HOME/bin/java" -version >/dev/null 2>&1
 
 echo "bootstrap: Daml SDK $DAML_SDK_VERSION, Temurin JDK $JAVA_VERSION, and validation tooling are ready"
+echo "bootstrap: Quickstart DAR builds use containerized Daml SDK $QUICKSTART_DAML_SDK_VERSION on Java $QUICKSTART_JAVA_VERSION"

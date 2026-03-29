@@ -11,8 +11,12 @@ The repository now pins the first executable foundation around:
 - Daml SDK `2.10.4`
 - Canton open-source `2.10.4`
 - Temurin JDK `17.0.18+8`
+- pinned Quickstart runtime metadata `DAML_RUNTIME_VERSION=3.4.10`, `SPLICE_VERSION=0.5.3`, and `JAVA_VERSION=21-jdk`
 
-These versions support local package compilation and a minimal Daml smoke scenario today. Quickstart overlay wiring remains a follow-on task.
+These versions now operate through an explicit dual-runtime bridge:
+
+- the repo-default host toolchain stays on Daml `2.10.4` plus JDK `17` for IDE-ledger workflows and portable verification
+- Quickstart-compatible DAR builds run in Docker on Daml `3.4.10` plus Java `21`
 
 ## Prompt 8 Foundation Status
 
@@ -21,8 +25,10 @@ The first concrete Quickstart foundation now exists under `infra/quickstart/`:
 - upstream CN Quickstart is pinned by commit SHA rather than by floating branch name
 - `make localnet-bootstrap` stages the upstream checkout and writes `.env.local` from repo-owned overlay profiles
 - `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed stack without claiming full workflow deployment
+- `make localnet-build-dar` builds a Quickstart-compatible Control Plane DAR from the shared repo Daml source tree
+- `make localnet-deploy-dar` uploads that DAR into a running pinned Quickstart LocalNet through the upstream onboarding container
 
-The repo still does not deploy the Control Plane DAR into Quickstart. That remains blocked on the current version bridge between the repo Daml package (`2.10.4`) and the pinned Quickstart runtime line (`3.4.10`).
+The runtime bridge is therefore no longer only a planning note or blocker. The remaining Quickstart work is seeded scenario execution, workflow-party disclosure shaping, and adapter integration on top of the installed package.
 
 ## Integration Principles
 
@@ -46,7 +52,7 @@ The repo still does not deploy the Control Plane DAR into Quickstart. That remai
 ### Step 1: Pin the base
 
 - select and pin the Quickstart release that will anchor LocalNet development
-- use the already pinned Daml SDK and Canton `2.10.4` foundation as the compatibility floor
+- use the already pinned Daml SDK and Canton `2.10.4` host foundation plus the Daml `3.4.10` containerized bridge as the compatibility floor
 - record image or package versions in a dedicated dependency ADR before workflow code starts
 
 ### Step 2: Add overlays, not forks
@@ -59,6 +65,7 @@ The repo still does not deploy the Control Plane DAR into Quickstart. That remai
 
 - treat the Control Plane workflow package as an application deployed into the LocalNet, not as a modification to Quickstart core services
 - keep obligation, encumbrance, settlement, and approval templates in the Control Plane package boundary
+- preserve one shared Daml source tree and build the Quickstart-compatible DAR through the documented containerized bridge rather than a forked Quickstart-only package tree
 
 ### Step 4: Attach adjacent services
 
@@ -102,7 +109,7 @@ A Quickstart fork is acceptable only if all of the following are true:
 ## Exit Criteria For Moving Beyond Planning
 
 - Quickstart version pinned
-- Daml SDK and Canton baseline pinned for local compilation
+- Daml SDK and Canton baseline pinned for local compilation plus an explicit ADR-backed bridge for the pinned Quickstart runtime line
 - overlay strategy documented in repo-controlled config
 - Daml package boundary defined
 - adjacent service contracts defined for policy, valuation, optimization, and reporting

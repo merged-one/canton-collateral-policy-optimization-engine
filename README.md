@@ -86,6 +86,7 @@ Current scope:
 - final demo-pack command with machine-readable artifact indexing and third-party integration guidance
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
 - pinned Quickstart-based LocalNet bootstrap and compose-config smoke foundation that preserves upstream CN Quickstart workflows as closely as practical
+- containerized Quickstart runtime bridge plus real package-install command for the Control Plane DAR
 - first Daml domain model and lifecycle skeletons for obligations, posting, substitution, return, settlement intent, and execution reporting
 - executable Daml script checks for margin call, posting, substitution, and return skeletons
 - implementation-ready planning for CPL, policy-engine, optimization, workflow, and conformance phases
@@ -99,7 +100,7 @@ Current non-goals:
 - replacing venue-specific, repo-specific, or derivatives-specific applications
 - production-ready economic calibration
 - live integrations with custodians, CCPs, central-bank systems, or external pricing stacks
-- full deployment of the repository's Daml package into CN Quickstart before the runtime-version bridge is pinned
+- seeded Quickstart-backed workflow execution beyond package installation into the pinned LocalNet
 - UI development
 - performance tuning
 - live funding-curve optimization, workflow-coupled reservation, settlement-window enforcement, and production-grade collateral business logic in this phase
@@ -127,6 +128,8 @@ Reproducible commands today:
 make bootstrap
 make localnet-bootstrap
 make localnet-smoke
+make localnet-build-dar
+make localnet-deploy-dar
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -146,7 +149,7 @@ make verify-portable
 make verify
 ```
 
-`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-return` evaluates the currently encumbered set, derives the returned lots from a deterministic retained-set recommendation, enforces approvals plus replay-safe release control on the Daml boundary, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make test-conformance` re-runs all three confidential demos, generates supporting determinism and haircut evidence, and emits aggregate invariant pass or fail output. `make demo-all` packages the three confidential workflow demos, the conformance output, and the integration-guide references into one final machine-readable demo pack. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`. `make verify-portable` runs the full repository verification loop without the Docker-dependent Quickstart smoke gate. `make verify` remains the full superset and adds `make localnet-smoke` on top of the portable checks.
+`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make localnet-build-dar` builds the Control Plane DAR against the pinned Quickstart runtime line through a containerized Daml `3.4.10` plus Java `21` bridge. `make localnet-deploy-dar` rebuilds that DAR and installs it into the running Quickstart app-provider and app-user participants through the upstream onboarding container. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-return` evaluates the currently encumbered set, derives the returned lots from a deterministic retained-set recommendation, enforces approvals plus replay-safe release control on the Daml boundary, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make test-conformance` re-runs all three confidential demos, generates supporting determinism and haircut evidence, and emits aggregate invariant pass or fail output. `make demo-all` packages the three confidential workflow demos, the conformance output, and the integration-guide references into one final machine-readable demo pack. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`. `make verify-portable` runs the full repository verification loop without the Docker-dependent Quickstart smoke gate. `make verify` remains the full superset and adds `make localnet-smoke` on top of the portable checks.
 
 Current CPL artifacts:
 

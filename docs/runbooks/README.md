@@ -16,13 +16,15 @@ Runbooks turn design intent into operator steps. They should contain real comman
 The repository now includes:
 
 - [docs/setup/LOCAL_DEV_SETUP.md](../setup/LOCAL_DEV_SETUP.md) for pinned local bootstrap and verification
-- [infra/quickstart/README.md](../../infra/quickstart/README.md) for the pinned Quickstart LocalNet bootstrap and smoke layer
+- [infra/quickstart/README.md](../../infra/quickstart/README.md) for the pinned Quickstart LocalNet bootstrap, DAR-build, and package-deployment layer
 - [docs/runbooks/FINAL_DEMO_RUNBOOK.md](./FINAL_DEMO_RUNBOOK.md) for the final packaged confidential workflow demo
 - [docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md](./MARGIN_CALL_DEMO_RUNBOOK.md) for the first end-to-end margin-call demo
 - [docs/runbooks/SUBSTITUTION_DEMO_RUNBOOK.md](./SUBSTITUTION_DEMO_RUNBOOK.md) for the first end-to-end substitution demo
 - [docs/runbooks/RETURN_DEMO_RUNBOOK.md](./RETURN_DEMO_RUNBOOK.md) for the first end-to-end return demo
 - `make localnet-bootstrap` for staging the pinned upstream CN Quickstart checkout and overlay
 - `make localnet-smoke` for Docker preflight plus compose-config validation of the pinned Quickstart stack
+- `make localnet-build-dar` for the Quickstart-compatible Control Plane DAR build
+- `make localnet-deploy-dar` for package installation into a running pinned Quickstart LocalNet
 - `make validate-cpl` for schema-validating published policy artifacts
 - `make policy-eval` for generating a real `PolicyEvaluationReport`
 - `make optimize` for generating a real `OptimizationReport`

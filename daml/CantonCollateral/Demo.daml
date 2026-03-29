@@ -188,12 +188,31 @@ registerBaselineRoles operator provider securedParty custodian = do
       label = "custodian"
   pure ()
 
-expectActiveContract : (HasTemplateTypeRep t, HasToAnyTemplate t, HasFromAnyTemplate t, HasAgreement t) => Party -> ContractId t -> Text -> Script t
-expectActiveContract party cid missingMessage = do
-  contract <- queryContractId party cid
-  case contract of
-    Some activeContract -> pure activeContract
-    None -> error missingMessage
+expectContractFromQuery : [(ContractId t, t)] -> ContractId t -> Text -> Script t
+expectContractFromQuery contracts cid missingMessage =
+  case [activeContract | (activeCid, activeContract) <- contracts, activeCid == cid] of
+    activeContract :: _ -> pure activeContract
+    [] -> error missingMessage
+
+expectActiveCallObligation : Party -> ContractId CallObligation -> Text -> Script CallObligation
+expectActiveCallObligation party cid missingMessage = do
+  obligations <- query @CallObligation party
+  expectContractFromQuery obligations cid missingMessage
+
+expectActivePostingIntent : Party -> ContractId CollateralPostingIntent -> Text -> Script CollateralPostingIntent
+expectActivePostingIntent party cid missingMessage = do
+  postings <- query @CollateralPostingIntent party
+  expectContractFromQuery postings cid missingMessage
+
+expectActiveSubstitutionRequest : Party -> ContractId SubstitutionRequest -> Text -> Script SubstitutionRequest
+expectActiveSubstitutionRequest party cid missingMessage = do
+  substitutions <- query @SubstitutionRequest party
+  expectContractFromQuery substitutions cid missingMessage
+
+expectActiveReturnRequest : Party -> ContractId ReturnRequest -> Text -> Script ReturnRequest
+expectActiveReturnRequest party cid missingMessage = do
+  returns <- query @ReturnRequest party
+  expectContractFromQuery returns cid missingMessage
 
 mkPolicyContextFromInput : MarginCallDemoInput -> PolicyContext
 mkPolicyContextFromInput input = PolicyContext with
@@ -384,8 +403,8 @@ marginCallDemoWorkflow input = script do
   closedPostingCid <- submit custodian do
     exerciseCmd pendingSettlementPostingCid ConfirmPostingSettlement
 
-  closedCall <- expectActiveContract provider closedCallCid "closed margin call should remain visible to the provider"
-  closedPosting <- expectActiveContract provider closedPostingCid "closed posting intent should remain visible to the provider"
+  closedCall <- expectActiveCallObligation provider closedCallCid "closed margin call should remain visible to the provider"
+  closedPosting <- expectActivePostingIntent provider closedPostingCid "closed posting intent should remain visible to the provider"
   reports <- query @ExecutionReportRecord provider
   encumbrances <- query @EncumbranceState provider
 
@@ -542,7 +561,7 @@ substitutionDemoWorkflow input = script do
         exerciseCmd afterSecuredPartyApprovalCid ApproveSubstitutionByCustodian
     else pure afterSecuredPartyApprovalCid
 
-  approvedSubstitution <- expectActiveContract provider afterCustodianApprovalCid "approved substitution should remain visible to the provider"
+  approvedSubstitution <- expectActiveSubstitutionRequest provider afterCustodianApprovalCid "approved substitution should remain visible to the provider"
 
   let authorizedSettlementLots = replacementAllocations
   let partialSettlementLots =
@@ -589,7 +608,7 @@ substitutionDemoWorkflow input = script do
           exerciseCmd pendingSettlementCid ConfirmSubstitutionSettlement
         pure (closedSubstitutionCid, approvalGateChecks, baseSteps ++ approvalSteps ++ successSteps)
 
-  finalSubstitution <- expectActiveContract provider finalSubstitutionCid "final substitution request should remain visible to the provider"
+  finalSubstitution <- expectActiveSubstitutionRequest provider finalSubstitutionCid "final substitution request should remain visible to the provider"
   reports <- query @ExecutionReportRecord provider
   encumbrances <- query @EncumbranceState provider
 
@@ -708,14 +727,20 @@ returnDemoWorkflow input = script do
 
   let returnEncumbranceCids =
         map snd (filter (\(lotId, _) -> containsText lotId returnLotIdsList) encumbrancePairs)
-  let draftReturn = ReturnRequest with
+  returnRegistrySeedCid <- submit provider do
+    createCmd ReturnRequestRegistry with
+      requestor = provider
+      provider
+      securedParty
+      custodian
+      visibilityObservers = [securedParty, custodian]
+      usedReturnRequestIds = []
+
+  (returnRegistryCid, draftReturnCid) <- submit provider do
+    exerciseCmd returnRegistrySeedCid $
+      DraftReturnRequest with
         returnRequestId = input.returnRequestId
         obligationId = input.obligationId
-        requestor = provider
-        provider
-        securedParty
-        custodian
-        visibilityObservers = [securedParty, custodian]
         policyContext
         encumbrancesToReturn = returnEncumbranceCids
         returnLots = returnAllocations
@@ -733,9 +758,6 @@ returnDemoWorkflow input = script do
         decisionSummary = "draft return request created from deterministic retained-set selection"
         rejectionReason = ""
         settlementInstructionCid = None
-
-  draftReturnCid <- submit provider do
-    createCmd draftReturn
 
   submittedReturnCid <- submit provider do
     exerciseCmd draftReturnCid SubmitReturnRequest
@@ -791,7 +813,7 @@ returnDemoWorkflow input = script do
             exerciseCmd afterSecuredPartyApprovalCid ApproveReturnByCustodian
         else pure afterSecuredPartyApprovalCid
 
-      approvedReturn <- expectActiveContract provider afterCustodianApprovalCid "approved return request should remain visible to the provider"
+      approvedReturn <- expectActiveReturnRequest provider afterCustodianApprovalCid "approved return request should remain visible to the provider"
 
       pendingSettlementCid <-
         if approvedReturn.state == PendingSettlement then pure afterCustodianApprovalCid else
@@ -817,7 +839,27 @@ returnDemoWorkflow input = script do
           exerciseCmd pendingSettlementCid ConfirmReturnSettlement
         if input.simulateReplayAttempt then do
           submitMustFail provider do
-            createCmd draftReturn
+            exerciseCmd returnRegistryCid $
+              DraftReturnRequest with
+                returnRequestId = input.returnRequestId
+                obligationId = input.obligationId
+                policyContext
+                encumbrancesToReturn = returnEncumbranceCids
+                returnLots = returnAllocations
+                requestedReturnQuantity
+                currentSecuredAmount = input.currentSecuredAmount
+                remainingRequiredCoverage = input.remainingRequiredCoverage
+                requestedReason = "release condition satisfied for excess collateral under the retained-set recommendation"
+                expiryAt = now
+                correlationId = input.correlationId
+                state = Draft
+                requiresSecuredPartyApproval = input.requiresSecuredPartyApproval
+                requiresCustodianApproval = input.requiresCustodianApproval
+                securedPartyApproval = if input.requiresSecuredPartyApproval then ApprovalPending else ApprovalGranted
+                custodianApproval = if input.requiresCustodianApproval then ApprovalPending else ApprovalGranted
+                decisionSummary = "draft return request created from deterministic retained-set selection"
+                rejectionReason = ""
+                settlementInstructionCid = None
           pure
             ( closedReturnCid
             , approvalGateChecks
@@ -830,7 +872,7 @@ returnDemoWorkflow input = script do
             )
         else pure (closedReturnCid, approvalGateChecks, baseSteps ++ approvalSteps ++ successSteps)
 
-  finalReturn <- expectActiveContract provider finalReturnCid "final return request should remain visible to the provider"
+  finalReturn <- expectActiveReturnRequest provider finalReturnCid "final return request should remain visible to the provider"
   reports <- query @ExecutionReportRecord provider
   encumbrances <- query @EncumbranceState provider
 

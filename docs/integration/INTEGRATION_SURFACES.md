@@ -1,12 +1,12 @@
 # Integration Surfaces
 
-This document identifies the major system boundaries the Canton Collateral Control Plane is expected to expose or depend on. The pinned Quickstart bootstrap and compose-preflight layer now exists; workflow deployment and asset adapters remain planned.
+This document identifies the major system boundaries the Canton Collateral Control Plane is expected to expose or depend on. The pinned Quickstart bootstrap, runtime bridge, and package-deployment layer now exist; Quickstart-backed workflow execution and asset adapters remain planned.
 
 ## Planned Surfaces
 
 | Surface | Purpose | Notes |
 | --- | --- | --- |
-| Canton Quickstart LocalNet | Host confidential multi-party workflow execution. | Pinned through `infra/quickstart/overlay/upstream-pin.env` and exercised through `make localnet-bootstrap` plus `make localnet-smoke`; Control Plane package deployment remains deferred. |
+| Canton Quickstart LocalNet | Host confidential multi-party workflow execution. | Pinned through `infra/quickstart/overlay/upstream-pin.env`, exercised through `make localnet-bootstrap` plus `make localnet-smoke`, and now installable through `make localnet-build-dar` plus `make localnet-deploy-dar`; seeded Control Plane workflow execution remains the next step. |
 | Token-standard-style asset adapter | Represent collateral assets, control state, and encumbrance state in a reusable way. | Must support deterministic eligibility and control semantics. |
 | Daml Finance-style asset adapter | Provide a second reference integration path for existing Canton-oriented asset models. | Exact scope remains to be pinned after dependency review. |
 | CPL input surface | Accept versioned eligibility, haircut, concentration, wrong-way-risk, control, substitution-right, and settlement-window rules. | Must be portable across multiple workflow types. |
@@ -33,7 +33,7 @@ The repository now also publishes:
 
 ## Near-Term Follow-Up
 
-- pin the LocalNet distribution
+- run the first Quickstart-backed Control Plane workflow on the installed DAR
 - wire CPL evaluation to the published schema and policy-profile examples
 - define the first decision-report and execution-report contracts
 - define the initial asset-adapter contracts

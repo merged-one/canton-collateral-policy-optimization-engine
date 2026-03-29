@@ -67,9 +67,6 @@ template ReturnRequest
         && currentSecuredAmount > 0.0
         && remainingRequiredCoverage >= 0.0
 
-    key (requestor, returnRequestId) : (Party, Text)
-    maintainer key._1
-
     choice SubmitReturnRequest : ContractId ReturnRequest
       controller requestor
       do
@@ -197,3 +194,68 @@ template ReturnRequest
         create this with
           state = ExceptionOpen
           rejectionReason = reason
+
+template ReturnRequestRegistry
+  with
+    requestor : Party
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    visibilityObservers : [Party]
+    usedReturnRequestIds : [Text]
+  where
+    signatory requestor
+    observer visibilityObservers
+
+    choice DraftReturnRequest : (ContractId ReturnRequestRegistry, ContractId ReturnRequest)
+      with
+        returnRequestId : Text
+        obligationId : Text
+        policyContext : PolicyContext
+        encumbrancesToReturn : [ContractId EncumbranceState]
+        returnLots : [LotAllocation]
+        requestedReturnQuantity : Decimal
+        currentSecuredAmount : Decimal
+        remainingRequiredCoverage : Decimal
+        requestedReason : Text
+        expiryAt : Time
+        correlationId : Text
+        state : WorkflowState
+        requiresSecuredPartyApproval : Bool
+        requiresCustodianApproval : Bool
+        securedPartyApproval : ApprovalDecision
+        custodianApproval : ApprovalDecision
+        decisionSummary : Text
+        rejectionReason : Text
+        settlementInstructionCid : Optional (ContractId SettlementInstruction)
+      controller requestor
+      do
+        assertMsg "return request identifier already used" (notElem returnRequestId usedReturnRequestIds)
+        nextRegistryCid <- create this with
+          usedReturnRequestIds = returnRequestId :: usedReturnRequestIds
+        requestCid <- create ReturnRequest with
+          returnRequestId
+          obligationId
+          requestor
+          provider
+          securedParty
+          custodian
+          visibilityObservers
+          policyContext
+          encumbrancesToReturn
+          returnLots
+          requestedReturnQuantity
+          currentSecuredAmount
+          remainingRequiredCoverage
+          requestedReason
+          expiryAt
+          correlationId
+          state
+          requiresSecuredPartyApproval
+          requiresCustodianApproval
+          securedPartyApproval
+          custodianApproval
+          decisionSummary
+          rejectionReason
+          settlementInstructionCid
+        pure (nextRegistryCid, requestCid)

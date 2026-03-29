@@ -1,3 +1,8 @@
+# The default repo-local workflow path stays on the host-native 2.10.4 line for the
+# current IDE-ledger demos. The Quickstart deployment bridge rewrites this file to the
+# pinned Quickstart runtime line inside a containerized build so the same source package
+# can produce a Quickstart-compatible DAR without forcing every contributor onto a
+# host-native 3.4.x SDK.
 sdk-version: 2.10.4
 name: canton-collateral-control-plane
 source: daml

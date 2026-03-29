@@ -121,12 +121,16 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0100 | Tests | [test/conformance/test_conformance_checks.py](../../test/conformance/test_conformance_checks.py) | isolated unit assertions over conformance helper rules so report-level and rule-level regressions can fail independently |
 | E-0101 | Code | [testsupport/fixture_builders.py](../../testsupport/fixture_builders.py) | shared deterministic fixture builders for the Python policy-engine and optimizer suites |
 | E-0102 | Code | [scripts/verify-portable.sh](../../scripts/verify-portable.sh) | Docker-free portable verification loop that preserves the full Quickstart smoke gate as a separate superset |
+| E-0103 | ADRs | [docs/adrs/0016-quickstart-runtime-bridge.md](../adrs/0016-quickstart-runtime-bridge.md) | explicit dual-runtime bridge decision between the repo host toolchain and the pinned Quickstart runtime line |
+| E-0104 | Code | [scripts/build-quickstart-dar.sh](../../scripts/build-quickstart-dar.sh) | containerized Daml `3.4.10` plus Java `21` bridge that builds a Quickstart-compatible Control Plane DAR from the shared source tree |
+| E-0105 | Code | [scripts/localnet-deploy-dar.sh](../../scripts/localnet-deploy-dar.sh) | pinned Quickstart package-install command that uploads the Control Plane DAR through the upstream onboarding container |
+| E-0106 | Demo artifacts | [docs/evidence/prompt-13-execution-report.md](./prompt-13-execution-report.md) | reproducible Prompt 13 execution record for the Quickstart runtime bridge and package deployment proof |
 
 ## Coverage Notes
 
 - The `Code` category now includes the first Daml workflow skeleton package in addition to schema, bootstrap, and toolchain artifacts.
 - The architecture, CPL, policy-engine, optimizer, Daml-boundary, and Quickstart-foundation packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
-- The `Demo artifacts` category now includes the end-to-end margin-call, return, and substitution reports plus their supporting policy, optimization, workflow, conformance, final demo-pack, and prompt evidence artifacts, but still not a Quickstart-backed deployment proof.
+- The `Demo artifacts` category now includes the end-to-end margin-call, return, and substitution reports plus their supporting policy, optimization, workflow, conformance, final demo-pack, prompt evidence artifacts, and the first Quickstart-backed package deployment proof, though a Quickstart-backed workflow execution artifact is still pending.
 - The evidence set now records the rename to "Canton Collateral Control Plane" as a semantic clarification of the same subsystem stack rather than a new product direction.
 - The evidence set now includes an explicit third-party integration guide and a reviewer-facing demo artifact index so future Canton projects can consume the prototype through declared interfaces instead of reverse-engineering incidental file shapes.
 - Economic rationale is now architecture-, control-, and optimization-objective-oriented rather than calibration-backed.

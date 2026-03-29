@@ -101,5 +101,5 @@ make daml-test
 
 - `make test-conformance` is the prototype's aggregated invariant gate, not a replacement for `make test-policy-engine`, `make test-optimizer`, or `make daml-test`
 - the conformance test package now includes both generated-report assertions and isolated helper-check unit tests so report-shape and rule regressions do not have to surface through the same failure mode
-- the conformance suite still uses the Daml IDE ledger for workflow execution because the Quickstart runtime bridge remains a separate follow-on task
+- the conformance suite still uses the Daml IDE ledger for workflow execution even though the Quickstart package-install bridge now exists; Quickstart-backed workflow execution remains a separate follow-on task
 - the current suite is intentionally evidence-first: it checks the machine-readable artifacts that proposal reviewers will actually inspect

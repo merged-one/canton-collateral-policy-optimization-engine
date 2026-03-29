@@ -14,6 +14,7 @@ runtime_dir="$repo_root/.runtime"
 env_file="$runtime_dir/env.sh"
 localnet_workdir="$runtime_dir/localnet/cn-quickstart"
 localnet_env_file="$localnet_workdir/${QS_QUICKSTART_SUBDIR:-quickstart}/.env.local"
+quickstart_dar_metadata="$repo_root/.daml/dist-quickstart/quickstart-dar-metadata.env"
 
 printf 'Mission-control status\n'
 grep -m 1 '^Current Phase:' "$repo_root/docs/mission-control/MASTER_TRACKER.md"
@@ -24,6 +25,7 @@ printf '  Temurin JDK: %s\n' "$JAVA_VERSION"
 printf '  Daml SDK: %s\n' "$DAML_SDK_VERSION"
 printf '  Canton baseline: %s\n' "$CANTON_VERSION"
 printf '  CPL validator: %s\n' "$CHECK_JSONSCHEMA_VERSION"
+printf '  Quickstart DAR bridge: Daml SDK %s in %s\n' "$QUICKSTART_DAML_SDK_VERSION" "$QUICKSTART_BUILD_CONTAINER_IMAGE"
 if [ -n "${QS_COMMIT:-}" ]; then
 	printf '  CN Quickstart pin: %s\n' "$QS_COMMIT"
 fi
@@ -55,6 +57,13 @@ if [ -d "$localnet_workdir/.git" ]; then
 else
 	printf '  localnet: not bootstrapped; run make localnet-bootstrap\n'
 fi
+if [ -f "$quickstart_dar_metadata" ]; then
+	. "$quickstart_dar_metadata"
+	printf '  bridge DAR: %s\n' "$DAR_FILE"
+	printf '  bridge package id: %s\n' "$PACKAGE_ID"
+else
+	printf '  bridge DAR: not built; run make localnet-build-dar\n'
+fi
 
 printf '\nScaffold\n'
 for dir in daml app reports scripts test examples infra docs/setup; do
@@ -69,6 +78,8 @@ printf '\nCommand surface\n'
 printf '  make bootstrap\n'
 printf '  make localnet-bootstrap\n'
 printf '  make localnet-smoke\n'
+printf '  make localnet-build-dar\n'
+printf '  make localnet-deploy-dar\n'
 printf '  make status\n'
 printf '  make validate-cpl\n'
 printf '  make policy-eval\n'

@@ -107,7 +107,7 @@ Prompt 8 status:
 - pinned CN Quickstart LocalNet foundation added under `infra/quickstart/` with commit-based upstream pinning, overlay profiles, and operator documentation
 - `make localnet-bootstrap` now stages the upstream checkout and writes a repo-owned `.env.local` overlay without modifying tracked upstream files
 - `make localnet-smoke` now reuses upstream Docker preflight checks and validates the composed Quickstart stack as the earliest real runnable LocalNet layer
-- LocalNet startup, Control Plane DAR deployment, token-standard-style assets, and confidential collateral seed data remain staged follow-on work because the current repo Daml package (`2.10.4`) is not yet bridged to the pinned Quickstart runtime line (`3.4.10`)
+- LocalNet startup, token-standard-style assets, and confidential collateral seed data remain staged follow-on work; the later runtime bridge work now closes the Control Plane DAR build and install path without forking upstream Quickstart
 
 Prompt 9 status:
 
@@ -136,11 +136,19 @@ Prompt 12 status:
 - `make test-conformance` now re-runs the confidential margin-call, substitution, and return demos, emits a machine-readable `ConformanceSuiteReport`, and proves authorization, determinism, haircut correctness, no double-encumbrance, atomic substitution, replay safety, report fidelity, and audit completeness
 - `make demo-all` now packages the confidential workflow demos, conformance output, artifact index, and third-party integration guidance into one machine-readable final demo pack plus Markdown summary
 - the Python test harness now includes shared deterministic fixture builders, isolated conformance-helper unit tests, and a Docker-free `make verify-portable` path while `make verify` remains the full Quickstart-aware superset
-- the final package still runs on the Daml IDE ledger because the Quickstart deployment bridge remains a separate runtime task
+- the final package still runs its end-to-end workflow demos on the Daml IDE ledger even though the Control Plane DAR can now be built and installed into Quickstart; Quickstart-backed workflow execution remains the next runtime task
+
+Prompt 13 status:
+
+- ADR 0016 now chooses a dual-runtime bridge: the repo keeps host-native Daml SDK `2.10.4` plus JDK `17` for the existing IDE-ledger workflow surface while Quickstart-compatible DAR builds run in Docker on Daml SDK `3.4.10` plus Java `21`
+- `make localnet-build-dar` now produces a Quickstart-compatible Control Plane DAR plus package-id metadata from the shared Daml source tree without repinning upstream Quickstart
+- `make localnet-deploy-dar` now validates the pinned upstream checkout, rebuilds the Quickstart-compatible DAR, and uploads it through the upstream onboarding container into the running app-provider and app-user participants
+- the Daml package now compiles on both runtime lines through explicit source compatibility updates, including a keyless `ReturnRequestRegistry` replay guard and template-specific query helpers
+- Quickstart-backed workflow execution, confidential collateral seed data, role-scoped report disclosure, and live asset adapters remain staged follow-on work
 
 ## Next 5 Tasks
 
-1. Close the Daml runtime bridge required to deploy the Control Plane DAR into the pinned Quickstart LocalNet.
+1. Execute the first Quickstart-backed Control Plane workflow scenario on the installed DAR and emit Quickstart-derived machine-readable evidence rather than IDE-ledger-only evidence.
 2. Specify role-scoped `ExecutionReport`, `ReturnReport`, and `SubstitutionReport` disclosure profiles beyond the current operator-facing demo aggregates and workflow-party report baseline.
 3. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
 4. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
@@ -149,7 +157,7 @@ Prompt 12 status:
 ## Blockers
 
 - There is no current blocker for continued documentation, policy-engine, optimizer, and report-contract work.
-- Full Quickstart-backed workflow deployment is blocked on the current runtime-version bridge between the repo Daml package (`2.10.4`) and the pinned upstream Quickstart runtime line (`3.4.10`).
+- There is no current blocker preventing Control Plane DAR build or package installation into the pinned Quickstart LocalNet; the remaining gated work is Quickstart-backed workflow execution, seeded collateral scenarios, and adapter integration on top of the installed package.
 - Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the LocalNet package-deployment path and asset interface versions are pinned explicitly.
 - Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
@@ -172,6 +180,9 @@ Current repo dependencies:
 - Temurin JDK `17.0.18+8`
 - Daml SDK `2.10.4`
 - Canton `2.10.4` as the current runtime compatibility baseline
+- containerized Quickstart DAR build image `ubuntu:24.04`
+- Quickstart bridge Daml SDK `3.4.10`
+- Quickstart bridge Java `21`
 - `check-jsonschema==0.37.1` via `requirements-cpl-validation.txt`
 - pinned CN Quickstart commit `fe56d460af650b71b8e20098b3e76693397a8bf9`
 - upstream Quickstart runtime metadata `DAML_RUNTIME_VERSION=3.4.10`, `SPLICE_VERSION=0.5.3`, and `JAVA_VERSION=21-jdk`
@@ -224,6 +235,8 @@ Target dependencies to pin in future ADRs:
 - [x] final demo pack
 - [x] third-party integration guide
 - [x] Prompt 12 execution report
+- [x] Quickstart runtime bridge ADR and deployment command surface
+- [x] Prompt 13 execution report
 
 ## Demo Checklist
 
@@ -240,6 +253,7 @@ Target dependencies to pin in future ADRs:
 - [x] invariant pass/fail output
 - [x] demo artifact index
 - [x] third-party integration guide
+- [x] reproducible Quickstart package-deployment command
 
 ## Release Checklist
 

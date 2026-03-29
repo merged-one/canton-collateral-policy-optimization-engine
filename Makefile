@@ -9,6 +9,8 @@ VERIFY_PORTABLE_SCRIPT := scripts/verify-portable.sh
 VERIFY_SCRIPT := scripts/verify.sh
 LOCALNET_BOOTSTRAP_SCRIPT := infra/quickstart/bootstrap-localnet.sh
 LOCALNET_SMOKE_SCRIPT := scripts/run-localnet-smoke.sh
+LOCALNET_BUILD_DAR_SCRIPT := scripts/build-quickstart-dar.sh
+LOCALNET_DEPLOY_DAR_SCRIPT := scripts/localnet-deploy-dar.sh
 
 include scripts/toolchain.env
 
@@ -55,6 +57,8 @@ REQUIRED_DOCS := \
 	scripts/toolchain.env \
 	scripts/bootstrap.sh \
 	scripts/dev-status.sh \
+	scripts/build-quickstart-dar.sh \
+	scripts/localnet-deploy-dar.sh \
 	scripts/verify-portable.sh \
 	scripts/verify.sh \
 	app/README.md \
@@ -158,10 +162,11 @@ REQUIRED_DOCS := \
 	docs/adrs/0010-rename-to-canton-collateral-control-plane.md \
 	docs/adrs/0011-margin-call-demo-shape.md \
 	docs/adrs/0012-substitution-atomicity.md \
-	docs/adrs/0013-return-and-release-control.md \
-	docs/adrs/0014-conformance-and-demo-package.md \
-	docs/adrs/0015-quickstart-demo-foundation.md \
-	docs/setup/LOCAL_DEV_SETUP.md \
+		docs/adrs/0013-return-and-release-control.md \
+		docs/adrs/0014-conformance-and-demo-package.md \
+		docs/adrs/0015-quickstart-demo-foundation.md \
+		docs/adrs/0016-quickstart-runtime-bridge.md \
+		docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
 	docs/risks/RISK_REGISTER.md \
@@ -176,10 +181,11 @@ REQUIRED_DOCS := \
 	docs/evidence/prompt-07-execution-report.md \
 	docs/evidence/prompt-08-execution-report.md \
 	docs/evidence/prompt-09-execution-report.md \
-	docs/evidence/prompt-10-execution-report.md \
-	docs/evidence/prompt-11-execution-report.md \
-	docs/evidence/prompt-12-execution-report.md \
-	docs/evidence/rename-to-collateral-control-plane-execution-report.md \
+		docs/evidence/prompt-10-execution-report.md \
+		docs/evidence/prompt-11-execution-report.md \
+		docs/evidence/prompt-12-execution-report.md \
+		docs/evidence/prompt-13-execution-report.md \
+		docs/evidence/rename-to-collateral-control-plane-execution-report.md \
 	docs/runbooks/README.md \
 	docs/runbooks/FINAL_DEMO_RUNBOOK.md \
 	docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md \
@@ -238,7 +244,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap localnet-bootstrap localnet-smoke docs-lint status verify-portable verify validate-cpl policy-eval optimize test-policy-engine test-optimizer test-conformance daml-build daml-test demo-run demo-margin-call demo-return demo-substitution demo-all clean-runtime
+.PHONY: bootstrap localnet-bootstrap localnet-smoke localnet-build-dar localnet-deploy-dar docs-lint status verify-portable verify validate-cpl policy-eval optimize test-policy-engine test-optimizer test-conformance daml-build daml-test demo-run demo-margin-call demo-return demo-substitution demo-all clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -255,7 +261,7 @@ docs-lint:
 	@for dir in $(REQUIRED_DIRS); do \
 		test -d "$$dir" || { echo "docs-lint: missing directory $$dir"; exit 1; }; \
 	done
-	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(VERIFY_PORTABLE_SCRIPT) $(VERIFY_SCRIPT) $(LOCALNET_BOOTSTRAP_SCRIPT) $(LOCALNET_SMOKE_SCRIPT); do \
+	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(LOCALNET_BUILD_DAR_SCRIPT) $(LOCALNET_DEPLOY_DAR_SCRIPT) $(VERIFY_PORTABLE_SCRIPT) $(VERIFY_SCRIPT) $(LOCALNET_BOOTSTRAP_SCRIPT) $(LOCALNET_SMOKE_SCRIPT); do \
 		test -x "$$script" || { echo "docs-lint: expected executable $$script"; exit 1; }; \
 	done
 	@grep -q "^sdk-version: $(DAML_SDK_VERSION)$$" daml.yaml || { echo "docs-lint: daml.yaml sdk-version mismatch"; exit 1; }
@@ -335,6 +341,7 @@ docs-lint:
 	@grep -q "ADR 0013" docs/adrs/0013-return-and-release-control.md || { echo "docs-lint: ADR 0013 missing title"; exit 1; }
 	@grep -q "ADR 0014" docs/adrs/0014-conformance-and-demo-package.md || { echo "docs-lint: ADR 0014 missing title"; exit 1; }
 	@grep -q "ADR 0015" docs/adrs/0015-quickstart-demo-foundation.md || { echo "docs-lint: ADR 0015 missing title"; exit 1; }
+	@grep -q "ADR 0016" docs/adrs/0016-quickstart-runtime-bridge.md || { echo "docs-lint: ADR 0016 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
@@ -344,6 +351,7 @@ docs-lint:
 	@grep -q "^## Results" docs/evidence/prompt-10-execution-report.md || { echo "docs-lint: prompt 10 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-11-execution-report.md || { echo "docs-lint: prompt 11 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-12-execution-report.md || { echo "docs-lint: prompt 12 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-13-execution-report.md || { echo "docs-lint: prompt 13 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
 	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
@@ -352,7 +360,8 @@ docs-lint:
 	@grep -q "Prompt 10 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 10 status"; exit 1; }
 	@grep -q "Prompt 11 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 11 status"; exit 1; }
 	@grep -q "Prompt 12 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 12 status"; exit 1; }
-	@echo "docs-lint: policy engine, optimizer, return demo, substitution demo, Quickstart foundation, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
+	@grep -q "Prompt 13 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 13 status"; exit 1; }
+	@echo "docs-lint: policy engine, optimizer, Quickstart runtime bridge, return demo, substitution demo, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 localnet-bootstrap:
 	@LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
@@ -365,6 +374,16 @@ localnet-smoke: localnet-bootstrap
 	LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
 	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
 	$(LOCALNET_SMOKE_SCRIPT)
+
+localnet-build-dar: bootstrap
+	@LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	$(LOCALNET_BUILD_DAR_SCRIPT)
+
+localnet-deploy-dar: bootstrap localnet-bootstrap
+	@LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	$(LOCALNET_DEPLOY_DAR_SCRIPT)
 
 validate-cpl: $(CHECK_JSONSCHEMA)
 	@$(CHECK_JSONSCHEMA) --check-metaschema $(CPL_SCHEMA)
@@ -495,4 +514,4 @@ verify:
 	@$(VERIFY_SCRIPT)
 
 clean-runtime:
-	@rm -rf $(RUNTIME_DIR) .daml/dist .daml/package-database
+	@rm -rf $(RUNTIME_DIR) .daml/dist .daml/dist-quickstart .daml/package-database

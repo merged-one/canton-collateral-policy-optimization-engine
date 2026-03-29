@@ -12,6 +12,7 @@ Design rules:
 
 - keep the upstream `quickstart/` tree unchanged and detached at a pinned commit
 - express repo-owned behavior through `.env.local` overlays and adjacent scripts first
-- defer any compose override, DAR deployment, seed-data load, or asset-adapter hook until the version bridge between this repo and upstream Quickstart is pinned explicitly
+- keep DAR build and deployment in repo-owned adjacent scripts rather than patching upstream Quickstart internals
+- defer seed-data load and asset-adapter hooks until their interface versions are pinned explicitly
 
-The current overlay does not yet mount the Control Plane DAR into the Quickstart runtime. That step is deferred intentionally and documented in the LocalNet and asset-adapter plans.
+The current overlay still does not mount the Control Plane DAR directly into the Quickstart compose definition. Instead, the repo now deploys the DAR after startup through `make localnet-deploy-dar`, which preserves upstream compose files and uses the onboarding container's package-upload path.
