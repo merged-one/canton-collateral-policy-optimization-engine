@@ -37,7 +37,7 @@ The repository's active user-facing name is "Canton Collateral Control Plane". T
 
 ## Current Phase
 
-Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, and reporting layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending the full Quickstart deployment is complete.
+Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, and reporting layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending full Quickstart-backed workflow execution or adapter integration is complete.
 
 Prompt 1 status:
 
@@ -146,9 +146,17 @@ Prompt 13 status:
 - the Daml package now compiles on both runtime lines through explicit source compatibility updates, including a keyless `ReturnRequestRegistry` replay guard and template-specific query helpers
 - Quickstart-backed workflow execution, confidential collateral seed data, role-scoped report disclosure, and live asset adapters remain staged follow-on work
 
+Prompt 14 status:
+
+- ADR 0017 now chooses a repo-owned overlay seed strategy that starts the pinned Quickstart stack, allocates the needed parties and users, seeds one confidential collateral scenario, and emits status evidence without forking upstream Quickstart
+- `make localnet-start-control-plane` now starts or reuses an isolated Quickstart overlay on the dedicated `quickstart-control-plane` network, deploys `canton-collateral-control-plane-0.1.1.dar`, and writes a machine-readable deployment receipt plus Markdown summary
+- `make localnet-seed-demo` now seeds one real Quickstart scenario with provider, secured-party, custodian, and operator roles plus one margin-style obligation, two provider inventory lots, and one posting intent through the shared Daml package
+- `make localnet-status-control-plane` now queries the seeded Quickstart state from the provider-visible view and writes a machine-readable ledger snapshot plus Markdown status summary
+- the Quickstart scenario now exists as real LocalNet ledger state, but full Quickstart-backed workflow execution, role-scoped report disclosure, and live asset adapters remain staged follow-on work
+
 ## Next 5 Tasks
 
-1. Execute the first Quickstart-backed Control Plane workflow scenario on the installed DAR and emit Quickstart-derived machine-readable evidence rather than IDE-ledger-only evidence.
+1. Execute the first Quickstart-backed Control Plane workflow scenario on top of the seeded LocalNet state and emit Quickstart-derived machine-readable execution evidence rather than IDE-ledger-only evidence.
 2. Specify role-scoped `ExecutionReport`, `ReturnReport`, and `SubstitutionReport` disclosure profiles beyond the current operator-facing demo aggregates and workflow-party report baseline.
 3. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
 4. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
@@ -157,8 +165,8 @@ Prompt 13 status:
 ## Blockers
 
 - There is no current blocker for continued documentation, policy-engine, optimizer, and report-contract work.
-- There is no current blocker preventing Control Plane DAR build or package installation into the pinned Quickstart LocalNet; the remaining gated work is Quickstart-backed workflow execution, seeded collateral scenarios, and adapter integration on top of the installed package.
-- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the LocalNet package-deployment path and asset interface versions are pinned explicitly.
+- There is no current blocker preventing Control Plane DAR build, package installation, or seeded confidential-scenario creation in the pinned Quickstart LocalNet; the remaining gated work is Quickstart-backed workflow execution, role-scoped reporting, and adapter integration on top of the seeded package and scenario surface.
+- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the seeded LocalNet package surface and asset interface versions are pinned explicitly.
 - Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
 
@@ -237,11 +245,15 @@ Target dependencies to pin in future ADRs:
 - [x] Prompt 12 execution report
 - [x] Quickstart runtime bridge ADR and deployment command surface
 - [x] Prompt 13 execution report
+- [x] Quickstart seeded-scenario ADR, runbook, and evidence surface
+- [x] Prompt 14 execution report
 
 ## Demo Checklist
 
 - [x] reproducible LocalNet startup command
 - [x] reproducible seed-data or bootstrap command
+- [x] reproducible Quickstart control-plane start command
+- [x] reproducible Quickstart scenario status command
 - [x] sample policy load command
 - [x] machine-readable optimization report generated by real optimization execution
 - [x] machine-readable execution report generated by real workflow execution

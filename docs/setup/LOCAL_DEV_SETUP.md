@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, optimize the first collateral-allocation path, execute the initial Daml workflow smoke scenario, run the first end-to-end margin-call, return, and substitution demos from a clean checkout, stage the pinned Quickstart-based LocalNet foundation, and build or deploy a Quickstart-compatible Control Plane DAR.
+Bootstrap a pinned local toolchain that can compile the repository's Daml package, validate `CPL v0.1`, evaluate the first policy-engine path, optimize the first collateral-allocation path, execute the initial Daml workflow smoke scenario, run the first end-to-end margin-call, return, and substitution demos from a clean checkout, stage the pinned Quickstart-based LocalNet foundation, and start, deploy, seed, or inspect a Quickstart-compatible Control Plane scenario.
 
 ## Supported Bootstrap Platforms
 
@@ -47,6 +47,9 @@ make localnet-bootstrap
 make localnet-smoke
 make localnet-build-dar
 make localnet-deploy-dar
+make localnet-start-control-plane
+make localnet-seed-demo
+make localnet-status-control-plane
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -71,6 +74,9 @@ What each command does:
 - `make localnet-smoke`: run upstream Docker preflight checks and validate the composed Quickstart LocalNet configuration
 - `make localnet-build-dar`: build the Control Plane DAR against the pinned Quickstart runtime line through the containerized Daml `3.4.10` plus Java `21` bridge and write package metadata under `.daml/dist-quickstart/`
 - `make localnet-deploy-dar`: rebuild the Quickstart-compatible DAR and upload it into a running pinned Quickstart LocalNet through the upstream onboarding container and participant package APIs
+- `make localnet-start-control-plane`: start the isolated repo-owned Quickstart overlay, deploy the Control Plane DAR, and write deployment evidence under `reports/generated/`
+- `make localnet-seed-demo`: allocate or reuse the scenario parties and users, seed the default confidential margin-style scenario on Quickstart, and write the seed receipt plus status snapshots under `reports/generated/`
+- `make localnet-status-control-plane`: query the seeded scenario from the provider-visible Quickstart view and rewrite the machine-readable plus Markdown status artifacts under `reports/generated/`
 - `make validate-cpl`: validate `CPL v0.1` schema and the published example policies
 - `make policy-eval`: validate a policy input, evaluate candidate inventory, and validate the generated `PolicyEvaluationReport`
 - `make optimize`: validate a policy input, optimize against inventory plus obligation inputs, and validate the generated `OptimizationReport`
@@ -100,7 +106,7 @@ What each command does:
 ## Notes
 
 - The current repository now includes an initial deterministic policy engine, an initial deterministic optimizer, initial Daml workflow skeletons, end-to-end margin-call, return, and substitution demos, an aggregate conformance suite, and a final demo pack, but it still does not implement live asset adapters, settlement-window enforcement, or workflow-coupled optimization reservation.
-- The Quickstart LocalNet foundation now stages a real upstream checkout, validates its compose topology, and exposes a real package-build plus package-deployment bridge for the Control Plane DAR, but it does not yet start the upstream stack automatically or run a full seeded Control Plane workflow on Quickstart.
+- The Quickstart LocalNet foundation now stages a real upstream checkout, validates its compose topology, starts an isolated repo-owned Quickstart overlay, deploys the Control Plane DAR, and seeds one confidential collateral scenario with ledger-returned contract identifiers, but it still does not execute a full Quickstart-backed workflow or live asset-adapter path.
 - `make localnet-build-dar` and `make localnet-deploy-dar` require Docker because the Quickstart-compatible DAR is built inside a Linux container even on Apple Silicon hosts.
 - Future Quickstart or Canton overlay assets should land under `infra/`, not inside the Daml or app package trees.
 - If the toolchain needs to be rebuilt from scratch, run `make clean-runtime` and then `make bootstrap`.

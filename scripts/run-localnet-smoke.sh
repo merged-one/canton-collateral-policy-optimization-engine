@@ -58,9 +58,9 @@ running_containers=$(docker ps --quiet --filter "network=${DOCKER_NETWORK:-quick
 if [ -n "$running_containers" ]; then
 	make --no-print-directory status >/dev/null
 	for readyz_url in \
-		http://localhost:2903/api/validator/readyz \
-		http://localhost:3903/api/validator/readyz \
-		http://localhost:4903/api/validator/readyz
+		"http://localhost:2${VALIDATOR_ADMIN_API_PORT_SUFFIX}/api/validator/readyz" \
+		"http://localhost:3${VALIDATOR_ADMIN_API_PORT_SUFFIX}/api/validator/readyz" \
+		"http://localhost:4${VALIDATOR_ADMIN_API_PORT_SUFFIX}/api/validator/readyz"
 	do
 		curl -fsS "$readyz_url" >/dev/null
 	done

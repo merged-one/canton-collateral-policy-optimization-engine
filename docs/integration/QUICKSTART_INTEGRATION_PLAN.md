@@ -18,17 +18,20 @@ These versions now operate through an explicit dual-runtime bridge:
 - the repo-default host toolchain stays on Daml `2.10.4` plus JDK `17` for IDE-ledger workflows and portable verification
 - Quickstart-compatible DAR builds run in Docker on Daml `3.4.10` plus Java `21`
 
-## Prompt 8 Foundation Status
+## Current Foundation Status
 
-The first concrete Quickstart foundation now exists under `infra/quickstart/`:
+The concrete Quickstart foundation now exists under `infra/quickstart/`:
 
 - upstream CN Quickstart is pinned by commit SHA rather than by floating branch name
 - `make localnet-bootstrap` stages the upstream checkout and writes `.env.local` from repo-owned overlay profiles
 - `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed stack without claiming full workflow deployment
 - `make localnet-build-dar` builds a Quickstart-compatible Control Plane DAR from the shared repo Daml source tree
 - `make localnet-deploy-dar` uploads that DAR into a running pinned Quickstart LocalNet through the upstream onboarding container
+- `make localnet-start-control-plane` starts or reuses an isolated repo-owned overlay runtime with dedicated network, port-suffix, and container-name isolation
+- `make localnet-seed-demo` allocates or reuses the scenario parties and users, then seeds one confidential margin-style obligation, provider inventory set, and posting intent on Quickstart
+- `make localnet-status-control-plane` captures provider-visible ledger state as machine-readable and human-readable evidence
 
-The runtime bridge is therefore no longer only a planning note or blocker. The remaining Quickstart work is seeded scenario execution, workflow-party disclosure shaping, and adapter integration on top of the installed package.
+The runtime bridge is therefore no longer only a planning note or blocker, and seeded Quickstart state is no longer only a deferred plan. The remaining Quickstart work is full workflow execution, workflow-party disclosure shaping, and adapter integration on top of the seeded package and scenario surface.
 
 ## Integration Principles
 
@@ -43,7 +46,7 @@ The runtime bridge is therefore no longer only a planning note or blocker. The r
 | Layer | Planned Content |
 | --- | --- |
 | upstream base | domain, sequencer, mediator, baseline participant setup, developer tooling |
-| Control Plane overlay | participant and party additions for pledgor, secured party, and custodian roles; package deployment config; bootstrap data hooks |
+| Control Plane overlay | participant and party additions for provider, secured-party, custodian, and operator roles; package deployment config; bootstrap data hooks; isolated compose overrides |
 | adjacent services | policy registry, valuation service, optimization service, reporting service, integration gateway |
 | scenario tools | reproducible commands for seed data, workflow execution, and report validation |
 
@@ -57,7 +60,7 @@ The runtime bridge is therefore no longer only a planning note or blocker. The r
 
 ### Step 2: Add overlays, not forks
 
-- define overlay configuration for extra parties, participants, package deployment, and service endpoints
+- define overlay configuration for extra parties, participants, package deployment, service endpoints, and any needed container or network isolation
 - keep base Quickstart files untouched where override or composition mechanisms exist
 - isolate repo-specific topology under a Control-Plane-owned overlay directory once implementation begins
 
@@ -78,7 +81,7 @@ The runtime bridge is therefore no longer only a planning note or blocker. The r
 
 - use scenario runners against the LocalNet deployment
 - confirm that overlays do not change control semantics compared with the documented architecture
-- capture prompt and scenario execution reports as evidence
+- capture deployment receipts, seed receipts, status snapshots, and later scenario execution reports as evidence
 
 ## When A Fork Is Acceptable
 
@@ -113,4 +116,4 @@ A Quickstart fork is acceptable only if all of the following are true:
 - overlay strategy documented in repo-controlled config
 - Daml package boundary defined
 - adjacent service contracts defined for policy, valuation, optimization, and reporting
-- at least one reproducible LocalNet scenario planned end to end
+- at least one reproducible LocalNet scenario planned end to end and seeded on Quickstart

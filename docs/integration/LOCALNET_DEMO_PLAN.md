@@ -6,7 +6,7 @@ Turn the current repository into a real confidential-collateral demo on top of a
 
 ## Current Implemented Layer
 
-The repository now implements Stage 0 and Stage 2:
+The repository now implements Stage 0, Stage 1, Stage 2, and the seeded-state portion of Stage 3:
 
 - pinned upstream CN Quickstart checkout at commit `fe56d460af650b71b8e20098b3e76693397a8bf9`
 - repo-owned `.env.local` overlay profiles under `infra/quickstart/overlay/`
@@ -14,13 +14,15 @@ The repository now implements Stage 0 and Stage 2:
 - reproducible compose-preflight smoke through `make localnet-smoke`
 - reproducible Quickstart-compatible DAR build through `make localnet-build-dar`
 - reproducible package installation into a running pinned Quickstart LocalNet through `make localnet-deploy-dar`
-- documented operator path that stays with upstream `make check-docker`, `make build`, `make start`, and `make status`
+- reproducible isolated overlay start through `make localnet-start-control-plane`
+- reproducible scenario seeding through `make localnet-seed-demo`
+- reproducible Quickstart status evidence through `make localnet-status-control-plane`
+- documented operator path that can still stay with upstream `make check-docker`, `make build`, `make start`, and `make status` when direct upstream debugging is needed
 
 This prompt does not yet:
 
-- seed confidential collateral data or live parties
 - move assets through a token-standard-style application
-- emit a Quickstart-backed `ExecutionReport`
+- execute a full Quickstart-backed workflow that emits an `ExecutionReport`
 
 ## Staged Delivery
 
@@ -35,7 +37,7 @@ Status: implemented in this prompt
 
 ### Stage 1: Upstream LocalNet Bring-Up
 
-Status: documented, not automated here
+Status: implemented through a repo-owned overlay wrapper while the upstream path remains available for debugging
 
 - run `make check-docker`, `make build`, `make start`, and `make status` inside the staged upstream `quickstart/` directory
 - verify the LocalNet validators and supporting services are healthy
@@ -51,11 +53,12 @@ Status: implemented
 
 ### Stage 3: Confidential Collateral Seed Scenario
 
-Status: deferred
+Status: seeded-state implementation complete, workflow execution still deferred
 
-- seed a minimal but real scenario covering pledgor, secured party, custodian or controller, and one token issuer
-- load obligations, normalized inventory provenance, and policy references without bypassing workflow authority
-- produce a real `ExecutionReport` and settlement-intent trace from committed Canton state
+- seed a minimal but real scenario covering collateral provider, secured party, custodian, and optional operator roles
+- load one obligation, provider inventory provenance, and one posting intent without bypassing workflow authority
+- capture ledger-returned contract identifiers and provider-visible status from committed Canton state
+- still defer the first Quickstart-backed `ExecutionReport` and settlement-intent trace
 
 ### Stage 4: Cross-App Demo Extensions
 
@@ -72,8 +75,9 @@ Status: deferred
 | Quickstart topology | upstream CN Quickstart modular Docker Compose stack | stay close to supported workflows and reduce repo-owned runtime code |
 | Auth path | OAuth2 remains the default overlay choice | keeps the future confidential demo close to the upstream security posture |
 | Observability | optional in `lean`, enabled in `faithful` | preserve a lightweight preflight while keeping a higher-fidelity path available |
-| LocalNet start | documented but not auto-executed by repo Make targets | keeps upstream runtime ownership explicit even though the package-install path is now real |
+| LocalNet start | real repo-owned wrapper over the upstream compose stack | keeps upstream runtime ownership explicit while giving the repository a reproducible startup command |
 | Control Plane package load | real | the repo now builds and uploads a Quickstart-compatible DAR through the documented bridge |
+| Confidential seed state | real | the repo now allocates scenario roles, seeds real contracts, and captures provider-visible status on Quickstart |
 | Asset movement | mocked as future adapter work | avoids fake settlement or fake token movement in the main execution path |
 
 ## Integration Hooks For Other Canton Projects
@@ -95,6 +99,9 @@ make localnet-bootstrap
 make localnet-smoke
 make localnet-build-dar
 make localnet-deploy-dar
+make localnet-start-control-plane
+make localnet-seed-demo
+make localnet-status-control-plane
 ```
 
 From the staged upstream checkout after bootstrap:
@@ -111,6 +118,7 @@ make status
 
 - the upstream Quickstart stack starts reproducibly from the pinned checkout
 - the Control Plane DAR is deployed through a documented version-bridge path
+- at least one confidential collateral scenario is seeded and inspectable on Quickstart
 - at least one token-standard-style asset path can be loaded through a real adapter
 - at least one collateral posting or substitution scenario emits a real machine-readable `ExecutionReport`
 - all assumptions, mocks, and deferred surfaces remain explicit in operator documentation

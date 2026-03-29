@@ -11,6 +11,10 @@ LOCALNET_BOOTSTRAP_SCRIPT := infra/quickstart/bootstrap-localnet.sh
 LOCALNET_SMOKE_SCRIPT := scripts/run-localnet-smoke.sh
 LOCALNET_BUILD_DAR_SCRIPT := scripts/build-quickstart-dar.sh
 LOCALNET_DEPLOY_DAR_SCRIPT := scripts/localnet-deploy-dar.sh
+LOCALNET_START_CONTROL_PLANE_SCRIPT := scripts/localnet-start-control-plane.sh
+LOCALNET_SEED_DEMO_SCRIPT := scripts/localnet-seed-demo.sh
+LOCALNET_STATUS_CONTROL_PLANE_SCRIPT := scripts/localnet-status-control-plane.sh
+LOCALNET_DAML_SCRIPT_RUNNER := scripts/run-quickstart-daml-script.sh
 
 include scripts/toolchain.env
 
@@ -38,6 +42,7 @@ FINAL_DEMO_OUTPUT_DIR ?= reports/generated
 LOCALNET_PROFILE ?= lean
 LOCALNET_WORKDIR ?= $(REPO_ROOT)/.runtime/localnet/cn-quickstart
 LOCALNET_PARTY_HINT ?= canton-collateral-1
+LOCALNET_SCENARIO_MANIFEST ?= infra/quickstart/scenarios/confidential-margin-scenario.json
 CPL_EXAMPLES := \
 	examples/policies/central-bank-style-policy.json \
 	examples/policies/tri-party-style-policy.json \
@@ -59,6 +64,11 @@ REQUIRED_DOCS := \
 	scripts/dev-status.sh \
 	scripts/build-quickstart-dar.sh \
 	scripts/localnet-deploy-dar.sh \
+	scripts/localnet-control-plane-common.sh \
+	scripts/run-quickstart-daml-script.sh \
+	scripts/localnet-start-control-plane.sh \
+	scripts/localnet-seed-demo.sh \
+	scripts/localnet-status-control-plane.sh \
 	scripts/verify-portable.sh \
 	scripts/verify.sh \
 	app/README.md \
@@ -140,6 +150,7 @@ REQUIRED_DOCS := \
 	daml/CantonCollateral/Return.daml \
 	daml/CantonCollateral/Demo.daml \
 	daml/CantonCollateral/Test.daml \
+	daml/CantonCollateral/QuickstartSeed.daml \
 	docs/mission-control/MASTER_TRACKER.md \
 	docs/mission-control/ROADMAP.md \
 	docs/mission-control/WORKLOG.md \
@@ -163,9 +174,10 @@ REQUIRED_DOCS := \
 	docs/adrs/0011-margin-call-demo-shape.md \
 	docs/adrs/0012-substitution-atomicity.md \
 		docs/adrs/0013-return-and-release-control.md \
-		docs/adrs/0014-conformance-and-demo-package.md \
-		docs/adrs/0015-quickstart-demo-foundation.md \
-		docs/adrs/0016-quickstart-runtime-bridge.md \
+	docs/adrs/0014-conformance-and-demo-package.md \
+	docs/adrs/0015-quickstart-demo-foundation.md \
+	docs/adrs/0016-quickstart-runtime-bridge.md \
+	docs/adrs/0017-quickstart-confidential-seed.md \
 		docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
@@ -185,9 +197,11 @@ REQUIRED_DOCS := \
 		docs/evidence/prompt-11-execution-report.md \
 		docs/evidence/prompt-12-execution-report.md \
 		docs/evidence/prompt-13-execution-report.md \
+		docs/evidence/prompt-14-execution-report.md \
 		docs/evidence/rename-to-collateral-control-plane-execution-report.md \
 	docs/runbooks/README.md \
 	docs/runbooks/FINAL_DEMO_RUNBOOK.md \
+	docs/runbooks/LOCALNET_CONTROL_PLANE_RUNBOOK.md \
 	docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md \
 	docs/runbooks/RETURN_DEMO_RUNBOOK.md \
 	docs/runbooks/SUBSTITUTION_DEMO_RUNBOOK.md \
@@ -221,9 +235,11 @@ REQUIRED_DOCS := \
 	infra/quickstart/README.md \
 	infra/quickstart/bootstrap-localnet.sh \
 	infra/quickstart/overlay/README.md \
+	infra/quickstart/overlay/control-plane-compose.yaml \
 	infra/quickstart/overlay/upstream-pin.env \
 	infra/quickstart/overlay/profiles/faithful.env.local \
 	infra/quickstart/overlay/profiles/lean.env.local \
+	infra/quickstart/scenarios/confidential-margin-scenario.json \
 	scripts/run-localnet-smoke.sh \
 	$(CPL_SCHEMA) \
 	$(POLICY_EVAL_REPORT_SCHEMA) \
@@ -244,7 +260,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap localnet-bootstrap localnet-smoke localnet-build-dar localnet-deploy-dar docs-lint status verify-portable verify validate-cpl policy-eval optimize test-policy-engine test-optimizer test-conformance daml-build daml-test demo-run demo-margin-call demo-return demo-substitution demo-all clean-runtime
+.PHONY: bootstrap localnet-bootstrap localnet-smoke localnet-build-dar localnet-deploy-dar localnet-start-control-plane localnet-seed-demo localnet-status-control-plane docs-lint status verify-portable verify validate-cpl policy-eval optimize test-policy-engine test-optimizer test-conformance daml-build daml-test demo-run demo-margin-call demo-return demo-substitution demo-all clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -261,7 +277,7 @@ docs-lint:
 	@for dir in $(REQUIRED_DIRS); do \
 		test -d "$$dir" || { echo "docs-lint: missing directory $$dir"; exit 1; }; \
 	done
-	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(LOCALNET_BUILD_DAR_SCRIPT) $(LOCALNET_DEPLOY_DAR_SCRIPT) $(VERIFY_PORTABLE_SCRIPT) $(VERIFY_SCRIPT) $(LOCALNET_BOOTSTRAP_SCRIPT) $(LOCALNET_SMOKE_SCRIPT); do \
+	@for script in $(BOOTSTRAP_SCRIPT) $(STATUS_SCRIPT) $(LOCALNET_BUILD_DAR_SCRIPT) $(LOCALNET_DEPLOY_DAR_SCRIPT) $(LOCALNET_START_CONTROL_PLANE_SCRIPT) $(LOCALNET_SEED_DEMO_SCRIPT) $(LOCALNET_STATUS_CONTROL_PLANE_SCRIPT) $(LOCALNET_DAML_SCRIPT_RUNNER) $(VERIFY_PORTABLE_SCRIPT) $(VERIFY_SCRIPT) $(LOCALNET_BOOTSTRAP_SCRIPT) $(LOCALNET_SMOKE_SCRIPT); do \
 		test -x "$$script" || { echo "docs-lint: expected executable $$script"; exit 1; }; \
 	done
 	@grep -q "^sdk-version: $(DAML_SDK_VERSION)$$" daml.yaml || { echo "docs-lint: daml.yaml sdk-version mismatch"; exit 1; }
@@ -270,6 +286,9 @@ docs-lint:
 	@grep -q "make bootstrap" README.md || { echo "docs-lint: README missing bootstrap command"; exit 1; }
 	@grep -q "make localnet-bootstrap" README.md || { echo "docs-lint: README missing localnet-bootstrap command"; exit 1; }
 	@grep -q "make localnet-smoke" README.md || { echo "docs-lint: README missing localnet-smoke command"; exit 1; }
+	@grep -q "make localnet-start-control-plane" README.md || { echo "docs-lint: README missing localnet-start-control-plane command"; exit 1; }
+	@grep -q "make localnet-seed-demo" README.md || { echo "docs-lint: README missing localnet-seed-demo command"; exit 1; }
+	@grep -q "make localnet-status-control-plane" README.md || { echo "docs-lint: README missing localnet-status-control-plane command"; exit 1; }
 	@grep -q "make daml-build" README.md || { echo "docs-lint: README missing daml-build command"; exit 1; }
 	@grep -q "make daml-test" README.md || { echo "docs-lint: README missing daml-test command"; exit 1; }
 	@grep -q "make demo-run" README.md || { echo "docs-lint: README missing demo-run command"; exit 1; }
@@ -285,6 +304,9 @@ docs-lint:
 	@grep -q "make test-optimizer" README.md || { echo "docs-lint: README missing test-optimizer command"; exit 1; }
 	@grep -q "make localnet-bootstrap" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-bootstrap command"; exit 1; }
 	@grep -q "make localnet-smoke" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-smoke command"; exit 1; }
+	@grep -q "make localnet-start-control-plane" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-start-control-plane command"; exit 1; }
+	@grep -q "make localnet-seed-demo" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-seed-demo command"; exit 1; }
+	@grep -q "make localnet-status-control-plane" AGENTS.md || { echo "docs-lint: AGENTS missing localnet-status-control-plane command"; exit 1; }
 	@grep -q "make daml-test" AGENTS.md || { echo "docs-lint: AGENTS missing daml-test command"; exit 1; }
 	@grep -q "make demo-margin-call" AGENTS.md || { echo "docs-lint: AGENTS missing demo-margin-call command"; exit 1; }
 	@grep -q "make demo-return" AGENTS.md || { echo "docs-lint: AGENTS missing demo-return command"; exit 1; }
@@ -298,6 +320,9 @@ docs-lint:
 	@grep -q "make test-optimizer" AGENTS.md || { echo "docs-lint: AGENTS missing test-optimizer command"; exit 1; }
 	@grep -q "make localnet-bootstrap" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-bootstrap command"; exit 1; }
 	@grep -q "make localnet-smoke" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-smoke command"; exit 1; }
+	@grep -q "make localnet-start-control-plane" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-start-control-plane command"; exit 1; }
+	@grep -q "make localnet-seed-demo" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-seed-demo command"; exit 1; }
+	@grep -q "make localnet-status-control-plane" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing localnet-status-control-plane command"; exit 1; }
 	@grep -q "make daml-test" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing daml-test command"; exit 1; }
 	@grep -q "make demo-margin-call" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-margin-call command"; exit 1; }
 	@grep -q "make demo-return" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-return command"; exit 1; }
@@ -312,6 +337,9 @@ docs-lint:
 	@grep -q "Temurin JDK $(JAVA_VERSION)" docs/setup/DEPENDENCY_POLICY.md || { echo "docs-lint: dependency policy missing Java pin"; exit 1; }
 	@grep -q "make localnet-bootstrap" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-bootstrap"; exit 1; }
 	@grep -q "make localnet-smoke" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-smoke"; exit 1; }
+	@grep -q "make localnet-start-control-plane" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-start-control-plane"; exit 1; }
+	@grep -q "make localnet-seed-demo" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-seed-demo"; exit 1; }
+	@grep -q "make localnet-status-control-plane" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing localnet-status-control-plane"; exit 1; }
 	@grep -q "make daml-test" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing daml-test"; exit 1; }
 	@grep -q "make demo-margin-call" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-margin-call"; exit 1; }
 	@grep -q "make demo-return" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-return"; exit 1; }
@@ -323,6 +351,9 @@ docs-lint:
 	@grep -q "make optimize" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing optimize"; exit 1; }
 	@grep -q "make test-optimizer" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing test-optimizer"; exit 1; }
 	@grep -q "make localnet-smoke" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing localnet-smoke"; exit 1; }
+	@grep -q "make localnet-start-control-plane" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing localnet-start-control-plane"; exit 1; }
+	@grep -q "make localnet-seed-demo" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing localnet-seed-demo"; exit 1; }
+	@grep -q "make localnet-status-control-plane" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing localnet-status-control-plane"; exit 1; }
 	@grep -q "make demo-run" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-run"; exit 1; }
 	@grep -q "make daml-test" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing daml-test"; exit 1; }
 	@grep -q "make demo-margin-call" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-margin-call"; exit 1; }
@@ -342,6 +373,7 @@ docs-lint:
 	@grep -q "ADR 0014" docs/adrs/0014-conformance-and-demo-package.md || { echo "docs-lint: ADR 0014 missing title"; exit 1; }
 	@grep -q "ADR 0015" docs/adrs/0015-quickstart-demo-foundation.md || { echo "docs-lint: ADR 0015 missing title"; exit 1; }
 	@grep -q "ADR 0016" docs/adrs/0016-quickstart-runtime-bridge.md || { echo "docs-lint: ADR 0016 missing title"; exit 1; }
+	@grep -q "ADR 0017" docs/adrs/0017-quickstart-confidential-seed.md || { echo "docs-lint: ADR 0017 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
@@ -352,6 +384,7 @@ docs-lint:
 	@grep -q "^## Results" docs/evidence/prompt-11-execution-report.md || { echo "docs-lint: prompt 11 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-12-execution-report.md || { echo "docs-lint: prompt 12 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-13-execution-report.md || { echo "docs-lint: prompt 13 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-14-execution-report.md || { echo "docs-lint: prompt 14 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
 	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
@@ -361,7 +394,8 @@ docs-lint:
 	@grep -q "Prompt 11 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 11 status"; exit 1; }
 	@grep -q "Prompt 12 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 12 status"; exit 1; }
 	@grep -q "Prompt 13 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 13 status"; exit 1; }
-	@echo "docs-lint: policy engine, optimizer, Quickstart runtime bridge, return demo, substitution demo, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
+	@grep -q "Prompt 14 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 14 status"; exit 1; }
+	@echo "docs-lint: policy engine, optimizer, Quickstart seeded scenario, runtime bridge, return demo, substitution demo, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 localnet-bootstrap:
 	@LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
@@ -384,6 +418,27 @@ localnet-deploy-dar: bootstrap localnet-bootstrap
 	LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
 	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
 	$(LOCALNET_DEPLOY_DAR_SCRIPT)
+
+localnet-start-control-plane: bootstrap localnet-bootstrap
+	@LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	LOCALNET_SCENARIO_MANIFEST="$(LOCALNET_SCENARIO_MANIFEST)" \
+	$(LOCALNET_START_CONTROL_PLANE_SCRIPT)
+
+localnet-seed-demo: bootstrap localnet-bootstrap
+	@LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	LOCALNET_SCENARIO_MANIFEST="$(LOCALNET_SCENARIO_MANIFEST)" \
+	$(LOCALNET_SEED_DEMO_SCRIPT)
+
+localnet-status-control-plane: bootstrap localnet-bootstrap
+	@LOCALNET_WORKDIR="$(LOCALNET_WORKDIR)" \
+	LOCALNET_PROFILE="$(LOCALNET_PROFILE)" \
+	LOCALNET_PARTY_HINT="$(LOCALNET_PARTY_HINT)" \
+	LOCALNET_SCENARIO_MANIFEST="$(LOCALNET_SCENARIO_MANIFEST)" \
+	$(LOCALNET_STATUS_CONTROL_PLANE_SCRIPT)
 
 validate-cpl: $(CHECK_JSONSCHEMA)
 	@$(CHECK_JSONSCHEMA) --check-metaschema $(CPL_SCHEMA)

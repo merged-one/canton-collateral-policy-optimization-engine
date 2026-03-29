@@ -1,0 +1,45 @@
+{
+  "providerVisibleInventoryLots": [{
+    "lotId": "quickstart-us-tbill-lot-001",
+    "issuer": "UST",
+    "contractId": "001914fcb1439fc0f996f713f577c109ab302adbba11416b5aa6e2684c97b8f11cca1212201faa844ce24c84871b8d2409e521f355d7bd4e1e0042c0eae26774c5c3b7e230",
+    "availableQuantity": 60.0000000000,
+    "custodyAccount": "custody-provider-001",
+    "assetId": "us-tbill-2029-01"
+  }, {
+    "lotId": "quickstart-us-tbill-lot-002",
+    "issuer": "UST",
+    "contractId": "003d09b5bb4e29afe22a0112651cd41b474cc7fa9d7068c4612347117d4eae1877ca121220be2a790c13873154aa6e695423686f0f64833b40043726f23799bbf3daf06591",
+    "availableQuantity": 40.0000000000,
+    "custodyAccount": "custody-provider-001",
+    "assetId": "us-tbill-2030-03"
+  }],
+  "providerRoleRegistrations": [{
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0071dba72298b0c728957edf4d7a81af8c5bb02127dc320ad428686bbd5c5391f3ca121220178fc26232d791af6ed50ee7ea39a7f4444da9c3c653b89cf97994cd8183a83a"
+  }],
+  "seeded": true,
+  "providerVisiblePostingIntents": [{
+    "state": "Submitted",
+    "custodianApproval": "ApprovalPending",
+    "contractId": "00c3efadc11126a9b2c292ab1b877fb172de301b0ce9c59f7d27a0fc5c6ac1d94fca121220317035a2be0a176d559ce4b8f7552c4bd16c8c50d98a63c07a967bc3c382bcfd",
+    "nominatedLotIds": ["quickstart-us-tbill-lot-001", "quickstart-us-tbill-lot-002"],
+    "postingId": "quickstart-margin-posting-001",
+    "correlationId": "quickstart-margin-posting-correlation-001",
+    "securedPartyApproval": "ApprovalPending"
+  }],
+  "scenarioId": "quickstart-confidential-margin-001",
+  "providerVisibleObligations": [{
+    "requiredCoverage": 100.0000000000,
+    "state": "Submitted",
+    "obligationId": "quickstart-margin-obligation-001",
+    "uncoveredAmount": 100.0000000000,
+    "correlationId": "quickstart-margin-call-001",
+    "dueAt": "2030-01-15T16:00:00Z",
+    "contractId": "001cc057d2d710d0481f3958fb4a9a6ea24b0d6afe793c4daa1ffdf269ac04dfa5ca1212206f27aee27d9010d88f4304dae08c8151f1ba7979e4e56b0dba6f2ec3e84e00d4"
+  }],
+  "providerVisibleEncumbranceCount": 0,
+  "providerVisibleExecutionReportCount": 0
+}

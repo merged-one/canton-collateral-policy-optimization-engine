@@ -26,3 +26,4 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0014-conformance-and-demo-package.md](./0014-conformance-and-demo-package.md)
 - [0015-quickstart-demo-foundation.md](./0015-quickstart-demo-foundation.md)
 - [0016-quickstart-runtime-bridge.md](./0016-quickstart-runtime-bridge.md)
+- [0017-quickstart-confidential-seed.md](./0017-quickstart-confidential-seed.md)

@@ -4,7 +4,7 @@
 
 The future system will manage confidential collateral policy, inventory, valuation, workflow, and reporting state across multiple parties. This document records the threat posture implied by the architecture package and the design areas that must remain visible as implementation begins.
 
-The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, end-to-end margin-call, return, and substitution demo runners plus their machine-readable report contracts, an aggregate conformance suite, a final demo pack, and a pinned Quickstart bootstrap plus package-deployment bridge layer. Those surfaces make privacy, determinism, authority, audit boundaries, and runtime-version boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
+The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, end-to-end margin-call, return, and substitution demo runners plus their machine-readable report contracts, an aggregate conformance suite, a final demo pack, and a pinned Quickstart bootstrap plus package-deployment, isolated overlay, seeded-scenario, and status-evidence layer. Those surfaces make privacy, determinism, authority, audit boundaries, and runtime-version boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, workflow-executing, or adapter-integrated implementation.
 
 ## Protected Assets
 
@@ -27,6 +27,8 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - settlement instructions and control acknowledgments
 - execution reports and audit evidence
 - pinned Quickstart overlay configuration and upstream commit metadata
+- Quickstart deployment, seed, and status receipts
+- participant-management tokens and generated auth or participant-config files used by the Quickstart seed flow
 
 ## Threat Actors
 
@@ -59,6 +61,8 @@ The current repository state now includes an initial off-ledger policy evaluatio
 | Tool-download tampering or drift | A compromised or drifting bootstrap source could change local behavior invisibly. | Pin download URLs and SHA-256 checksums and install runtime tools repo-locally. |
 | Runtime overlay drift | Demo or LocalNet shortcuts could alter behavior relative to the documented architecture. | Separate runtime concerns from business semantics and keep overlay changes explicit. |
 | Host-versus-Quickstart runtime drift | Operators could trust the host-native IDE-ledger path while the Quickstart-compatible DAR build or deploy path has silently broken. | Keep the dual-runtime bridge explicit, pin the containerized Quickstart build inputs, and verify package build plus deployment through documented commands and evidence. |
+| Over-broad Quickstart seed rights | Seed automation could accidentally create users or rights that see or act beyond the intended provider, secured-party, custodian, or operator scope. | Keep hosted-user creation explicit and participant-scoped, map parties to participants in generated configs, and query status from the intended provider-visible view. |
+| Seed or status evidence drift | Operators could trust local manifests or stale files instead of the active Quickstart ledger state. | Write receipts from ledger-returned ids only and regenerate status snapshots from active-contract queries against the running LocalNet. |
 | Environment drift | The system could become impossible to reproduce or validate consistently. | Pinned dependencies, checksum-verified bootstrap commands, and release evidence. |
 
 ## Trust Boundaries
@@ -85,3 +89,4 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - how should the current workflow-party execution reports be transformed into narrower operator, auditor, or external-integration views?
 - how should future consumers reject or negotiate policies that require a newer `cplVersion` than they support?
 - when should the current scenario-derived return approval requirements become first-class CPL return-right clauses?
+- when should the seeded Quickstart state advance into full workflow execution and role-scoped report generation?

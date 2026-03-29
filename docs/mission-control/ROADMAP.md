@@ -5,7 +5,7 @@ This roadmap currently reflects the 2026-03-28 development-fund proposal. If the
 The roadmap describes the build-out of the Control Plane subsystems plus the adjacent data-plane integrations they depend on. The rename to "Canton Collateral Control Plane" is a clarification of the existing architecture, not a change in business direction.
 
 Current staging note:
-The repository now has a pinned Quickstart bootstrap, a containerized runtime bridge that builds the Control Plane DAR against the pinned Quickstart runtime line, a real Quickstart package-deployment command, and first IDE-ledger-backed end-to-end margin-call, return, and substitution demos, but the remaining roadmap still applies because no Quickstart-backed end-to-end workflow scenario or live asset adapter exists yet.
+The repository now has a pinned Quickstart bootstrap, a containerized runtime bridge that builds the Control Plane DAR against the pinned Quickstart runtime line, real Quickstart start, deploy, seed, and status commands, one seeded confidential Quickstart scenario with ledger-returned contract identifiers, and first IDE-ledger-backed end-to-end margin-call, return, and substitution demos, but the remaining roadmap still applies because no Quickstart-backed end-to-end workflow scenario or live asset adapter exists yet.
 
 ## Phase 0: Mission Control Spine
 

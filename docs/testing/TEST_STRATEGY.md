@@ -29,6 +29,9 @@ At this phase, the repository supports documentation checks, schema validation, 
 make bootstrap
 make localnet-bootstrap
 make localnet-smoke
+make localnet-start-control-plane
+make localnet-seed-demo
+make localnet-status-control-plane
 make validate-cpl
 make policy-eval POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json
 make optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json
@@ -47,12 +50,13 @@ make verify-portable
 make verify
 ```
 
-`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The optimizer scenario coverage is documented in [OPTIMIZER_TEST_PLAN.md](./OPTIMIZER_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The aggregate conformance suite is documented in [CONFORMANCE_SUITE.md](./CONFORMANCE_SUITE.md). The Quickstart LocalNet foundation now adds a pinned upstream checkout plus a compose-preflight smoke check. The Python unit suites now share deterministic fixture builders, and the conformance layer now includes isolated helper tests in addition to the generated-suite assertions. The current repository now proves deterministic policy evaluation, deterministic collateral optimization, basic workflow lifecycle execution, end-to-end margin-call, return, and substitution demos with explicit negative paths, aggregate invariant pass/fail output, and the earliest real LocalNet bootstrap layer.
+`CPL v0.1` schema coverage and the initial negative cases are documented in [CPL_VALIDATION_TEST_PLAN.md](./CPL_VALIDATION_TEST_PLAN.md). The policy-engine scenario coverage is documented in [POLICY_ENGINE_TEST_PLAN.md](./POLICY_ENGINE_TEST_PLAN.md). The optimizer scenario coverage is documented in [OPTIMIZER_TEST_PLAN.md](./OPTIMIZER_TEST_PLAN.md). The Daml workflow skeleton coverage is documented in [DAML_TEST_PLAN.md](./DAML_TEST_PLAN.md). The aggregate conformance suite is documented in [CONFORMANCE_SUITE.md](./CONFORMANCE_SUITE.md). The Quickstart LocalNet foundation now adds a pinned upstream checkout, compose-preflight smoke, isolated overlay start, seeded-scenario command surface, and provider-visible Quickstart status evidence. The Python unit suites now share deterministic fixture builders, and the conformance layer now includes isolated helper tests in addition to the generated-suite assertions. The current repository now proves deterministic policy evaluation, deterministic collateral optimization, basic workflow lifecycle execution, end-to-end margin-call, return, and substitution demos with explicit negative paths, aggregate invariant pass/fail output, and the first real Quickstart-seeded collateral scenario.
 
 ## Verification Tiers
 
 - `make verify-portable` is the baseline repository gate for environments that can run the pinned Python and Daml toolchain but do not have Docker available.
 - `make verify` is the full superset and adds `make localnet-smoke` so the pinned Quickstart compose surface remains an explicit environment-dependent gate.
+- `make localnet-start-control-plane`, `make localnet-seed-demo`, and `make localnet-status-control-plane` are operator-facing Quickstart checks that currently sit outside the default verify targets because they require a running Docker stack, Quickstart auth wiring, and a seeded LocalNet.
 
 ## Current Conformance Scope
 

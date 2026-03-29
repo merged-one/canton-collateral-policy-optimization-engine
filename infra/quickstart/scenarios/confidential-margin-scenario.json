@@ -1,0 +1,61 @@
+{
+  "scenarioId": "quickstart-confidential-margin-001",
+  "obligationId": "quickstart-margin-obligation-001",
+  "postingId": "quickstart-margin-posting-001",
+  "obligationCorrelationId": "quickstart-margin-call-001",
+  "postingCorrelationId": "quickstart-margin-posting-correlation-001",
+  "policyVersion": "cpl-v0.1-quickstart-demo",
+  "snapshotId": "quickstart-snapshot-2026-03-29",
+  "decisionReference": "quickstart-decision-trace-001",
+  "requiredCoverage": 100.0,
+  "uncoveredAmount": 100.0,
+  "dueAt": "2030-01-15T16:00:00Z",
+  "operator": {
+    "partyHint": "controlplane-operator-1",
+    "displayName": "Control Plane Operator",
+    "userId": "control-plane-operator"
+  },
+  "custodian": {
+    "partyHint": "controlplane-custodian-1",
+    "displayName": "Control Plane Custodian",
+    "userId": "control-plane-custodian"
+  },
+  "selectedLots": [
+    {
+      "lotId": "quickstart-us-tbill-lot-001",
+      "assetId": "us-tbill-2029-01",
+      "issuer": "UST",
+      "assetClass": "SovereignDebt",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "adapter/quickstart/us-tbill",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "custodyAccount": "custody-provider-001",
+      "quantity": 60.0,
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001"
+    },
+    {
+      "lotId": "quickstart-us-tbill-lot-002",
+      "assetId": "us-tbill-2030-03",
+      "issuer": "UST",
+      "assetClass": "SovereignDebt",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "adapter/quickstart/us-tbill",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "custodyAccount": "custody-provider-001",
+      "quantity": 40.0,
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001"
+    }
+  ]
+}

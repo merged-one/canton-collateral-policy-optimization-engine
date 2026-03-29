@@ -20,7 +20,7 @@ need_cmd git
 LOCALNET_WORKDIR=${LOCALNET_WORKDIR:-"$repo_root/.runtime/localnet/cn-quickstart"}
 quickstart_dir="$LOCALNET_WORKDIR/$QS_QUICKSTART_SUBDIR"
 metadata_file="${LOCALNET_DAR_OUTPUT_DIR:-"$repo_root/.daml/dist-quickstart"}/quickstart-dar-metadata.env"
-onboarding_container=${LOCALNET_ONBOARDING_CONTAINER:-splice-onboarding}
+onboarding_container=${LOCALNET_ONBOARDING_CONTAINER:-control-plane-splice-onboarding}
 
 test -d "$LOCALNET_WORKDIR/.git" || {
 	echo "localnet-deploy-dar: missing Quickstart checkout; run make localnet-bootstrap first" >&2
@@ -114,6 +114,44 @@ if [ "${APP_USER_PROFILE:-off}" = "on" ]; then
 	deploy_to_participant "app-user" "canton:2${PARTICIPANT_JSON_API_PORT_SUFFIX}" "$APP_USER_PARTICIPANT_ADMIN_TOKEN"
 fi
 '
+
+participants=
+if [ "${APP_PROVIDER_PROFILE:-off}" = "on" ]; then
+	participants="${participants}app-provider "
+fi
+if [ "${APP_USER_PROFILE:-off}" = "on" ]; then
+	participants="${participants}app-user "
+fi
+
+if [ -n "${LOCALNET_DEPLOY_RECEIPT:-}" ]; then
+	mkdir -p "$(dirname "$LOCALNET_DEPLOY_RECEIPT")"
+	LOCALNET_DEPLOY_RECEIPT="$LOCALNET_DEPLOY_RECEIPT" \
+	QS_COMMIT="$QS_COMMIT" \
+	LOCALNET_WORKDIR="$LOCALNET_WORKDIR" \
+	DAR_FILE="$DAR_FILE" \
+	PACKAGE_ID="$PACKAGE_ID" \
+	ONBOARDING_CONTAINER="$onboarding_container" \
+	PARTICIPANTS="$participants" \
+	python3 - <<'PY'
+import json
+import os
+from datetime import datetime, timezone
+
+participants = [value for value in os.environ["PARTICIPANTS"].split() if value]
+receipt = {
+    "generatedAtUTC": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    "quickstartCommit": os.environ["QS_COMMIT"],
+    "quickstartWorkdir": os.environ["LOCALNET_WORKDIR"],
+    "darFile": os.environ["DAR_FILE"],
+    "packageId": os.environ["PACKAGE_ID"],
+    "onboardingContainer": os.environ["ONBOARDING_CONTAINER"],
+    "participants": participants,
+}
+with open(os.environ["LOCALNET_DEPLOY_RECEIPT"], "w", encoding="utf-8") as f:
+    json.dump(receipt, f, indent=2)
+    f.write("\n")
+PY
+fi
 
 echo "localnet-deploy-dar: Control Plane DAR $dar_basename is present on the targeted Quickstart participants"
 echo "localnet-deploy-dar: main package id $PACKAGE_ID"

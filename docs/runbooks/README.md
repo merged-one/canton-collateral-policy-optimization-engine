@@ -16,7 +16,8 @@ Runbooks turn design intent into operator steps. They should contain real comman
 The repository now includes:
 
 - [docs/setup/LOCAL_DEV_SETUP.md](../setup/LOCAL_DEV_SETUP.md) for pinned local bootstrap and verification
-- [infra/quickstart/README.md](../../infra/quickstart/README.md) for the pinned Quickstart LocalNet bootstrap, DAR-build, and package-deployment layer
+- [infra/quickstart/README.md](../../infra/quickstart/README.md) for the pinned Quickstart LocalNet bootstrap, isolated overlay, DAR-build, deployment, and seeded-scenario layer
+- [docs/runbooks/LOCALNET_CONTROL_PLANE_RUNBOOK.md](./LOCALNET_CONTROL_PLANE_RUNBOOK.md) for bootstrap, start, deploy, seed, inspect, and teardown of the Quickstart-backed Control Plane scenario
 - [docs/runbooks/FINAL_DEMO_RUNBOOK.md](./FINAL_DEMO_RUNBOOK.md) for the final packaged confidential workflow demo
 - [docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md](./MARGIN_CALL_DEMO_RUNBOOK.md) for the first end-to-end margin-call demo
 - [docs/runbooks/SUBSTITUTION_DEMO_RUNBOOK.md](./SUBSTITUTION_DEMO_RUNBOOK.md) for the first end-to-end substitution demo
@@ -25,6 +26,9 @@ The repository now includes:
 - `make localnet-smoke` for Docker preflight plus compose-config validation of the pinned Quickstart stack
 - `make localnet-build-dar` for the Quickstart-compatible Control Plane DAR build
 - `make localnet-deploy-dar` for package installation into a running pinned Quickstart LocalNet
+- `make localnet-start-control-plane` for starting the isolated overlay runtime and deploying the Control Plane DAR
+- `make localnet-seed-demo` for seeding the default confidential Quickstart scenario and writing contract receipts
+- `make localnet-status-control-plane` for generating the provider-visible Quickstart status snapshot
 - `make validate-cpl` for schema-validating published policy artifacts
 - `make policy-eval` for generating a real `PolicyEvaluationReport`
 - `make optimize` for generating a real `OptimizationReport`

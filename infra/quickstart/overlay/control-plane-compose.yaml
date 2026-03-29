@@ -1,0 +1,18 @@
+services:
+  postgres:
+    container_name: control-plane-postgres
+
+  keycloak:
+    container_name: control-plane-keycloak
+
+  nginx-keycloak:
+    container_name: control-plane-nginx-keycloak
+
+  canton:
+    container_name: control-plane-canton
+
+  splice:
+    container_name: control-plane-splice
+
+  splice-onboarding:
+    container_name: control-plane-splice-onboarding

@@ -1,0 +1,396 @@
+module CantonCollateral.QuickstartSeed where
+
+import Daml.Script
+
+import DA.Optional (fromSomeNote)
+import qualified DA.Text as Text
+
+import CantonCollateral.Asset
+import CantonCollateral.Encumbrance
+import CantonCollateral.Inventory
+import CantonCollateral.Obligation
+import CantonCollateral.Posting
+import CantonCollateral.Report
+import CantonCollateral.Roles
+import CantonCollateral.Types
+
+appUserAdminParticipant : ParticipantName
+appUserAdminParticipant = ParticipantName with participantName = "app-user-admin"
+
+appProviderAdminParticipant : ParticipantName
+appProviderAdminParticipant = ParticipantName with participantName = "app-provider-admin"
+
+data QuickstartSeedLotInput = QuickstartSeedLotInput
+  with
+    lotId : Text
+    assetId : Text
+    issuer : Text
+    assetClass : Text
+    currency : Text
+    settlementSystem : Text
+    tokenAdapterReference : Text
+    jurisdiction : Text
+    transferabilityFlags : [Text]
+    custodyAccount : Text
+    quantity : Decimal
+    sourceAccount : Text
+    destinationAccount : Text
+  deriving (Eq, Show)
+
+data QuickstartSeedInput = QuickstartSeedInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    postingId : Text
+    obligationCorrelationId : Text
+    postingCorrelationId : Text
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    requiredCoverage : Decimal
+    uncoveredAmount : Decimal
+    dueAt : Time
+    providerParty : Party
+    providerUserId : Text
+    securedParty : Party
+    securedPartyUserId : Text
+    operatorPartyHint : Text
+    operatorDisplayName : Text
+    operatorUserId : Text
+    custodianPartyHint : Text
+    custodianDisplayName : Text
+    custodianUserId : Text
+    selectedLots : [QuickstartSeedLotInput]
+  deriving (Eq, Show)
+
+data SeededRoleRegistration = SeededRoleRegistration
+  with
+    role : Text
+    label : Text
+    participant : Party
+    contractId : ContractId PartyRoleRegistration
+  deriving (Eq, Show)
+
+data SeededInventoryLot = SeededInventoryLot
+  with
+    lotId : Text
+    contractId : ContractId CollateralInventoryLot
+  deriving (Eq, Show)
+
+data QuickstartSeedResult = QuickstartSeedResult
+  with
+    scenarioId : Text
+    providerParty : Party
+    securedParty : Party
+    operatorParty : Party
+    custodianParty : Party
+    operatorUserId : Text
+    custodianUserId : Text
+    roleRegistrations : [SeededRoleRegistration]
+    inventoryLots : [SeededInventoryLot]
+    obligationContractId : ContractId CallObligation
+    postingIntentContractId : ContractId CollateralPostingIntent
+  deriving (Eq, Show)
+
+data ProviderVisibleRoleRegistration = ProviderVisibleRoleRegistration
+  with
+    role : Text
+    label : Text
+    participant : Party
+    contractId : ContractId PartyRoleRegistration
+  deriving (Eq, Show)
+
+data ProviderVisibleInventoryLot = ProviderVisibleInventoryLot
+  with
+    lotId : Text
+    contractId : ContractId CollateralInventoryLot
+    availableQuantity : Decimal
+    custodyAccount : Text
+    assetId : Text
+    issuer : Text
+  deriving (Eq, Show)
+
+data ProviderVisibleObligation = ProviderVisibleObligation
+  with
+    obligationId : Text
+    contractId : ContractId CallObligation
+    state : Text
+    requiredCoverage : Decimal
+    uncoveredAmount : Decimal
+    correlationId : Text
+    dueAt : Time
+  deriving (Eq, Show)
+
+data ProviderVisiblePostingIntent = ProviderVisiblePostingIntent
+  with
+    postingId : Text
+    contractId : ContractId CollateralPostingIntent
+    state : Text
+    securedPartyApproval : Text
+    custodianApproval : Text
+    nominatedLotIds : [Text]
+    correlationId : Text
+  deriving (Eq, Show)
+
+data QuickstartStatusInput = QuickstartStatusInput
+  with
+    scenarioId : Text
+    providerParty : Party
+    obligationId : Text
+    postingId : Text
+    inventoryLotIds : [Text]
+  deriving (Eq, Show)
+
+data QuickstartStatusResult = QuickstartStatusResult
+  with
+    scenarioId : Text
+    seeded : Bool
+    providerRoleRegistrations : [ProviderVisibleRoleRegistration]
+    providerVisibleObligations : [ProviderVisibleObligation]
+    providerVisibleInventoryLots : [ProviderVisibleInventoryLot]
+    providerVisiblePostingIntents : [ProviderVisiblePostingIntent]
+    providerVisibleExecutionReportCount : Int
+    providerVisibleEncumbranceCount : Int
+  deriving (Eq, Show)
+
+mkAsset : QuickstartSeedLotInput -> CollateralAsset
+mkAsset input = CollateralAsset with
+  assetId = input.assetId
+  issuer = input.issuer
+  assetClass = input.assetClass
+  currency = input.currency
+  settlementSystem = input.settlementSystem
+  tokenAdapterReference = input.tokenAdapterReference
+  jurisdiction = input.jurisdiction
+  transferabilityFlags = input.transferabilityFlags
+
+mkAllocation : QuickstartSeedLotInput -> LotAllocation
+mkAllocation input = LotAllocation with
+  lotId = input.lotId
+  assetId = input.assetId
+  quantity = input.quantity
+  sourceAccount = input.sourceAccount
+  destinationAccount = input.destinationAccount
+
+policyContextFromSeed : QuickstartSeedInput -> PolicyContext
+policyContextFromSeed input = PolicyContext with
+  policyVersion = input.policyVersion
+  snapshotId = input.snapshotId
+  decisionReference = input.decisionReference
+
+findPartyByHintOn : Text -> ParticipantName -> Script (Optional Party)
+findPartyByHintOn partyHint participant = do
+  knownParties <- listKnownPartiesOn participant
+  pure $
+    case [details.party | details <- knownParties, Text.isPrefixOf (partyHint <> "::") (partyToText details.party)] of
+      party :: _ -> Some party
+      [] -> None
+
+getOrAllocatePartyOn : Text -> Text -> ParticipantName -> Script Party
+getOrAllocatePartyOn displayName partyHint participant = do
+  existing <- findPartyByHintOn partyHint participant
+  case existing of
+    Some party -> pure party
+    None -> allocatePartyWithHintOn partyHint (PartyIdHint with partyIdHint = partyHint) participant
+
+getOrCreateScopedUserOn : Text -> Party -> ParticipantName -> Script UserId
+getOrCreateScopedUserOn userIdText primaryParty participant = do
+  userId <- validateUserId userIdText
+  let rights = [CanActAs primaryParty, CanReadAs primaryParty]
+  try do
+    existingUser <- getUserOn userId participant
+    let existingParty = fromSomeNote ("existing user " <> userIdText <> " is missing a primary party") existingUser.primaryParty
+    assertMsg ("existing user " <> userIdText <> " points at the wrong primary party") (existingParty == primaryParty)
+    _ <- grantUserRightsOn userId rights participant
+    pure userId
+  catch
+    UserNotFound _ -> do
+      createUserOn (User with userId, primaryParty = Some primaryParty) rights participant
+      pure userId
+
+ensureHostedUserOn : Text -> Party -> ParticipantName -> Script UserId
+ensureHostedUserOn userIdText expectedParty participant = do
+  userId <- validateUserId userIdText
+  existingUser <- getUserOn userId participant
+  let existingParty = fromSomeNote ("user " <> userIdText <> " is missing a primary party") existingUser.primaryParty
+  assertMsg ("user " <> userIdText <> " is not hosted on the expected party") (existingParty == expectedParty)
+  pure userId
+
+seedScenario : QuickstartSeedInput -> Script QuickstartSeedResult
+seedScenario input = script do
+  assertMsg "Quickstart seed requires at least one inventory lot" (not (null input.selectedLots))
+  assertMsg "Quickstart seed requires positive coverage" (input.requiredCoverage > 0.0)
+
+  providerUserId <- ensureHostedUserOn input.providerUserId input.providerParty appUserAdminParticipant
+  securedPartyUserId <- ensureHostedUserOn input.securedPartyUserId input.securedParty appProviderAdminParticipant
+  operatorParty <- getOrAllocatePartyOn input.operatorDisplayName input.operatorPartyHint appProviderAdminParticipant
+  operatorUserId <- getOrCreateScopedUserOn input.operatorUserId operatorParty appProviderAdminParticipant
+  custodianParty <- getOrAllocatePartyOn input.custodianDisplayName input.custodianPartyHint appProviderAdminParticipant
+  custodianUserId <- getOrCreateScopedUserOn input.custodianUserId custodianParty appProviderAdminParticipant
+
+  let policyContext = policyContextFromSeed input
+  let nominatedLots = map mkAllocation input.selectedLots
+  let inventoryVisibility = [input.securedParty, custodianParty]
+  let workflowVisibility = [input.providerParty, custodianParty]
+  let roleRegistryOperator = input.securedParty
+
+  providerRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = input.providerParty
+      role = CollateralProviderRole
+      label = "provider"
+
+  securedRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = input.securedParty
+      role = SecuredPartyRole
+      label = "secured-party"
+
+  custodianRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = custodianParty
+      role = CustodianRole
+      label = "custodian"
+
+  inventoryCids <- mapA
+    (\selectedLot -> submitUserOn providerUserId appUserAdminParticipant do
+      createCmd CollateralInventoryLot with
+        lotId = selectedLot.lotId
+        owner = input.providerParty
+        custodian = custodianParty
+        visibilityObservers = inventoryVisibility
+        asset = mkAsset selectedLot
+        custodyAccount = selectedLot.custodyAccount
+        quantity = selectedLot.quantity
+        availableQuantity = selectedLot.quantity
+        controlMethod = "quickstart-confidential-custody"
+        provenance = "Quickstart seeded confidential collateral scenario"
+        availabilityStart = input.dueAt
+        availabilityEnd = None
+    )
+    input.selectedLots
+
+  obligationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd CallObligation with
+      obligationId = input.obligationId
+      securedParty = input.securedParty
+      provider = input.providerParty
+      custodian = custodianParty
+      visibilityObservers = workflowVisibility
+      policyContext
+      requiredCoverage = input.requiredCoverage
+      uncoveredAmount = input.uncoveredAmount
+      dueAt = input.dueAt
+      correlationId = input.obligationCorrelationId
+      state = Submitted
+      requiresCallApproval = False
+      callApprover = input.securedParty
+      decisionSummary = "Quickstart-seeded margin call obligation ready for provider posting"
+
+  postingCid <- submitUserOn providerUserId appUserAdminParticipant do
+    createCmd CollateralPostingIntent with
+      postingId = input.postingId
+      obligationId = input.obligationId
+      provider = input.providerParty
+      securedParty = input.securedParty
+      custodian = custodianParty
+      visibilityObservers = [input.securedParty, custodianParty]
+      policyContext
+      nominatedLots
+      requiredCoverage = input.requiredCoverage
+      correlationId = input.postingCorrelationId
+      state = Submitted
+      requiresSecuredPartyApproval = True
+      requiresCustodianApproval = True
+      securedPartyApproval = ApprovalPending
+      custodianApproval = ApprovalPending
+      decisionSummary = "Quickstart-seeded posting intent prepared from provider-selected lots"
+      rejectionReason = ""
+      settlementInstructionCid = None
+
+  pure QuickstartSeedResult with
+    scenarioId = input.scenarioId
+    providerParty = input.providerParty
+    securedParty = input.securedParty
+    operatorParty
+    custodianParty
+    operatorUserId = userIdToText operatorUserId
+    custodianUserId = userIdToText custodianUserId
+    roleRegistrations =
+      [ SeededRoleRegistration with role = "CollateralProviderRole", label = "provider", participant = input.providerParty, contractId = providerRoleRegistrationCid
+      , SeededRoleRegistration with role = "SecuredPartyRole", label = "secured-party", participant = input.securedParty, contractId = securedRoleRegistrationCid
+      , SeededRoleRegistration with role = "CustodianRole", label = "custodian", participant = custodianParty, contractId = custodianRoleRegistrationCid
+      ]
+    inventoryLots =
+      zipWith
+        (\selectedLot inventoryCid -> SeededInventoryLot with lotId = selectedLot.lotId, contractId = inventoryCid)
+        input.selectedLots
+        inventoryCids
+    obligationContractId = obligationCid
+    postingIntentContractId = postingCid
+
+statusForProviderView : QuickstartStatusInput -> Script QuickstartStatusResult
+statusForProviderView input = script do
+  roleRegistrations <- query @PartyRoleRegistration input.providerParty
+  obligations <- queryFilter @CallObligation input.providerParty (\contract -> contract.obligationId == input.obligationId)
+  inventoryLots <- queryFilter @CollateralInventoryLot input.providerParty (\lot -> containsText lot.lotId input.inventoryLotIds)
+  postingIntents <- queryFilter @CollateralPostingIntent input.providerParty (\contract -> contract.postingId == input.postingId)
+  executionReports <- queryFilter @ExecutionReportRecord input.providerParty (\report -> report.obligationId == input.obligationId)
+  encumbrances <- queryFilter @EncumbranceState input.providerParty (\encumbrance -> encumbrance.obligationId == input.obligationId)
+
+  pure QuickstartStatusResult with
+    scenarioId = input.scenarioId
+    seeded = not (null obligations) && not (null inventoryLots) && not (null postingIntents)
+    providerRoleRegistrations =
+      map
+        (\(contractId, registration) ->
+          ProviderVisibleRoleRegistration with
+            role = show registration.role
+            label = registration.label
+            participant = registration.participant
+            contractId
+        )
+        roleRegistrations
+    providerVisibleObligations =
+      map
+        (\(contractId, obligation) ->
+          ProviderVisibleObligation with
+            obligationId = obligation.obligationId
+            contractId
+            state = show obligation.state
+            requiredCoverage = obligation.requiredCoverage
+            uncoveredAmount = obligation.uncoveredAmount
+            correlationId = obligation.correlationId
+            dueAt = obligation.dueAt
+        )
+        obligations
+    providerVisibleInventoryLots =
+      map
+        (\(contractId, lot) ->
+          ProviderVisibleInventoryLot with
+            lotId = lot.lotId
+            contractId
+            availableQuantity = lot.availableQuantity
+            custodyAccount = lot.custodyAccount
+            assetId = lot.asset.assetId
+            issuer = lot.asset.issuer
+        )
+        inventoryLots
+    providerVisiblePostingIntents =
+      map
+        (\(contractId, posting) ->
+          ProviderVisiblePostingIntent with
+            postingId = posting.postingId
+            contractId
+            state = show posting.state
+            securedPartyApproval = show posting.securedPartyApproval
+            custodianApproval = show posting.custodianApproval
+            nominatedLotIds = lotIds posting.nominatedLots
+            correlationId = posting.correlationId
+        )
+        postingIntents
+    providerVisibleExecutionReportCount = length executionReports
+    providerVisibleEncumbranceCount = length encumbrances

@@ -2,6 +2,121 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-29 - Prompt 14 Quickstart Seeded Confidential Scenario - Pre-Change
+
+Intent:
+Extend the pinned Quickstart foundation from package deployment only to a real seeded Control Plane scenario by adding repo-owned overlay bootstrap, start, seed, and status commands plus explicit Quickstart-backed evidence artifacts.
+
+Task summary:
+
+- add an overlay-first Quickstart control-plane layer that can start the pinned LocalNet, deploy the Control Plane package, allocate the scenario parties and roles, and seed one confidential margin-style collateral scenario
+- capture machine-readable and human-readable evidence proving the seeded contracts and scenario metadata live on Quickstart rather than only on the IDE ledger
+- update runbooks, tracker, roadmap, decision log, invariants, risks, threat model, evidence manifest, and worklog so the new command surface and residual gaps are explicit
+
+Expected affected files:
+
+- `Makefile`
+- `scripts/localnet-deploy-dar.sh`
+- new Quickstart control-plane scripts under `scripts/`
+- new Quickstart scenario inputs and evidence directories under `infra/quickstart/`
+- `daml/CantonCollateral/` only if a shared seed or status helper is required
+- `infra/quickstart/README.md`
+- `docs/integration/LOCALNET_DEMO_PLAN.md`
+- `docs/integration/QUICKSTART_INTEGRATION_PLAN.md`
+- `docs/runbooks/LOCALNET_CONTROL_PLANE_RUNBOOK.md`
+- `docs/runbooks/README.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/ROADMAP.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/risks/RISK_REGISTER.md`
+- `docs/security/THREAT_MODEL.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-14-execution-report.md`
+- `docs/mission-control/WORKLOG.md`
+- additional documentation only where required to keep the command surface, evidence surface, and runbooks consistent
+
+Risk assessment:
+
+- Quickstart auth, participant-user, or onboarding assumptions could differ between the pinned stack and the repo-owned seed flow, which would block seeding even though DAR deployment already works
+- allocating parties or scenario users incorrectly could weaken the confidentiality demonstration by collapsing roles onto one participant or by granting broader rights than intended
+- a seed flow that only records local assumptions instead of ledger-returned identifiers would fail the requirement to prove the scenario exists on Quickstart
+- live asset adapters remain absent, so the seeded scenario must stay explicit about what is real ledger state versus what is still deferred adapter execution
+
+Acceptance criteria:
+
+- `make localnet-start-control-plane`, `make localnet-seed-demo`, and `make localnet-status-control-plane` exist, are documented, and fail clearly when prerequisites are missing
+- the Control Plane DAR is deployed into the pinned Quickstart environment and one confidential collateral scenario is seeded there with explicit parties and contract identifiers
+- machine-readable and human-readable Quickstart evidence artifacts are generated from the real seed and status flow
+- the new LocalNet control-plane runbook documents bootstrap, start, deploy, seed, inspect, teardown, and common failures
+- tracker, roadmap, decision log, invariants, risks, threat model, evidence manifest, and worklog all reflect the new seeded Quickstart posture and the remaining adapter gap
+
+## 2026-03-29 - Prompt 14 Quickstart Seeded Confidential Scenario - Post-Change
+
+Outcome:
+Extended the pinned Quickstart foundation from package deployment only to a real seeded Quickstart scenario by adding an isolated overlay start path, a multi-participant Daml Script seed and status layer, operator runbooks, and machine-readable deployment plus seed plus status evidence.
+
+Completed changes:
+
+- added the repo-owned Quickstart control-plane command surface:
+  - `make localnet-start-control-plane`
+  - `make localnet-seed-demo`
+  - `make localnet-status-control-plane`
+- added the overlay runtime assets needed to keep the LocalNet isolated and upstream-preserving, including `infra/quickstart/overlay/control-plane-compose.yaml`, dedicated port suffixes in the overlay profiles, the shared helper shell library, and the containerized Quickstart Daml Script runner
+- added `daml/CantonCollateral/QuickstartSeed.daml` plus `infra/quickstart/scenarios/confidential-margin-scenario.json` so the Quickstart path can allocate the required parties and users, seed one confidential margin-style obligation, provider inventory set, and posting intent, and query provider-visible ledger state from the running LocalNet
+- generated real Quickstart evidence artifacts:
+  - `reports/generated/localnet-control-plane-deployment-receipt.json`
+  - `reports/generated/localnet-control-plane-deployment-summary.md`
+  - `reports/generated/localnet-control-plane-seed-receipt.json`
+  - `reports/generated/localnet-control-plane-status.json`
+  - `reports/generated/localnet-control-plane-status-summary.md`
+- added ADR 0017, the LocalNet control-plane runbook, the Prompt 14 execution report, and aligned the tracker, roadmap, decision log, invariant registry, evidence manifest, risk register, threat model, README surfaces, and operator setup docs with the seeded Quickstart posture
+
+Architecture and ADR note:
+
+- ADR 0017 was added because Prompt 14 introduces a new durable operating boundary: the Control Plane now starts, seeds, and queries the pinned Quickstart LocalNet through repo-owned overlays and Daml Script instead of stopping at package upload only
+
+Commands run:
+
+```sh
+sh -n scripts/localnet-control-plane-common.sh
+sh -n scripts/run-quickstart-daml-script.sh
+sh -n scripts/localnet-start-control-plane.sh
+sh -n scripts/localnet-seed-demo.sh
+sh -n scripts/localnet-status-control-plane.sh
+sh -n scripts/localnet-deploy-dar.sh
+sh -n scripts/run-localnet-smoke.sh
+make daml-build
+make localnet-build-dar
+make localnet-start-control-plane
+make localnet-seed-demo
+make localnet-status-control-plane
+make docs-lint
+git diff --check
+git status --short --branch
+```
+
+Results:
+
+- the Quickstart overlay start command passed and deployed package id `829c57ff1186dd09d4e3e232f2ac08c447de2bfe7c7f3b0cc3bf433fb3190f63` from `.daml/dist-quickstart/canton-collateral-control-plane-0.1.1.dar` into the pinned Quickstart participants through onboarding container `control-plane-splice-onboarding`
+- the seed command passed and created the default scenario `quickstart-confidential-margin-001` with:
+  - provider party `app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a`
+  - secured party `app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
+  - custodian party `controlplane-custodian-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
+  - operator party `controlplane-operator-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
+  - obligation `quickstart-margin-obligation-001`
+  - posting intent `quickstart-margin-posting-001`
+  - inventory lots `quickstart-us-tbill-lot-001` and `quickstart-us-tbill-lot-002`
+- the refreshed status command passed and confirmed the provider-visible Quickstart view sees `1` obligation, `2` inventory lots, and `1` posting intent for the seeded scenario, while execution-report and encumbrance counts remain `0`
+- `make docs-lint` passed after the seeded Quickstart command, runbook, ADR, tracker, invariant, and evidence surfaces were added
+- `git diff --check` passed with no whitespace or malformed patch issues
+
+Residual risks and follow-up:
+
+- the seeded Quickstart surface still stops at seeded ledger state rather than a full Quickstart-backed workflow execution report
+- live asset adapters, settlement-window enforcement, workflow-coupled optimizer reservation, and production-grade collateral business logic remain intentionally absent
+- future Daml changes must continue to preserve compatibility across the host-native `2.10.4` path and the containerized Quickstart `3.4.10` path
+
 ## 2026-03-29 - Prompt 13 Quickstart Runtime Bridge - Pre-Change
 
 Intent:
