@@ -4,7 +4,7 @@
 
 The future system will manage confidential collateral policy, inventory, valuation, workflow, and reporting state across multiple parties. This document records the threat posture implied by the architecture package and the design areas that must remain visible as implementation begins.
 
-The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, first end-to-end margin-call, return, and substitution demo runners plus their machine-readable report contracts, and a pinned Quickstart bootstrap and compose-preflight layer. Those surfaces make privacy, determinism, and authority boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
+The current repository state now includes an initial off-ledger policy evaluation engine, an initial off-ledger optimizer, initial Daml workflow templates for obligations, posting, substitution, return, settlement intent, and execution reporting, end-to-end margin-call, return, and substitution demo runners plus their machine-readable report contracts, an aggregate conformance suite, a final demo pack, and a pinned Quickstart bootstrap plus compose-preflight layer. Those surfaces make privacy, determinism, authority, and audit boundaries concrete, but they are still a skeleton layer rather than a full disclosure-profile, replay-hardening, or adapter-integrated implementation.
 
 ## Protected Assets
 
@@ -20,6 +20,9 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - margin-call demo manifests and workflow-input payloads
 - return demo manifests, workflow-input payloads, and return reports
 - substitution demo manifests, workflow-input payloads, and substitution reports
+- conformance-suite reports and supporting determinism plus haircut evidence
+- final demo-pack indexes and artifact maps
+- third-party integration guidance
 - encumbrance state
 - settlement instructions and control acknowledgments
 - execution reports and audit evidence
@@ -48,6 +51,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 | Substitution scope drift or partial settlement acceptance | A request that was approved for one replacement scope could settle a different or incomplete scope. | Carry replacement scope explicitly, enforce atomicity on the Daml boundary, and fail retained-lot or partial-settlement attempts closed. |
 | Non-atomic substitution or return | Coverage could be lost during workflow transitions. | Treat atomic workflow completion as a blocking invariant. |
 | Report tampering or drift | Operators could rely on incorrect evidence. | State-derived report generation, schema validation, and report-fidelity checks. |
+| Integration-boundary drift | Future Canton projects or external participants could couple to unstable demo shapes rather than the intended contract boundary. | Publish an explicit integration guide, final demo pack, and artifact index, and keep boundary moves ADR-backed. |
 | Scenario-manifest drift | The operator demo could silently stop representing the documented margin-call shape. | Keep scenario inputs versioned in-repo, validate expected outcomes inside the orchestration layer, and fail closed when they drift. |
 | Policy-evaluation report over-disclosure | Off-ledger reports could leak more inventory or counterparty detail than a consumer needs. | Keep report schemas explicit, add role-scoped disclosure profiles later, and avoid hidden joins to external reference data. |
 | Optimization-report over-disclosure | Advisory optimization output could reveal more inventory detail or operational preference than a consumer needs. | Keep the optimization report schema explicit, defer role-scoped report profiles, and preserve workflow authority boundaries. |
@@ -73,6 +77,7 @@ The current repository state now includes an initial off-ledger policy evaluatio
 - which Quickstart topology extensions can be expressed purely through overlays?
 - what minimum report profiles satisfy auditability without over-disclosure?
 - what minimum substitution-report profile satisfies auditability without exposing unnecessary inventory detail?
+- which current demo-pack and conformance-report fields should be elevated into versioned external integration contracts first?
 - what freshness and provenance guarantees must a valuation snapshot prove?
 - which asset-control semantics belong in the adapter layer versus the workflow package?
 - which Daml runtime bridge will let the repo DAR be deployed into the pinned Quickstart LocalNet without losing reproducibility?

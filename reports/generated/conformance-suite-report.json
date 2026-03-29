@@ -1,0 +1,202 @@
+{
+  "reportType": "ConformanceSuiteReport",
+  "reportVersion": "0.1.0",
+  "suiteId": "csr-76c28d948047e880",
+  "generatedAt": "2026-03-29T04:22:54Z",
+  "overallStatus": "PASS",
+  "command": "make test-conformance",
+  "artifacts": {
+    "conformanceReportPath": "reports/generated/conformance-suite-report.json",
+    "markdownSummaryPath": "reports/generated/conformance-suite-summary.md",
+    "eligibilityDeterminismArtifactPath": "reports/generated/conformance-eligibility-determinism-policy-evaluation-report.json",
+    "haircutVectorArtifactPath": "reports/generated/conformance-haircut-policy-evaluation-report.json"
+  },
+  "coverage": {
+    "requiredCheckIds": [
+      "AUTHORIZATION_AND_ROLE_CONTROL",
+      "ELIGIBILITY_DETERMINISM",
+      "HAIRCUT_CORRECTNESS",
+      "NO_DOUBLE_ENCUMBRANCE",
+      "ATOMIC_SUBSTITUTION_WHEN_REQUIRED",
+      "REPLAY_SAFETY",
+      "REPORT_FIDELITY",
+      "AUDIT_TRAIL_COMPLETENESS"
+    ],
+    "completedCheckCount": 8,
+    "passedCheckCount": 8,
+    "failedCheckCount": 0,
+    "totalScenarioCount": 13,
+    "positiveScenarioCount": 3,
+    "negativeScenarioCount": 10
+  },
+  "demoReports": [
+    {
+      "demoType": "CONFIDENTIAL_MARGIN_CALL",
+      "reportType": "ExecutionReport",
+      "command": "make demo-margin-call",
+      "reportPath": "reports/generated/margin-call-demo-execution-report.json",
+      "summaryPath": "reports/generated/margin-call-demo-summary.md",
+      "timelinePath": "reports/generated/margin-call-demo-timeline.md",
+      "positiveScenarioIds": [
+        "positive-margin-call"
+      ],
+      "negativeScenarioIds": [
+        "negative-ineligible-asset",
+        "negative-insufficient-lendable-value",
+        "negative-expired-policy-window"
+      ]
+    },
+    {
+      "demoType": "CONFIDENTIAL_COLLATERAL_SUBSTITUTION",
+      "reportType": "SubstitutionReport",
+      "command": "make demo-substitution",
+      "reportPath": "reports/generated/substitution-demo-report.json",
+      "summaryPath": "reports/generated/substitution-demo-summary.md",
+      "timelinePath": "reports/generated/substitution-demo-timeline.md",
+      "positiveScenarioIds": [
+        "positive-substitution"
+      ],
+      "negativeScenarioIds": [
+        "negative-replacement-becomes-ineligible",
+        "negative-concentration-breach",
+        "negative-unauthorized-release",
+        "negative-partial-substitution"
+      ]
+    },
+    {
+      "demoType": "CONFIDENTIAL_MARGIN_RETURN",
+      "reportType": "ReturnReport",
+      "command": "make demo-return",
+      "reportPath": "reports/generated/return-demo-report.json",
+      "summaryPath": "reports/generated/return-demo-summary.md",
+      "timelinePath": "reports/generated/return-demo-timeline.md",
+      "positiveScenarioIds": [
+        "positive-return"
+      ],
+      "negativeScenarioIds": [
+        "negative-unauthorized-return",
+        "negative-replayed-return-instruction",
+        "negative-obligation-state-mismatch"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "AUTHORIZATION_AND_ROLE_CONTROL",
+      "status": "PASS",
+      "invariantIds": [
+        "AUTH-001",
+        "CTRL-001",
+        "WF-001"
+      ],
+      "evidence": [
+        "reports/generated/negative-unauthorized-release-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-workflow-result.json"
+      ],
+      "detail": "Unauthorized substitution release and return release attempts were blocked by approval and role controls without changing the incumbent encumbrance set."
+    },
+    {
+      "checkId": "ELIGIBILITY_DETERMINISM",
+      "status": "PASS",
+      "invariantIds": [
+        "ELIG-001",
+        "PDR-001"
+      ],
+      "evidence": [
+        "reports/generated/conformance-eligibility-determinism-policy-evaluation-report.json"
+      ],
+      "detail": "Running the same policy and inventory inputs twice produced byte-equivalent deterministic policy evaluation output."
+    },
+    {
+      "checkId": "HAIRCUT_CORRECTNESS",
+      "status": "PASS",
+      "invariantIds": [
+        "HAIR-001"
+      ],
+      "evidence": [
+        "reports/generated/conformance-haircut-policy-evaluation-report.json"
+      ],
+      "detail": "The conformance haircut vector preserved the expected valuation basis, haircut schedule, and lendable-value arithmetic without hidden adjustments."
+    },
+    {
+      "checkId": "NO_DOUBLE_ENCUMBRANCE",
+      "status": "PASS",
+      "invariantIds": [
+        "ENC-001",
+        "CTRL-001"
+      ],
+      "evidence": [
+        "reports/generated/positive-margin-call-workflow-result.json",
+        "reports/generated/positive-substitution-workflow-result.json",
+        "reports/generated/negative-unauthorized-release-workflow-result.json",
+        "reports/generated/positive-return-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-workflow-result.json"
+      ],
+      "detail": "Across posting, substitution, and return flows the suite preserved disjoint encumbrance sets and blocked state changes that would overlap or duplicate collateral commitments."
+    },
+    {
+      "checkId": "ATOMIC_SUBSTITUTION_WHEN_REQUIRED",
+      "status": "PASS",
+      "invariantIds": [
+        "ATOM-001",
+        "CTRL-001"
+      ],
+      "evidence": [
+        "reports/generated/positive-substitution-workflow-result.json",
+        "reports/generated/negative-partial-substitution-workflow-result.json",
+        "reports/generated/negative-unauthorized-release-workflow-result.json"
+      ],
+      "detail": "When full replacement is required, substitution either commits the new set atomically or leaves the incumbent encumbrances untouched."
+    },
+    {
+      "checkId": "REPLAY_SAFETY",
+      "status": "PASS",
+      "invariantIds": [
+        "REPL-001"
+      ],
+      "evidence": [
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json"
+      ],
+      "detail": "The return workflow committed the original release once and then blocked a replayed instruction using the same request identifier."
+    },
+    {
+      "checkId": "REPORT_FIDELITY",
+      "status": "PASS",
+      "invariantIds": [
+        "REPT-001",
+        "PDR-001"
+      ],
+      "evidence": [
+        "reports/generated/margin-call-demo-execution-report.json",
+        "reports/generated/margin-call-demo-summary.md",
+        "reports/generated/margin-call-demo-timeline.md",
+        "reports/generated/return-demo-report.json",
+        "reports/generated/return-demo-summary.md",
+        "reports/generated/return-demo-timeline.md",
+        "reports/generated/substitution-demo-report.json",
+        "reports/generated/substitution-demo-summary.md",
+        "reports/generated/substitution-demo-timeline.md"
+      ],
+      "detail": "Every demo report references real generated artifacts, preserves scenario and workflow counts, and keeps machine-readable summaries aligned with the committed evidence files."
+    },
+    {
+      "checkId": "AUDIT_TRAIL_COMPLETENESS",
+      "status": "PASS",
+      "invariantIds": [
+        "AUD-001"
+      ],
+      "evidence": [
+        "reports/generated/margin-call-demo-execution-report.json",
+        "reports/generated/margin-call-demo-summary.md",
+        "reports/generated/margin-call-demo-timeline.md",
+        "reports/generated/return-demo-report.json",
+        "reports/generated/return-demo-summary.md",
+        "reports/generated/return-demo-timeline.md",
+        "reports/generated/substitution-demo-report.json",
+        "reports/generated/substitution-demo-summary.md",
+        "reports/generated/substitution-demo-timeline.md"
+      ],
+      "detail": "Each positive flow records step-level workflow history, execution-report events, and top-level timeline entries that can be audited without hidden reconstruction."
+    }
+  ]
+}

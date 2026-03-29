@@ -29,6 +29,9 @@ SUBSTITUTION_DEMO_MANIFEST ?= examples/demo-scenarios/substitution/demo-config.j
 SUBSTITUTION_DEMO_OUTPUT_DIR ?= reports/generated
 RETURN_DEMO_MANIFEST ?= examples/demo-scenarios/return/demo-config.json
 RETURN_DEMO_OUTPUT_DIR ?= reports/generated
+CONFORMANCE_OUTPUT_DIR ?= reports/generated
+CONFORMANCE_REPORT ?= $(CONFORMANCE_OUTPUT_DIR)/conformance-suite-report.json
+FINAL_DEMO_OUTPUT_DIR ?= reports/generated
 LOCALNET_PROFILE ?= lean
 LOCALNET_WORKDIR ?= $(REPO_ROOT)/.runtime/localnet/cn-quickstart
 LOCALNET_PARTY_HINT ?= canton-collateral-1
@@ -60,6 +63,10 @@ REQUIRED_DOCS := \
 	app/optimizer/optimizer.py \
 	app/optimizer/optimizer_constants.py \
 	app/orchestration/cli.py \
+	app/orchestration/conformance_cli.py \
+	app/orchestration/conformance_suite.py \
+	app/orchestration/final_demo_cli.py \
+	app/orchestration/final_demo_pack.py \
 	app/orchestration/margin_call_demo.py \
 	app/orchestration/return_cli.py \
 	app/orchestration/return_demo.py \
@@ -72,6 +79,7 @@ REQUIRED_DOCS := \
 	reports/schemas/return-report.schema.json \
 	reports/schemas/substitution-report.schema.json \
 	test/README.md \
+	test/conformance/test_conformance.py \
 	test/policy-engine/test_policy_engine.py \
 	test/optimizer/test_optimizer.py \
 	examples/README.md \
@@ -146,12 +154,14 @@ REQUIRED_DOCS := \
 	docs/adrs/0011-margin-call-demo-shape.md \
 	docs/adrs/0012-substitution-atomicity.md \
 	docs/adrs/0013-return-and-release-control.md \
-	docs/adrs/0014-quickstart-demo-foundation.md \
+	docs/adrs/0014-conformance-and-demo-package.md \
+	docs/adrs/0015-quickstart-demo-foundation.md \
 	docs/setup/LOCAL_DEV_SETUP.md \
 	docs/setup/DEPENDENCY_POLICY.md \
 	docs/invariants/INVARIANT_REGISTRY.md \
 	docs/risks/RISK_REGISTER.md \
 	docs/evidence/EVIDENCE_MANIFEST.md \
+	docs/evidence/DEMO_ARTIFACT_INDEX.md \
 	docs/evidence/prompt-01-execution-report.md \
 	docs/evidence/prompt-02-execution-report.md \
 	docs/evidence/prompt-03-execution-report.md \
@@ -163,8 +173,10 @@ REQUIRED_DOCS := \
 	docs/evidence/prompt-09-execution-report.md \
 	docs/evidence/prompt-10-execution-report.md \
 	docs/evidence/prompt-11-execution-report.md \
+	docs/evidence/prompt-12-execution-report.md \
 	docs/evidence/rename-to-collateral-control-plane-execution-report.md \
 	docs/runbooks/README.md \
+	docs/runbooks/FINAL_DEMO_RUNBOOK.md \
 	docs/runbooks/MARGIN_CALL_DEMO_RUNBOOK.md \
 	docs/runbooks/RETURN_DEMO_RUNBOOK.md \
 	docs/runbooks/SUBSTITUTION_DEMO_RUNBOOK.md \
@@ -172,6 +184,7 @@ REQUIRED_DOCS := \
 	docs/integration/LOCALNET_DEMO_PLAN.md \
 	docs/integration/QUICKSTART_INTEGRATION_PLAN.md \
 	docs/integration/ASSET_ADAPTER_PLAN.md \
+	docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md \
 	docs/integration/TOKEN_STANDARD_ALIGNMENT.md \
 	docs/domain/GLOSSARY.md \
 	docs/domain/COLLATERAL_DOMAIN_MODEL.md \
@@ -187,6 +200,7 @@ REQUIRED_DOCS := \
 	docs/specs/SUBSTITUTION_REPORT_SPEC.md \
 	docs/economic/OPTIMIZATION_OBJECTIVES.md \
 	docs/testing/CPL_VALIDATION_TEST_PLAN.md \
+	docs/testing/CONFORMANCE_SUITE.md \
 	docs/testing/DAML_TEST_PLAN.md \
 	docs/testing/POLICY_ENGINE_TEST_PLAN.md \
 	docs/testing/OPTIMIZER_TEST_PLAN.md \
@@ -219,7 +233,7 @@ REQUIRED_DIRS := \
 	infra \
 	docs/setup
 
-.PHONY: bootstrap localnet-bootstrap localnet-smoke docs-lint status verify validate-cpl policy-eval optimize test-policy-engine test-optimizer daml-build daml-test demo-run demo-margin-call demo-return demo-substitution clean-runtime
+.PHONY: bootstrap localnet-bootstrap localnet-smoke docs-lint status verify validate-cpl policy-eval optimize test-policy-engine test-optimizer test-conformance daml-build daml-test demo-run demo-margin-call demo-return demo-substitution demo-all clean-runtime
 
 $(CHECK_JSONSCHEMA): requirements-cpl-validation.txt
 	@$(PYTHON) -m venv $(VENV)
@@ -251,6 +265,8 @@ docs-lint:
 	@grep -q "make demo-margin-call" README.md || { echo "docs-lint: README missing demo-margin-call command"; exit 1; }
 	@grep -q "make demo-return" README.md || { echo "docs-lint: README missing demo-return command"; exit 1; }
 	@grep -q "make demo-substitution" README.md || { echo "docs-lint: README missing demo-substitution command"; exit 1; }
+	@grep -q "make test-conformance" README.md || { echo "docs-lint: README missing test-conformance command"; exit 1; }
+	@grep -q "make demo-all" README.md || { echo "docs-lint: README missing demo-all command"; exit 1; }
 	@grep -q "make policy-eval" README.md || { echo "docs-lint: README missing policy-eval command"; exit 1; }
 	@grep -q "make optimize" README.md || { echo "docs-lint: README missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" README.md || { echo "docs-lint: README missing test-policy-engine command"; exit 1; }
@@ -261,6 +277,8 @@ docs-lint:
 	@grep -q "make demo-margin-call" AGENTS.md || { echo "docs-lint: AGENTS missing demo-margin-call command"; exit 1; }
 	@grep -q "make demo-return" AGENTS.md || { echo "docs-lint: AGENTS missing demo-return command"; exit 1; }
 	@grep -q "make demo-substitution" AGENTS.md || { echo "docs-lint: AGENTS missing demo-substitution command"; exit 1; }
+	@grep -q "make test-conformance" AGENTS.md || { echo "docs-lint: AGENTS missing test-conformance command"; exit 1; }
+	@grep -q "make demo-all" AGENTS.md || { echo "docs-lint: AGENTS missing demo-all command"; exit 1; }
 	@grep -q "make policy-eval" AGENTS.md || { echo "docs-lint: AGENTS missing policy-eval command"; exit 1; }
 	@grep -q "make optimize" AGENTS.md || { echo "docs-lint: AGENTS missing optimize command"; exit 1; }
 	@grep -q "make test-policy-engine" AGENTS.md || { echo "docs-lint: AGENTS missing test-policy-engine command"; exit 1; }
@@ -271,6 +289,8 @@ docs-lint:
 	@grep -q "make demo-margin-call" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-margin-call command"; exit 1; }
 	@grep -q "make demo-return" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-return command"; exit 1; }
 	@grep -q "make demo-substitution" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-substitution command"; exit 1; }
+	@grep -q "make test-conformance" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing test-conformance command"; exit 1; }
+	@grep -q "make demo-all" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing demo-all command"; exit 1; }
 	@grep -q "make optimize" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing optimize command"; exit 1; }
 	@grep -q "make test-optimizer" CONTRIBUTING.md || { echo "docs-lint: CONTRIBUTING missing test-optimizer command"; exit 1; }
 	@grep -q "workflowSmokeTest" daml.yaml || { echo "docs-lint: daml.yaml missing workflow smoke init script"; exit 1; }
@@ -282,6 +302,8 @@ docs-lint:
 	@grep -q "make demo-margin-call" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-margin-call"; exit 1; }
 	@grep -q "make demo-return" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-return"; exit 1; }
 	@grep -q "make demo-substitution" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-substitution"; exit 1; }
+	@grep -q "make test-conformance" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing test-conformance"; exit 1; }
+	@grep -q "make demo-all" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing demo-all"; exit 1; }
 	@grep -q "make policy-eval" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing policy-eval"; exit 1; }
 	@grep -q "make optimize" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing optimize"; exit 1; }
 	@grep -q "make test-optimizer" docs/setup/LOCAL_DEV_SETUP.md || { echo "docs-lint: local setup missing test-optimizer"; exit 1; }
@@ -291,6 +313,8 @@ docs-lint:
 	@grep -q "make demo-margin-call" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-margin-call"; exit 1; }
 	@grep -q "make demo-return" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-return"; exit 1; }
 	@grep -q "make demo-substitution" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-substitution"; exit 1; }
+	@grep -q "make test-conformance" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-conformance"; exit 1; }
+	@grep -q "make demo-all" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing demo-all"; exit 1; }
 	@grep -q "make test-policy-engine" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-policy-engine"; exit 1; }
 	@grep -q "make optimize" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing optimize"; exit 1; }
 	@grep -q "make test-optimizer" docs/testing/TEST_STRATEGY.md || { echo "docs-lint: test strategy missing test-optimizer"; exit 1; }
@@ -299,7 +323,8 @@ docs-lint:
 	@grep -q "ADR 0011" docs/adrs/0011-margin-call-demo-shape.md || { echo "docs-lint: ADR 0011 missing title"; exit 1; }
 	@grep -q "ADR 0012" docs/adrs/0012-substitution-atomicity.md || { echo "docs-lint: ADR 0012 missing title"; exit 1; }
 	@grep -q "ADR 0013" docs/adrs/0013-return-and-release-control.md || { echo "docs-lint: ADR 0013 missing title"; exit 1; }
-	@grep -q "ADR 0014" docs/adrs/0014-quickstart-demo-foundation.md || { echo "docs-lint: ADR 0014 missing title"; exit 1; }
+	@grep -q "ADR 0014" docs/adrs/0014-conformance-and-demo-package.md || { echo "docs-lint: ADR 0014 missing title"; exit 1; }
+	@grep -q "ADR 0015" docs/adrs/0015-quickstart-demo-foundation.md || { echo "docs-lint: ADR 0015 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
@@ -308,6 +333,7 @@ docs-lint:
 	@grep -q "^## Results" docs/evidence/prompt-09-execution-report.md || { echo "docs-lint: prompt 9 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-10-execution-report.md || { echo "docs-lint: prompt 10 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-11-execution-report.md || { echo "docs-lint: prompt 11 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-12-execution-report.md || { echo "docs-lint: prompt 12 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
 	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
@@ -315,6 +341,7 @@ docs-lint:
 	@grep -q "Prompt 9 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 9 status"; exit 1; }
 	@grep -q "Prompt 10 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 10 status"; exit 1; }
 	@grep -q "Prompt 11 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 11 status"; exit 1; }
+	@grep -q "Prompt 12 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 12 status"; exit 1; }
 	@echo "docs-lint: policy engine, optimizer, return demo, substitution demo, Quickstart foundation, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 localnet-bootstrap:
@@ -381,6 +408,14 @@ test-optimizer: $(CHECK_JSONSCHEMA)
 	@$(MAKE) --no-print-directory optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json REPORT=reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json
 	@echo "test-optimizer: deterministic optimizer tests and report validation passed"
 
+test-conformance: daml-build $(CHECK_JSONSCHEMA)
+	@set -e; \
+		. "$(RUNTIME_ENV)"; \
+		output_path=$$($(PYTHON) app/orchestration/conformance_cli.py --output-dir "$(CONFORMANCE_OUTPUT_DIR)" --repo-root "$(REPO_ROOT)"); \
+		test -f "$$output_path" || { echo "test-conformance: missing conformance report"; exit 1; }; \
+		PYTHONPATH=app/orchestration $(PYTHON) -m unittest discover -s test/conformance -p 'test_*.py'; \
+		echo "test-conformance: generated $$output_path and validated the aggregate conformance suite"
+
 status:
 	@$(STATUS_SCRIPT)
 
@@ -436,6 +471,12 @@ demo-substitution: daml-build $(CHECK_JSONSCHEMA)
 		test -f "$(SUBSTITUTION_DEMO_OUTPUT_DIR)/substitution-demo-summary.md" || { echo "demo-substitution: missing markdown summary"; exit 1; }; \
 		test -f "$(SUBSTITUTION_DEMO_OUTPUT_DIR)/substitution-demo-timeline.md" || { echo "demo-substitution: missing timeline markdown"; exit 1; }; \
 		echo "demo-substitution: generated $$output_path"
+
+demo-all: test-conformance
+	@output_path=$$($(PYTHON) app/orchestration/final_demo_cli.py --conformance-report "$(CONFORMANCE_REPORT)" --output-dir "$(FINAL_DEMO_OUTPUT_DIR)" --repo-root "$(REPO_ROOT)"); \
+		test -f "$$output_path" || { echo "demo-all: missing final demo-pack report"; exit 1; }; \
+		test -f "$(FINAL_DEMO_OUTPUT_DIR)/final-demo-pack-summary.md" || { echo "demo-all: missing markdown summary"; exit 1; }; \
+		echo "demo-all: generated $$output_path"
 
 verify:
 	@$(VERIFY_SCRIPT)

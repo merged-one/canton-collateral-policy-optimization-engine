@@ -23,4 +23,5 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0011-margin-call-demo-shape.md](./0011-margin-call-demo-shape.md)
 - [0012-substitution-atomicity.md](./0012-substitution-atomicity.md)
 - [0013-return-and-release-control.md](./0013-return-and-release-control.md)
-- [0014-quickstart-demo-foundation.md](./0014-quickstart-demo-foundation.md)
+- [0014-conformance-and-demo-package.md](./0014-conformance-and-demo-package.md)
+- [0015-quickstart-demo-foundation.md](./0015-quickstart-demo-foundation.md)

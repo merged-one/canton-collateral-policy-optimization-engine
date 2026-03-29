@@ -80,7 +80,7 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0059 | Economic rationale | [docs/economic/OPTIMIZATION_OBJECTIVES.md](../economic/OPTIMIZATION_OBJECTIVES.md) | institutional rationale for best-to-post, concentration control, substitution economics, and deterministic explainability |
 | E-0060 | Demo artifacts | [reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json](../../reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json) | real generated optimization artifact from `make optimize` |
 | E-0061 | Demo artifacts | [docs/evidence/prompt-07-execution-report.md](./prompt-07-execution-report.md) | reproducible Prompt 7 execution record for the first optimizer package |
-| E-0062 | ADRs | [docs/adrs/0014-quickstart-demo-foundation.md](../adrs/0014-quickstart-demo-foundation.md) | pinned Quickstart demo foundation and overlay-first LocalNet decision |
+| E-0062 | ADRs | [docs/adrs/0015-quickstart-demo-foundation.md](../adrs/0015-quickstart-demo-foundation.md) | pinned Quickstart demo foundation and overlay-first LocalNet decision |
 | E-0063 | Code | [infra/quickstart/bootstrap-localnet.sh](../../infra/quickstart/bootstrap-localnet.sh) | pinned upstream CN Quickstart bootstrap and `.env.local` overlay writer |
 | E-0064 | Code | [scripts/run-localnet-smoke.sh](../../scripts/run-localnet-smoke.sh) | upstream Docker preflight plus compose-config smoke for the pinned Quickstart stack |
 | E-0065 | Specs | [docs/integration/LOCALNET_DEMO_PLAN.md](../integration/LOCALNET_DEMO_PLAN.md) | staged path from the current Quickstart foundation to a real confidential collateral demo |
@@ -109,11 +109,21 @@ This manifest defines the evidence categories required to defend changes in this
 | E-0088 | Demo artifacts | [reports/generated/return-demo-report.json](../../reports/generated/return-demo-report.json) | real end-to-end return artifact from `make demo-return` |
 | E-0089 | Operational runbooks | [docs/runbooks/RETURN_DEMO_RUNBOOK.md](../runbooks/RETURN_DEMO_RUNBOOK.md) | operator procedure for the end-to-end return demo |
 | E-0090 | Demo artifacts | [docs/evidence/prompt-11-execution-report.md](./prompt-11-execution-report.md) | reproducible Prompt 11 execution record for the first end-to-end return prototype |
+| E-0091 | ADRs | [docs/adrs/0014-conformance-and-demo-package.md](../adrs/0014-conformance-and-demo-package.md) | aggregate conformance-suite and final demo-pack packaging decision |
+| E-0092 | Tests | [docs/testing/CONFORMANCE_SUITE.md](../testing/CONFORMANCE_SUITE.md) | aggregate invariant-verification scope, command surface, and operator checks |
+| E-0093 | Tests | [test/conformance/test_conformance.py](../../test/conformance/test_conformance.py) | executable assertions over the generated conformance-suite report |
+| E-0094 | Operational runbooks | [docs/runbooks/FINAL_DEMO_RUNBOOK.md](../runbooks/FINAL_DEMO_RUNBOOK.md) | operator procedure for the final packaged confidential workflow demonstration |
+| E-0095 | Specs | [docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md](../integration/THIRD_PARTY_INTEGRATION_GUIDE.md) | boundary-level integration contract guidance for venues, financing apps, token issuers, custodians, and future Canton projects |
+| E-0096 | Demo artifacts | [docs/evidence/DEMO_ARTIFACT_INDEX.md](./DEMO_ARTIFACT_INDEX.md) | reviewer-facing index for the generated demo package and supporting artifacts |
+| E-0097 | Demo artifacts | [reports/generated/conformance-suite-report.json](../../reports/generated/conformance-suite-report.json) | real aggregate invariant pass/fail output from `make test-conformance` |
+| E-0098 | Demo artifacts | [reports/generated/final-demo-pack.json](../../reports/generated/final-demo-pack.json) | real final packaged prototype evidence index from `make demo-all` |
+| E-0099 | Demo artifacts | [docs/evidence/prompt-12-execution-report.md](./prompt-12-execution-report.md) | reproducible Prompt 12 execution record for the conformance suite and final demo pack |
 
 ## Coverage Notes
 
 - The `Code` category now includes the first Daml workflow skeleton package in addition to schema, bootstrap, and toolchain artifacts.
 - The architecture, CPL, policy-engine, optimizer, Daml-boundary, and Quickstart-foundation packages now provide executable evidence, though adapter integration and workflow-coupled reference-data evidence are still pending.
-- The `Demo artifacts` category now includes the first end-to-end margin-call, return, and substitution reports plus their supporting policy, optimization, workflow, and prompt evidence artifacts, but still not a Quickstart-backed deployment proof.
+- The `Demo artifacts` category now includes the end-to-end margin-call, return, and substitution reports plus their supporting policy, optimization, workflow, conformance, final demo-pack, and prompt evidence artifacts, but still not a Quickstart-backed deployment proof.
 - The evidence set now records the rename to "Canton Collateral Control Plane" as a semantic clarification of the same subsystem stack rather than a new product direction.
+- The evidence set now includes an explicit third-party integration guide and a reviewer-facing demo artifact index so future Canton projects can consume the prototype through declared interfaces instead of reverse-engineering incidental file shapes.
 - Economic rationale is now architecture-, control-, and optimization-objective-oriented rather than calibration-backed.

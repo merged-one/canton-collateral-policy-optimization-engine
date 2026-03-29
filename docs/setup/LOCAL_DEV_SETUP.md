@@ -54,6 +54,8 @@ make demo-run
 make demo-margin-call
 make demo-return
 make demo-substitution
+make test-conformance
+make demo-all
 make verify
 ```
 
@@ -73,7 +75,9 @@ What each command does:
 - `make demo-margin-call`: run the first positive and negative end-to-end margin-call scenarios and emit execution-report artifacts
 - `make demo-return`: run the first positive and negative end-to-end return scenarios and emit return-report artifacts
 - `make demo-substitution`: run the first positive and negative end-to-end substitution scenarios and emit substitution-report artifacts
-- `make verify`: run the full verification loop across docs, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml tests, end-to-end demo execution, and smoke execution
+- `make test-conformance`: run the aggregate conformance suite and emit explicit invariant pass/fail output across the three confidential workflow demos
+- `make demo-all`: build the final demo pack from the aggregate conformance output
+- `make verify`: run the full verification loop across docs, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml tests, aggregate conformance, final demo packaging, and smoke execution
 
 ## Runtime Layout
 
@@ -86,7 +90,7 @@ What each command does:
 
 ## Notes
 
-- The current repository now includes an initial deterministic policy engine, an initial deterministic optimizer, initial Daml workflow skeletons, and first end-to-end margin-call, return, and substitution demos, but it still does not implement live asset adapters, settlement-window enforcement, or workflow-coupled optimization reservation.
+- The current repository now includes an initial deterministic policy engine, an initial deterministic optimizer, initial Daml workflow skeletons, end-to-end margin-call, return, and substitution demos, an aggregate conformance suite, and a final demo pack, but it still does not implement live asset adapters, settlement-window enforcement, or workflow-coupled optimization reservation.
 - The Quickstart LocalNet foundation now stages a real upstream checkout and validates its compose topology, but it does not yet build the upstream stack automatically or deploy the repository's DAR into it.
 - Future Quickstart or Canton overlay assets should land under `infra/`, not inside the Daml or app package trees.
 - If the toolchain needs to be rebuilt from scratch, run `make clean-runtime` and then `make bootstrap`.

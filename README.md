@@ -82,6 +82,8 @@ Current scope:
 - first end-to-end margin-call demo command with a machine-readable execution report, Markdown summary, and timeline artifacts
 - first end-to-end return demo command with a machine-readable return report, Markdown summary, and timeline artifacts
 - first end-to-end substitution demo command with a machine-readable substitution report, Markdown summary, and timeline artifacts
+- aggregate conformance-suite command with explicit invariant pass or fail output across the three confidential workflow demos
+- final demo-pack command with machine-readable artifact indexing and third-party integration guidance
 - pinned runtime foundation for Daml-centric workflow modeling and local verification
 - pinned Quickstart-based LocalNet bootstrap and compose-config smoke foundation that preserves upstream CN Quickstart workflows as closely as practical
 - first Daml domain model and lifecycle skeletons for obligations, posting, substitution, return, settlement intent, and execution reporting
@@ -136,12 +138,14 @@ make demo-run
 make demo-margin-call
 make demo-return
 make demo-substitution
+make test-conformance
+make demo-all
 make status
 make docs-lint
 make verify
 ```
 
-`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-return` evaluates the currently encumbered set, derives the returned lots from a deterministic retained-set recommendation, enforces approvals plus replay-safe release control on the Daml boundary, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
+`make localnet-bootstrap` now stages a pinned upstream CN Quickstart checkout and writes a repo-owned `.env.local` overlay without forking upstream files. `make localnet-smoke` reuses upstream Docker preflight checks and validates the composed Quickstart LocalNet configuration. `make demo-run` exercises a real Daml workflow smoke script over the initial obligation, posting, substitution, and return skeletons. `make demo-margin-call` evaluates positive and negative margin-call scenarios, passes the positive recommendation into a Daml Script workflow path, and emits a schema-valid `ExecutionReport` plus Markdown summary and timeline artifacts. `make demo-return` evaluates the currently encumbered set, derives the returned lots from a deterministic retained-set recommendation, enforces approvals plus replay-safe release control on the Daml boundary, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts. `make demo-substitution` starts from already encumbered collateral, evaluates substitution-specific positive and negative scenarios, enforces approvals plus atomicity on the Daml boundary, and emits a schema-valid `SubstitutionReport` plus Markdown summary and timeline artifacts. `make test-conformance` re-runs all three confidential demos, generates supporting determinism and haircut evidence, and emits aggregate invariant pass or fail output. `make demo-all` packages the three confidential workflow demos, the conformance output, and the integration-guide references into one final machine-readable demo pack. `make daml-test` runs the script-level lifecycle checks individually. `make policy-eval` validates a real policy input, evaluates normalized inventory, and emits a schema-valid `PolicyEvaluationReport`. `make optimize` validates a real policy input, optimizes against normalized inventory plus obligation inputs, and emits a schema-valid `OptimizationReport`.
 
 Current CPL artifacts:
 
@@ -198,6 +202,21 @@ Current return-report artifacts:
 - [reports/generated/return-demo-report.json](./reports/generated/return-demo-report.json)
 - [reports/generated/return-demo-summary.md](./reports/generated/return-demo-summary.md)
 - [reports/generated/return-demo-timeline.md](./reports/generated/return-demo-timeline.md)
+
+Current conformance artifacts:
+
+- [docs/testing/CONFORMANCE_SUITE.md](./docs/testing/CONFORMANCE_SUITE.md)
+- [test/conformance/test_conformance.py](./test/conformance/test_conformance.py)
+- [reports/generated/conformance-suite-report.json](./reports/generated/conformance-suite-report.json)
+- [reports/generated/conformance-suite-summary.md](./reports/generated/conformance-suite-summary.md)
+
+Current final demo-pack artifacts:
+
+- [docs/runbooks/FINAL_DEMO_RUNBOOK.md](./docs/runbooks/FINAL_DEMO_RUNBOOK.md)
+- [docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md](./docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md)
+- [docs/evidence/DEMO_ARTIFACT_INDEX.md](./docs/evidence/DEMO_ARTIFACT_INDEX.md)
+- [reports/generated/final-demo-pack.json](./reports/generated/final-demo-pack.json)
+- [reports/generated/final-demo-pack-summary.md](./reports/generated/final-demo-pack-summary.md)
 
 ## Upcoming Phases
 

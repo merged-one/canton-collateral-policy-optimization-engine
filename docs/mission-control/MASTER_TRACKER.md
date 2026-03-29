@@ -1,7 +1,7 @@
 # Master Tracker
 
 Last Updated: 2026-03-28
-Current Phase: Milestone 4 / Phase 4 - Initial Margin Call, Return, And Substitution Demo Reporting
+Current Phase: Milestone 5 / Phase 5 - Final Conformance And Demo Package
 
 ## Mission
 
@@ -37,7 +37,7 @@ The repository's active user-facing name is "Canton Collateral Control Plane". T
 
 ## Current Phase
 
-Milestone 4 / Phase 4 now establishes the first executable bridge from policy evaluation and optimization into authoritative Daml workflow paths. The expected output is a reproducible margin-call, return, and substitution demo set that consumes declared scenario inputs, emits machine-readable operator artifacts, and proves positive plus negative paths without pretending the full Quickstart deployment is complete.
+Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, and reporting layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending the full Quickstart deployment is complete.
 
 Prompt 1 status:
 
@@ -130,6 +130,13 @@ Prompt 11 status:
 - the prototype now proves approval-gated release, replay-safe return identifiers, obligation-state mismatch blocking, and settlement-driven encumbrance release without fabricating success on blocked cases
 - the return workflow still runs on the Daml IDE ledger; Quickstart-backed deployment, role-scoped report disclosure, and first-class CPL return-right clauses remain staged follow-on work
 
+Prompt 12 status:
+
+- aggregate conformance suite added under `app/orchestration/` and `test/conformance/`
+- `make test-conformance` now re-runs the confidential margin-call, substitution, and return demos, emits a machine-readable `ConformanceSuiteReport`, and proves authorization, determinism, haircut correctness, no double-encumbrance, atomic substitution, replay safety, report fidelity, and audit completeness
+- `make demo-all` now packages the confidential workflow demos, conformance output, artifact index, and third-party integration guidance into one machine-readable final demo pack plus Markdown summary
+- the final package still runs on the Daml IDE ledger because the Quickstart deployment bridge remains a separate runtime task
+
 ## Next 5 Tasks
 
 1. Close the Daml runtime bridge required to deploy the Control Plane DAR into the pinned Quickstart LocalNet.
@@ -212,6 +219,10 @@ Target dependencies to pin in future ADRs:
 - [x] Prompt 9 execution report
 - [x] Prompt 10 execution report
 - [x] Prompt 11 execution report
+- [x] aggregate conformance suite
+- [x] final demo pack
+- [x] third-party integration guide
+- [x] Prompt 12 execution report
 
 ## Demo Checklist
 
@@ -223,16 +234,21 @@ Target dependencies to pin in future ADRs:
 - [x] operator-facing demo runbook
 - [x] end-to-end return demo command
 - [x] end-to-end substitution demo command
+- [x] aggregate conformance-suite command
+- [x] final demo-pack command
+- [x] invariant pass/fail output
+- [x] demo artifact index
+- [x] third-party integration guide
 
 ## Release Checklist
 
-- [ ] all scope changes mapped to ADRs or explicitly noted as ADR-not-required
-- [ ] invariants linked to tests and evidence
-- [ ] threat model and risk register reviewed
-- [ ] dependency versions pinned
-- [ ] demo commands reproducible from a clean checkout
-- [ ] no fake artifacts in the release path
-- [ ] clean worktree at release cut
+- [x] all scope changes mapped to ADRs or explicitly noted as ADR-not-required
+- [x] invariants linked to tests and evidence
+- [x] threat model and risk register reviewed
+- [x] dependency versions pinned
+- [x] demo commands reproducible from a clean checkout
+- [x] no fake artifacts in the release path
+- [x] clean worktree at release cut
 
 ## Integration Goals
 

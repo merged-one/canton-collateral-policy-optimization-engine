@@ -14,8 +14,6 @@ make --no-print-directory test-optimizer
 make --no-print-directory daml-build
 make --no-print-directory daml-test
 make --no-print-directory demo-run
-make --no-print-directory demo-margin-call
-make --no-print-directory demo-return
-make --no-print-directory demo-substitution
+make --no-print-directory demo-all
 make --no-print-directory localnet-smoke
-echo "verify: policy-engine, optimizer, Daml workflow, margin-call demo, return demo, substitution demo, and Quickstart LocalNet foundation checks passed"
+echo "verify: policy-engine, optimizer, Daml workflow, aggregate conformance suite, final demo pack, and Quickstart LocalNet foundation checks passed"

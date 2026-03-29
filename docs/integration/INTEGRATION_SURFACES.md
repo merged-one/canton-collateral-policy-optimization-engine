@@ -16,6 +16,15 @@ This document identifies the major system boundaries the Canton Collateral Contr
 | Consumer application boundary | Allow financing apps, derivatives apps, tokenized-asset platforms, stablecoin rails, and custodial workflows to call into the control plane. | The Control Plane should be reusable infrastructure, not a single venue app. |
 | Report and scenario-runner surface | Emit machine-readable decision and execution reports and drive conformance scenarios. | Must satisfy report-fidelity and exception-path invariants. |
 
+## Current Integration Package
+
+The repository now also publishes:
+
+- [docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md](./THIRD_PARTY_INTEGRATION_GUIDE.md) for venue, financing-app, token-issuer, custodian, and future-Canton-project integration guidance
+- [docs/evidence/DEMO_ARTIFACT_INDEX.md](../evidence/DEMO_ARTIFACT_INDEX.md) for the operator-facing artifact map
+- `make test-conformance` for aggregate invariant verification
+- `make demo-all` for the final packaged demo surface
+
 ## Mapping To Established Practice
 
 - Central-bank style collateral frameworks motivate the split between policy, valuation, control, and settlement.
@@ -28,3 +37,4 @@ This document identifies the major system boundaries the Canton Collateral Contr
 - wire CPL evaluation to the published schema and policy-profile examples
 - define the first decision-report and execution-report contracts
 - define the initial asset-adapter contracts
+- refine the stable third-party integration contracts into versioned adapter and consent interfaces

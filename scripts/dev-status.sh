@@ -81,6 +81,8 @@ printf '  make demo-run\n'
 printf '  make demo-margin-call\n'
 printf '  make demo-return\n'
 printf '  make demo-substitution\n'
+printf '  make test-conformance\n'
+printf '  make demo-all\n'
 printf '  make verify\n'
 
 printf '\nGit\n'

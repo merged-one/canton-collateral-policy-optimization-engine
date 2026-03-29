@@ -1,0 +1,88 @@
+{
+  "$schema": "../../reports/schemas/policy-evaluation-report.schema.json",
+  "reportType": "PolicyEvaluationReport",
+  "reportVersion": "0.1.0",
+  "evaluationId": "per-11827a76c8958ca6",
+  "overallDecision": "ACCEPT",
+  "policy": {
+    "policyId": "central-bank-domestic-window-policy",
+    "policyVersion": "1.0.0",
+    "cplVersion": "0.1.0",
+    "profile": "central_bank"
+  },
+  "inventory": {
+    "inventorySetId": "central-bank-eligible-set",
+    "inventoryVersion": "1.0.0",
+    "asOf": "2026-04-15T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "candidateLotCount": 1
+  },
+  "summary": {
+    "candidateLotCount": 1,
+    "decisionCounts": {
+      "eligible": 1,
+      "ineligible": 0,
+      "escalate": 0,
+      "review": 0
+    },
+    "totalMarketValue": 400000.0,
+    "totalLendableValue": 376000.0,
+    "concentrationIssueCount": 0
+  },
+  "portfolioReasons": [],
+  "assetResults": [
+    {
+      "lotId": "cb-lot-001",
+      "assetId": "ust-2027-01",
+      "decision": "ELIGIBLE",
+      "assetClass": "SOVEREIGN_BOND",
+      "issueType": "SOVEREIGN",
+      "issuerId": "us-treasury",
+      "issuerType": "SOVEREIGN",
+      "issuerGroupIds": [
+        "us-sovereign-group"
+      ],
+      "longTermRating": "AA+",
+      "collateralCurrency": "USD",
+      "issuanceJurisdiction": "US",
+      "riskJurisdiction": "US",
+      "custodianId": "new-york-fed",
+      "custodyJurisdiction": "US",
+      "accountType": "CENTRAL_BANK_ACCOUNT",
+      "residualMaturityDays": 540,
+      "marketValue": 400000.0,
+      "valuationBasisValue": 400000.0,
+      "baseHaircutBps": 600,
+      "currencyMismatchHaircutBps": 0,
+      "totalHaircutBps": 600,
+      "matchedHaircutRuleIds": [
+        "domestic-sovereign-long"
+      ],
+      "appliedHaircutRuleIds": [
+        "domestic-sovereign-long"
+      ],
+      "lendableValue": 376000.0,
+      "reasons": []
+    }
+  ],
+  "concentrationResults": [
+    {
+      "limitId": "issuer-cap",
+      "dimension": "ISSUER",
+      "scope": "POLICY_PORTFOLIO",
+      "metric": "PERCENT_OF_COLLATERAL_VALUE",
+      "decision": "PASS",
+      "thresholdValue": 1.0,
+      "thresholdCurrency": null,
+      "bucket": "us-treasury",
+      "bucketValue": 400000.0,
+      "denominatorValue": 400000.0,
+      "observedRatio": 1.0,
+      "relatedLotIds": [
+        "cb-lot-001"
+      ],
+      "reason": null
+    }
+  ]
+}
