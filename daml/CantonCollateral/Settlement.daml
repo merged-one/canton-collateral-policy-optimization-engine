@@ -21,11 +21,16 @@ template SettlementInstruction
     policyContext : PolicyContext
     state : WorkflowState
     details : Text
+    allocationsInScope : Optional [LotAllocation]
   where
     signatory instructionOwner
     observer visibilityObservers
 
-    ensure quantity > 0.0
+    ensure
+      quantity > 0.0
+        && case allocationsInScope of
+          Some allocations -> totalAllocatedQuantity allocations == quantity
+          None -> True
 
     choice AcknowledgeByCustodian : ContractId SettlementInstruction
       controller custodian
@@ -70,6 +75,7 @@ mkSettlementInstruction instructionOwner provider securedParty custodian visibil
     action
     obligationId
     correlationId
+    allocationsInScope = Some allocations
     lotIdsInScope = lotIds allocations
     fromAccount = case allocations of
       allocation :: _ -> allocation.sourceAccount

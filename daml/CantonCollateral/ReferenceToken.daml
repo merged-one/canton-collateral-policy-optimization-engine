@@ -1,0 +1,124 @@
+module CantonCollateral.ReferenceToken where
+
+import CantonCollateral.Asset
+import CantonCollateral.Types
+
+data ReferenceTokenMovement = ReferenceTokenMovement
+  with
+    movementId : Text
+    instructionId : Text
+    obligationId : Text
+    lotId : Text
+    assetId : Text
+    sourceAccount : Text
+    destinationAccount : Text
+    quantity : Decimal
+    resultingControlState : Text
+    externalTransactionId : Text
+  deriving (Eq, Show)
+
+data ReferenceTokenMoveResult = ReferenceTokenMoveResult
+  with
+    sourceHoldingId : Text
+    remainingHoldingId : Optional Text
+    destinationHoldingId : Text
+    movement : ReferenceTokenMovement
+  deriving (Eq, Show)
+
+template ReferenceTokenHolding
+  with
+    holdingId : Text
+    lotId : Text
+    asset : CollateralAsset
+    beneficialOwner : Party
+    custodian : Party
+    accountId : Text
+    quantity : Decimal
+    controlState : Text
+    sourceReference : Text
+    visibilityObservers : [Party]
+  where
+    signatory custodian
+    observer visibilityObservers
+
+    ensure quantity > 0.0
+
+    choice MoveByCustodian : ReferenceTokenMoveResult
+      with
+        movementId : Text
+        instructionId : Text
+        obligationId : Text
+        destinationBeneficialOwner : Party
+        destinationAccount : Text
+        quantityToMove : Decimal
+        resultingControlState : Text
+        externalTransactionId : Text
+        nextVisibilityObservers : [Party]
+      controller custodian
+      do
+        assertMsg "movement quantity must be positive" (quantityToMove > 0.0)
+        assertMsg "movement quantity exceeds available reference token quantity" (quantityToMove <= quantity)
+        let remainingQuantity = quantity - quantityToMove
+        let nextRemainingHoldingId = holdingId <> "-remaining-" <> movementId
+        remainingHoldingId <-
+          if remainingQuantity > 0.0 then do
+            _ <- create this with
+              holdingId = nextRemainingHoldingId
+              quantity = remainingQuantity
+            pure (Some nextRemainingHoldingId)
+          else pure None
+        let nextDestinationHoldingId = holdingId <> "-moved-" <> movementId
+        _ <- create ReferenceTokenHolding with
+          holdingId = nextDestinationHoldingId
+          lotId
+          asset
+          beneficialOwner = destinationBeneficialOwner
+          custodian
+          accountId = destinationAccount
+          quantity = quantityToMove
+          controlState = resultingControlState
+          sourceReference = externalTransactionId
+          visibilityObservers = nextVisibilityObservers
+        pure ReferenceTokenMoveResult with
+          sourceHoldingId = holdingId
+          remainingHoldingId
+          destinationHoldingId = nextDestinationHoldingId
+          movement = ReferenceTokenMovement with
+            movementId
+            instructionId
+            obligationId
+            lotId
+            assetId = asset.assetId
+            sourceAccount = accountId
+            destinationAccount
+            quantity = quantityToMove
+            resultingControlState
+            externalTransactionId
+
+template ReferenceTokenAdapterReceipt
+  with
+    receiptId : Text
+    adapterName : Text
+    adapterVersion : Text
+    workflowType : WorkflowType
+    settlementAction : SettlementAction
+    instructionId : Text
+    obligationId : Text
+    correlationId : Text
+    provider : Party
+    securedParty : Party
+    custodian : Party
+    sourceAccount : Text
+    destinationAccount : Text
+    encumbranceMode : Text
+    movements : [ReferenceTokenMovement]
+    executedAt : Time
+    status : Text
+    externalTransactionId : Text
+    details : Text
+    visibilityObservers : [Party]
+  where
+    signatory custodian
+    observer visibilityObservers
+
+    ensure not (null movements)

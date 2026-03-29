@@ -137,16 +137,31 @@ ensure_running_control_plane_stack() {
 prepare_control_plane_dirs() {
 	LOCALNET_CONTROL_PLANE_STATE_DIR=${LOCALNET_CONTROL_PLANE_STATE_DIR:-"$repo_root/.runtime/localnet/control-plane"}
 	LOCALNET_CONTROL_PLANE_OUTPUT_DIR=${LOCALNET_CONTROL_PLANE_OUTPUT_DIR:-"$repo_root/reports/generated"}
+	case "$LOCALNET_CONTROL_PLANE_STATE_DIR" in
+		/*) ;;
+		*) LOCALNET_CONTROL_PLANE_STATE_DIR="$repo_root/$LOCALNET_CONTROL_PLANE_STATE_DIR" ;;
+	esac
+	case "$LOCALNET_CONTROL_PLANE_OUTPUT_DIR" in
+		/*) ;;
+		*) LOCALNET_CONTROL_PLANE_OUTPUT_DIR="$repo_root/$LOCALNET_CONTROL_PLANE_OUTPUT_DIR" ;;
+	esac
 	mkdir -p "$LOCALNET_CONTROL_PLANE_STATE_DIR" "$LOCALNET_CONTROL_PLANE_OUTPUT_DIR"
 	AUTH_ENV_FILE="$LOCALNET_CONTROL_PLANE_STATE_DIR/auth.env"
 	SEED_PARTICIPANT_CONFIG="$LOCALNET_CONTROL_PLANE_STATE_DIR/seed-participant-config.json"
 	STATUS_PARTICIPANT_CONFIG="$LOCALNET_CONTROL_PLANE_STATE_DIR/status-participant-config.json"
+	ADAPTER_PARTICIPANT_CONFIG="$LOCALNET_CONTROL_PLANE_STATE_DIR/adapter-participant-config.json"
 	SEED_INPUT_FILE="$LOCALNET_CONTROL_PLANE_STATE_DIR/seed-input.json"
 	STATUS_INPUT_FILE="$LOCALNET_CONTROL_PLANE_STATE_DIR/status-input.json"
+	ADAPTER_INPUT_FILE="$LOCALNET_CONTROL_PLANE_STATE_DIR/adapter-input.json"
+	ADAPTER_STATUS_INPUT_FILE="$LOCALNET_CONTROL_PLANE_STATE_DIR/adapter-status-input.json"
 	LOCALNET_DEPLOYMENT_RECEIPT="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-control-plane-deployment-receipt.json"
 	LOCALNET_SEED_RECEIPT="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-control-plane-seed-receipt.json"
 	LOCALNET_STATUS_JSON="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-control-plane-status.json"
 	LOCALNET_STATUS_MD="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-control-plane-status-summary.md"
+	LOCALNET_ADAPTER_EXECUTION_REPORT="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-reference-token-adapter-execution-report.json"
+	LOCALNET_ADAPTER_SUMMARY_MD="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-reference-token-adapter-summary.md"
+	LOCALNET_ADAPTER_STATUS_JSON="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-reference-token-adapter-status.json"
+	LOCALNET_ADAPTER_STATUS_MD="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR/localnet-reference-token-adapter-status-summary.md"
 }
 
 write_control_plane_auth_env() {
@@ -257,6 +272,57 @@ with open(os.environ["PARTICIPANT_CONFIG_PATH"], "w", encoding="ascii") as f:
 PY
 }
 
+write_adapter_participant_config() {
+	load_quickstart_runtime_env
+	set -a
+	. "$AUTH_ENV_FILE"
+	set +a
+	APP_USER_LEDGER_PORT="2${PARTICIPANT_LEDGER_API_PORT_SUFFIX}" \
+	APP_PROVIDER_LEDGER_PORT="3${PARTICIPANT_LEDGER_API_PORT_SUFFIX}" \
+	SEED_RECEIPT_PATH="$LOCALNET_SEED_RECEIPT" \
+	PARTICIPANT_CONFIG_PATH="$ADAPTER_PARTICIPANT_CONFIG" \
+	python3 - <<'PY'
+import json
+import os
+
+with open(os.environ["SEED_RECEIPT_PATH"], "r", encoding="utf-8") as f:
+    receipt = json.load(f)
+
+config = {
+    "default_participant": {
+        "host": "host.docker.internal",
+        "port": int(os.environ["APP_USER_LEDGER_PORT"]),
+        "access_token": os.environ["APP_USER_PARTICIPANT_ADMIN_TOKEN"],
+        "application_id": "localnet-reference-token-adapter",
+    },
+    "participants": {
+        "app-user-admin": {
+            "host": "host.docker.internal",
+            "port": int(os.environ["APP_USER_LEDGER_PORT"]),
+            "access_token": os.environ["APP_USER_PARTICIPANT_ADMIN_TOKEN"],
+            "application_id": "localnet-reference-token-adapter",
+        },
+        "app-provider-admin": {
+            "host": "host.docker.internal",
+            "port": int(os.environ["APP_PROVIDER_LEDGER_PORT"]),
+            "access_token": os.environ["APP_PROVIDER_PARTICIPANT_ADMIN_TOKEN"],
+            "application_id": "localnet-reference-token-adapter",
+        },
+    },
+    "party_participants": {
+        receipt["providerParty"]: "app-user-admin",
+        receipt["securedParty"]: "app-provider-admin",
+        receipt["custodianParty"]: "app-provider-admin",
+        receipt["operatorParty"]: "app-provider-admin",
+    },
+}
+
+with open(os.environ["PARTICIPANT_CONFIG_PATH"], "w", encoding="ascii") as f:
+    json.dump(config, f, indent=2)
+    f.write("\n")
+PY
+}
+
 write_seed_input_from_manifest() {
 	set -a
 	. "$AUTH_ENV_FILE"
@@ -293,9 +359,17 @@ seed_input = {
     "operatorPartyHint": scenario["operator"]["partyHint"],
     "operatorDisplayName": scenario["operator"]["displayName"],
     "operatorUserId": scenario["operator"]["userId"],
-    "custodianPartyHint": scenario["custodian"]["partyHint"],
+    "custodianPartyHint": (
+        os.environ["APP_PROVIDER_PARTY"].split("::", 1)[0]
+        if scenario["custodian"].get("reuseSecuredPartyHostedIdentity")
+        else scenario["custodian"]["partyHint"]
+    ),
     "custodianDisplayName": scenario["custodian"]["displayName"],
-    "custodianUserId": scenario["custodian"]["userId"],
+    "custodianUserId": (
+        os.environ["APP_PROVIDER_VALIDATOR_USER_ID"]
+        if scenario["custodian"].get("reuseSecuredPartyHostedIdentity")
+        else scenario["custodian"]["userId"]
+    ),
     "selectedLots": scenario["selectedLots"],
 }
 
@@ -322,6 +396,62 @@ status_input = {
 }
 
 with open(os.environ["STATUS_INPUT_PATH"], "w", encoding="ascii") as f:
+    json.dump(status_input, f, indent=2)
+    f.write("\n")
+PY
+}
+
+write_adapter_input_from_seed_receipt() {
+	set -a
+	. "$AUTH_ENV_FILE"
+	set +a
+	ADAPTER_RECEIPT_PATH="$LOCALNET_SEED_RECEIPT" \
+	ADAPTER_INPUT_PATH="$ADAPTER_INPUT_FILE" \
+	python3 - <<'PY'
+import json
+import os
+
+with open(os.environ["ADAPTER_RECEIPT_PATH"], "r", encoding="utf-8") as f:
+    receipt = json.load(f)
+
+adapter_input = {
+    "scenarioId": receipt["scenarioId"],
+    "obligationId": receipt["obligationId"],
+    "postingId": receipt["postingId"],
+    "providerParty": receipt["providerParty"],
+    "securedParty": receipt["securedParty"],
+    "custodianParty": receipt["custodianParty"],
+    "providerUserId": os.environ["APP_USER_VALIDATOR_USER_ID"],
+    "securedPartyUserId": os.environ["APP_PROVIDER_VALIDATOR_USER_ID"],
+    "custodianUserId": receipt["custodianUserId"],
+    "inventoryLotIds": [lot["lotId"] for lot in receipt["inventoryLots"]],
+}
+
+with open(os.environ["ADAPTER_INPUT_PATH"], "w", encoding="ascii") as f:
+    json.dump(adapter_input, f, indent=2)
+    f.write("\n")
+PY
+}
+
+write_adapter_status_input_from_seed_receipt() {
+	ADAPTER_RECEIPT_PATH="$LOCALNET_SEED_RECEIPT" \
+	ADAPTER_STATUS_INPUT_PATH="$ADAPTER_STATUS_INPUT_FILE" \
+	python3 - <<'PY'
+import json
+import os
+
+with open(os.environ["ADAPTER_RECEIPT_PATH"], "r", encoding="utf-8") as f:
+    receipt = json.load(f)
+
+status_input = {
+    "scenarioId": receipt["scenarioId"],
+    "obligationId": receipt["obligationId"],
+    "postingId": receipt["postingId"],
+    "providerParty": receipt["providerParty"],
+    "inventoryLotIds": [lot["lotId"] for lot in receipt["inventoryLots"]],
+}
+
+with open(os.environ["ADAPTER_STATUS_INPUT_PATH"], "w", encoding="ascii") as f:
     json.dump(status_input, f, indent=2)
     f.write("\n")
 PY

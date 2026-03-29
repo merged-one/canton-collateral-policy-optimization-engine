@@ -1,12 +1,12 @@
 {
-  "scenarioId": "quickstart-confidential-margin-001",
-  "obligationId": "quickstart-margin-obligation-001",
-  "postingId": "quickstart-margin-posting-001",
-  "obligationCorrelationId": "quickstart-margin-call-001",
-  "postingCorrelationId": "quickstart-margin-posting-correlation-001",
+  "scenarioId": "quickstart-reference-token-margin-004",
+  "obligationId": "quickstart-reference-token-obligation-004",
+  "postingId": "quickstart-reference-token-posting-004",
+  "obligationCorrelationId": "quickstart-reference-token-call-004",
+  "postingCorrelationId": "quickstart-reference-token-posting-correlation-004",
   "policyVersion": "cpl-v0.1-quickstart-demo",
-  "snapshotId": "quickstart-snapshot-2026-03-29",
-  "decisionReference": "quickstart-decision-trace-001",
+  "snapshotId": "quickstart-reference-token-snapshot-2026-03-29",
+  "decisionReference": "quickstart-reference-token-decision-trace-004",
   "requiredCoverage": 100.0,
   "uncoveredAmount": 100.0,
   "dueAt": "2030-01-15T16:00:00Z",
@@ -18,11 +18,12 @@
   "custodian": {
     "partyHint": "controlplane-custodian-1",
     "displayName": "Control Plane Custodian",
-    "userId": "control-plane-custodian"
+    "userId": "control-plane-custodian",
+    "reuseSecuredPartyHostedIdentity": true
   },
   "selectedLots": [
     {
-      "lotId": "quickstart-us-tbill-lot-001",
+      "lotId": "quickstart-reference-token-lot-007",
       "assetId": "us-tbill-2029-01",
       "issuer": "UST",
       "assetClass": "SovereignDebt",
@@ -40,7 +41,7 @@
       "destinationAccount": "secured-account-001"
     },
     {
-      "lotId": "quickstart-us-tbill-lot-002",
+      "lotId": "quickstart-reference-token-lot-008",
       "assetId": "us-tbill-2030-03",
       "issuer": "UST",
       "assetClass": "SovereignDebt",

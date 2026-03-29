@@ -37,7 +37,7 @@ The repository's active user-facing name is "Canton Collateral Control Plane". T
 
 ## Current Phase
 
-Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, and reporting layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending full Quickstart-backed workflow execution or adapter integration is complete.
+Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, reporting, and first data-plane reference-adapter layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack plus one concrete Quickstart-backed workflow-execution and adapter path that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending production-grade external integration is complete.
 
 Prompt 1 status:
 
@@ -154,19 +154,26 @@ Prompt 14 status:
 - `make localnet-status-control-plane` now queries the seeded Quickstart state from the provider-visible view and writes a machine-readable ledger snapshot plus Markdown status summary
 - the Quickstart scenario now exists as real LocalNet ledger state, but full Quickstart-backed workflow execution, role-scoped report disclosure, and live asset adapters remain staged follow-on work
 
+Prompt 15 status:
+
+- ADR 0018 now chooses a narrow Quickstart-backed reference token adapter path that consumes Control Plane settlement and control artifacts without collapsing workflow authority into the adapter
+- `make localnet-run-token-adapter` now consumes the seeded posting flow, performs a real token-style movement on `ReferenceTokenHolding`, confirms workflow settlement, and writes a schema-valid machine-readable adapter execution report plus Markdown summary
+- `make localnet-adapter-status` now queries the provider-visible post-execution state and writes a machine-readable adapter status snapshot plus Markdown summary
+- the repository now has one real, documented data-plane adapter path on Quickstart, but broader substitution or return adapters, production-grade custodian integrations, settlement-window enforcement, and role-scoped report disclosure remain staged follow-on work
+
 ## Next 5 Tasks
 
-1. Execute the first Quickstart-backed Control Plane workflow scenario on top of the seeded LocalNet state and emit Quickstart-derived machine-readable execution evidence rather than IDE-ledger-only evidence.
-2. Specify role-scoped `ExecutionReport`, `ReturnReport`, and `SubstitutionReport` disclosure profiles beyond the current operator-facing demo aggregates and workflow-party report baseline.
-3. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
-4. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
-5. Define the first asset-adapter interface that will consume `SettlementInstruction` and `EncumbranceState` contracts without collapsing workflow authority.
+1. Specify role-scoped `ExecutionReport`, `ReturnReport`, `SubstitutionReport`, and adapter-receipt disclosure profiles beyond the current workflow-party and provider-visible baseline.
+2. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
+3. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
+4. Extend the reference token adapter path beyond posting into substitution and return handling, including explicit release or replacement confirmation carriage.
+5. Define replay, retry, failure-recovery, and settlement-window semantics for future production-grade asset adapters without weakening the current control-plane boundary.
 
 ## Blockers
 
 - There is no current blocker for continued documentation, policy-engine, optimizer, and report-contract work.
-- There is no current blocker preventing Control Plane DAR build, package installation, or seeded confidential-scenario creation in the pinned Quickstart LocalNet; the remaining gated work is Quickstart-backed workflow execution, role-scoped reporting, and adapter integration on top of the seeded package and scenario surface.
-- Live asset-adapter and workflow-coupled implementation beyond the current off-ledger engines and Daml skeletons should not proceed until the seeded LocalNet package surface and asset interface versions are pinned explicitly.
+- There is no current blocker preventing Control Plane DAR build, package installation, seeded confidential-scenario creation, or the first Quickstart-backed reference token adapter execution in the pinned Quickstart LocalNet; the remaining gated work is broader adapter coverage, role-scoped reporting, reference-data contracts, and workflow-coupled reservation on top of that baseline.
+- Production-grade asset-adapter and workflow-coupled implementation beyond the current reference adapter, off-ledger engines, and Daml workflow package should not proceed until the seeded LocalNet package surface and asset interface versions are pinned explicitly.
 - Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.
 
@@ -247,6 +254,9 @@ Target dependencies to pin in future ADRs:
 - [x] Prompt 13 execution report
 - [x] Quickstart seeded-scenario ADR, runbook, and evidence surface
 - [x] Prompt 14 execution report
+- [x] first Quickstart-backed reference token adapter path
+- [x] machine-readable adapter execution report schema and generated artifact
+- [x] Prompt 15 execution report
 
 ## Demo Checklist
 
@@ -254,9 +264,12 @@ Target dependencies to pin in future ADRs:
 - [x] reproducible seed-data or bootstrap command
 - [x] reproducible Quickstart control-plane start command
 - [x] reproducible Quickstart scenario status command
+- [x] reproducible Quickstart reference token adapter command
+- [x] reproducible Quickstart adapter status command
 - [x] sample policy load command
 - [x] machine-readable optimization report generated by real optimization execution
 - [x] machine-readable execution report generated by real workflow execution
+- [x] machine-readable adapter execution report generated by real adapter execution
 - [x] operator-facing demo runbook
 - [x] end-to-end return demo command
 - [x] end-to-end substitution demo command

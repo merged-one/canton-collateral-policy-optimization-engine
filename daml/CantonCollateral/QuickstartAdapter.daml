@@ -1,0 +1,486 @@
+module CantonCollateral.QuickstartAdapter where
+
+import Daml.Script
+
+import CantonCollateral.Encumbrance
+import CantonCollateral.Inventory
+import CantonCollateral.Posting
+import CantonCollateral.ReferenceToken
+import CantonCollateral.Report
+import CantonCollateral.Settlement
+import CantonCollateral.Types
+
+data QuickstartReferenceTokenAdapterInput = QuickstartReferenceTokenAdapterInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    postingId : Text
+    providerParty : Party
+    securedParty : Party
+    custodianParty : Party
+    providerUserId : Text
+    securedPartyUserId : Text
+    custodianUserId : Text
+    inventoryLotIds : [Text]
+  deriving (Eq, Show)
+
+data AdapterAllocationView = AdapterAllocationView
+  with
+    lotId : Text
+    assetId : Text
+    quantity : Decimal
+    sourceAccount : Text
+    destinationAccount : Text
+  deriving (Eq, Show)
+
+data AdapterSettlementInstructionView = AdapterSettlementInstructionView
+  with
+    instructionId : Text
+    workflowType : Text
+    settlementAction : Text
+    obligationId : Text
+    correlationId : Text
+    state : Text
+    fromAccount : Text
+    toAccount : Text
+    quantity : Decimal
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    lotIdsInScope : [Text]
+    allocationsInScope : [AdapterAllocationView]
+  deriving (Eq, Show)
+
+data AdapterEncumbranceView = AdapterEncumbranceView
+  with
+    encumbranceId : Text
+    lotId : Text
+    quantity : Decimal
+    status : Text
+    correlationId : Text
+  deriving (Eq, Show)
+
+data AdapterHoldingView = AdapterHoldingView
+  with
+    holdingId : Text
+    lotId : Text
+    assetId : Text
+    beneficialOwner : Party
+    accountId : Text
+    quantity : Decimal
+    controlState : Text
+    sourceReference : Text
+  deriving (Eq, Show)
+
+data AdapterReceiptView = AdapterReceiptView
+  with
+    receiptId : Text
+    adapterName : Text
+    adapterVersion : Text
+    status : Text
+    encumbranceMode : Text
+    externalTransactionId : Text
+    sourceAccount : Text
+    destinationAccount : Text
+    executedAt : Time
+    movements : [ReferenceTokenMovement]
+  deriving (Eq, Show)
+
+data AdapterWorkflowConfirmationView = AdapterWorkflowConfirmationView
+  with
+    postingStateBefore : Text
+    postingStateAfterPreparation : Text
+    postingStateAfterConfirmation : Text
+    settledInstructionState : Text
+    providerVisibleExecutionReportCount : Int
+    providerVisibleEncumbranceCount : Int
+  deriving (Eq, Show)
+
+data QuickstartReferenceTokenAdapterReport = QuickstartReferenceTokenAdapterReport
+  with
+    reportVersion : Text
+    adapterName : Text
+    adapterVersion : Text
+    scenarioId : Text
+    startedAt : Time
+    finishedAt : Time
+    settlementInstruction : AdapterSettlementInstructionView
+    encumbranceContextBefore : [AdapterEncumbranceView]
+    referenceTokenHoldingsBefore : [AdapterHoldingView]
+    adapterReceipt : AdapterReceiptView
+    referenceTokenHoldingsAfter : [AdapterHoldingView]
+    workflowConfirmation : AdapterWorkflowConfirmationView
+    encumbranceContextAfter : [AdapterEncumbranceView]
+  deriving (Eq, Show)
+
+data QuickstartReferenceTokenAdapterStatusInput = QuickstartReferenceTokenAdapterStatusInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    postingId : Text
+    providerParty : Party
+    inventoryLotIds : [Text]
+  deriving (Eq, Show)
+
+data AdapterReceiptStatusView = AdapterReceiptStatusView
+  with
+    receiptId : Text
+    instructionId : Text
+    settlementAction : Text
+    status : Text
+    externalTransactionId : Text
+    executedAt : Time
+  deriving (Eq, Show)
+
+data QuickstartReferenceTokenAdapterStatusResult = QuickstartReferenceTokenAdapterStatusResult
+  with
+    scenarioId : Text
+    postingState : Text
+    settlementInstructionState : Optional Text
+    providerVisibleExecutionReportCount : Int
+    providerVisibleEncumbranceCount : Int
+    providerVisibleReferenceTokenHoldings : [AdapterHoldingView]
+    providerVisibleAdapterReceipts : [AdapterReceiptStatusView]
+  deriving (Eq, Show)
+
+expectContractFromQuery : [(ContractId t, t)] -> ContractId t -> Text -> Script t
+expectContractFromQuery contracts cid missingMessage =
+  case [activeContract | (activeCid, activeContract) <- contracts, activeCid == cid] of
+    activeContract :: _ -> pure activeContract
+    [] -> error missingMessage
+
+expectSingleMatch : Text -> [(ContractId t, t)] -> Script (ContractId t, t)
+expectSingleMatch missingMessage contracts =
+  case contracts of
+    contract :: [] -> pure contract
+    [] -> error missingMessage
+    _ -> error ("multiple active contracts matched: " <> missingMessage)
+
+expectActivePostingIntent : Party -> ContractId CollateralPostingIntent -> Text -> Script CollateralPostingIntent
+expectActivePostingIntent party cid missingMessage = do
+  postings <- query @CollateralPostingIntent party
+  expectContractFromQuery postings cid missingMessage
+
+findPostingById : Party -> Text -> Script (ContractId CollateralPostingIntent, CollateralPostingIntent)
+findPostingById party postingId = do
+  postings <- queryFilter @CollateralPostingIntent party (\posting -> posting.postingId == postingId)
+  expectSingleMatch ("missing posting intent " <> postingId) postings
+
+findInstructionById : Party -> Text -> Script (ContractId SettlementInstruction, SettlementInstruction)
+findInstructionById party instructionId = do
+  instructions <- queryFilter @SettlementInstruction party (\instruction -> instruction.instructionId == instructionId)
+  expectSingleMatch ("missing settlement instruction " <> instructionId) instructions
+
+findInstructionFromPosting : Party -> CollateralPostingIntent -> Script (ContractId SettlementInstruction, SettlementInstruction)
+findInstructionFromPosting party posting = do
+  let instructionCid = requireSome "posting settlement instruction is missing" posting.settlementInstructionCid
+  instruction <- expectActiveInstruction party instructionCid "posting settlement instruction is not visible"
+  pure (instructionCid, instruction)
+
+expectActiveInstruction : Party -> ContractId SettlementInstruction -> Text -> Script SettlementInstruction
+expectActiveInstruction party cid missingMessage = do
+  instructions <- query @SettlementInstruction party
+  expectContractFromQuery instructions cid missingMessage
+
+queryEncumbrancesForObligation : Party -> Text -> Script [AdapterEncumbranceView]
+queryEncumbrancesForObligation party obligationId = do
+  encumbrances <- queryFilter @EncumbranceState party (\encumbrance -> encumbrance.obligationId == obligationId)
+  pure $
+    map
+      (\(_, encumbrance) ->
+        AdapterEncumbranceView with
+          encumbranceId = encumbrance.encumbranceId
+          lotId = encumbrance.lotId
+          quantity = encumbrance.quantity
+          status = show encumbrance.status
+          correlationId = encumbrance.correlationId
+      )
+      encumbrances
+
+queryReferenceTokenHoldings : Party -> [Text] -> Script [AdapterHoldingView]
+queryReferenceTokenHoldings party lotIdsInScope = do
+  holdings <- queryFilter @ReferenceTokenHolding party (\holding -> containsText holding.lotId lotIdsInScope)
+  pure $
+    map
+      (\(_, holding) ->
+        AdapterHoldingView with
+          holdingId = holding.holdingId
+          lotId = holding.lotId
+          assetId = holding.asset.assetId
+          beneficialOwner = holding.beneficialOwner
+          accountId = holding.accountId
+          quantity = holding.quantity
+          controlState = holding.controlState
+          sourceReference = holding.sourceReference
+      )
+      holdings
+
+expectActiveReferenceTokenHolding : Party -> ContractId ReferenceTokenHolding -> Text -> Script ReferenceTokenHolding
+expectActiveReferenceTokenHolding party cid missingMessage = do
+  holdings <- query @ReferenceTokenHolding party
+  expectContractFromQuery holdings cid missingMessage
+
+ensureReferenceTokenHoldingForAllocation :
+  QuickstartReferenceTokenAdapterInput ->
+  LotAllocation ->
+  Script (ContractId ReferenceTokenHolding, ReferenceTokenHolding)
+ensureReferenceTokenHoldingForAllocation input allocation = do
+  matchingHoldings <-
+    queryFilter @ReferenceTokenHolding input.custodianParty
+      (\holding ->
+        holding.lotId == allocation.lotId
+          && holding.accountId == allocation.sourceAccount
+          && holding.beneficialOwner == input.providerParty
+      )
+  case matchingHoldings of
+    existingHolding :: _ -> pure existingHolding
+    [] -> do
+      inventoryLots <- queryFilter @CollateralInventoryLot input.custodianParty (\lot -> lot.lotId == allocation.lotId)
+      (_, inventoryLot) <- expectSingleMatch ("missing inventory lot for " <> allocation.lotId) inventoryLots
+      assertMsg "inventory lot has insufficient quantity for the adapter move" (inventoryLot.availableQuantity >= allocation.quantity)
+      let backfilledHolding =
+            ReferenceTokenHolding with
+              holdingId = input.scenarioId <> "-holding-" <> allocation.lotId
+              lotId = inventoryLot.lotId
+              asset = inventoryLot.asset
+              beneficialOwner = input.providerParty
+              custodian = input.custodianParty
+              accountId = allocation.sourceAccount
+              quantity = inventoryLot.availableQuantity
+              controlState = "Available"
+              sourceReference = "adapter-backfill-from-inventory"
+              visibilityObservers = [input.providerParty, input.securedParty]
+      holdingCid <- submit input.custodianParty do
+        createCmd backfilledHolding
+      pure (holdingCid, backfilledHolding)
+
+instructionView : SettlementInstruction -> AdapterSettlementInstructionView
+instructionView instruction =
+  AdapterSettlementInstructionView with
+    instructionId = instruction.instructionId
+    workflowType = show instruction.workflowType
+    settlementAction = show instruction.action
+    obligationId = instruction.obligationId
+    correlationId = instruction.correlationId
+    state = show instruction.state
+    fromAccount = instruction.fromAccount
+    toAccount = instruction.toAccount
+    quantity = instruction.quantity
+    policyVersion = instruction.policyContext.policyVersion
+    snapshotId = instruction.policyContext.snapshotId
+    decisionReference = instruction.policyContext.decisionReference
+    lotIdsInScope = instruction.lotIdsInScope
+    allocationsInScope =
+      map
+        (\allocation ->
+          AdapterAllocationView with
+            lotId = allocation.lotId
+            assetId = allocation.assetId
+            quantity = allocation.quantity
+            sourceAccount = allocation.sourceAccount
+            destinationAccount = allocation.destinationAccount
+        )
+        (requireSome "settlement instruction is missing allocation scope details" instruction.allocationsInScope)
+
+encumbranceModeForAction : SettlementAction -> Text
+encumbranceModeForAction action =
+  case action of
+    PostCollateral -> "CREATE_ENCUMBRANCE"
+    ReplaceCollateral -> "REPLACE_ENCUMBRANCE"
+    ReturnCollateral -> "RELEASE_ENCUMBRANCE"
+    ReleaseCollateral -> "RELEASE_ENCUMBRANCE"
+
+controlStateForAction : SettlementAction -> Text
+controlStateForAction action =
+  case action of
+    PostCollateral -> "SettledToSecuredAccount"
+    ReplaceCollateral -> "SettledReplacementToSecuredAccount"
+    ReturnCollateral -> "ReturnedToProviderAccount"
+    ReleaseCollateral -> "ReleasedToProviderAccount"
+
+destinationOwnerForAction : SettlementInstruction -> Party
+destinationOwnerForAction instruction =
+  case instruction.action of
+    PostCollateral -> instruction.securedParty
+    ReplaceCollateral -> instruction.securedParty
+    ReturnCollateral -> instruction.provider
+    ReleaseCollateral -> instruction.provider
+
+preparePostingForSettlement :
+  QuickstartReferenceTokenAdapterInput ->
+  ContractId CollateralPostingIntent ->
+  CollateralPostingIntent ->
+  Script (ContractId CollateralPostingIntent, CollateralPostingIntent)
+preparePostingForSettlement input postingCid posting =
+  case posting.state of
+    PendingSettlement -> pure (postingCid, posting)
+    Submitted -> do
+      nextCid <- submit input.providerParty do
+        exerciseCmd postingCid StartPostingEvaluation
+      nextPosting <- expectActivePostingIntent input.custodianParty nextCid "posting should remain visible after evaluation"
+      preparePostingForSettlement input nextCid nextPosting
+    UnderEvaluation -> do
+      nextCid <- submit input.providerParty do
+        exerciseCmd postingCid (RecordFeasiblePosting with nextDecisionSummary = "reference token adapter path prepared a posting settlement instruction from the seeded scenario")
+      nextPosting <- expectActivePostingIntent input.custodianParty nextCid "posting should remain visible after feasibility recording"
+      preparePostingForSettlement input nextCid nextPosting
+    PendingApproval ->
+      if posting.securedPartyApproval == ApprovalPending then do
+        nextCid <- submit input.securedParty do
+          exerciseCmd postingCid ApprovePostingBySecuredParty
+        nextPosting <- expectActivePostingIntent input.custodianParty nextCid "posting should remain visible after secured-party approval"
+        preparePostingForSettlement input nextCid nextPosting
+      else if posting.custodianApproval == ApprovalPending then do
+        nextCid <- submit input.custodianParty do
+          exerciseCmd postingCid ApprovePostingByCustodian
+        nextPosting <- expectActivePostingIntent input.custodianParty nextCid "posting should remain visible after custodian approval"
+        preparePostingForSettlement input nextCid nextPosting
+      else error "posting is pending approval but no approval remains outstanding"
+    Closed -> error "posting is already closed; reseed the scenario before rerunning the reference token adapter"
+    ExceptionOpen -> error "posting is in exception state"
+    Rejected -> error "posting was rejected before adapter execution"
+    Draft -> error "posting must not remain in draft on the seeded Quickstart path"
+    Approved -> error "posting approval state is unsupported on the seeded Quickstart path"
+    Settled -> error "posting workflow uses intent state rather than a settled posting state"
+    Expired -> error "posting expired before adapter execution"
+
+executeInstructionMoves :
+  QuickstartReferenceTokenAdapterInput ->
+  SettlementInstruction ->
+  [LotAllocation] ->
+  Script [ReferenceTokenMoveResult]
+executeInstructionMoves input instruction allocations =
+  case allocations of
+    [] -> pure []
+    allocation :: rest -> do
+      (holdingCid, _) <- ensureReferenceTokenHoldingForAllocation input allocation
+      moveResult <- submit input.custodianParty do
+        exerciseCmd holdingCid
+          (MoveByCustodian with
+            movementId = instruction.instructionId <> "-move-" <> allocation.lotId
+            instructionId = instruction.instructionId
+            obligationId = instruction.obligationId
+            destinationBeneficialOwner = destinationOwnerForAction instruction
+            destinationAccount = allocation.destinationAccount
+            quantityToMove = allocation.quantity
+            resultingControlState = controlStateForAction instruction.action
+            externalTransactionId = instruction.instructionId <> "-txn-" <> allocation.lotId
+            nextVisibilityObservers = [instruction.provider, instruction.securedParty]
+          )
+      restResults <- executeInstructionMoves input instruction rest
+      pure (moveResult :: restResults)
+
+buildReceiptView : ReferenceTokenAdapterReceipt -> AdapterReceiptView
+buildReceiptView receipt =
+  AdapterReceiptView with
+    receiptId = receipt.receiptId
+    adapterName = receipt.adapterName
+    adapterVersion = receipt.adapterVersion
+    status = receipt.status
+    encumbranceMode = receipt.encumbranceMode
+    externalTransactionId = receipt.externalTransactionId
+    sourceAccount = receipt.sourceAccount
+    destinationAccount = receipt.destinationAccount
+    executedAt = receipt.executedAt
+    movements = receipt.movements
+
+referenceTokenAdapterReport : QuickstartReferenceTokenAdapterInput -> Script QuickstartReferenceTokenAdapterReport
+referenceTokenAdapterReport input = script do
+  startedAt <- getTime
+  (postingCid, initialPosting) <- findPostingById input.custodianParty input.postingId
+  encumbrancesBefore <- queryEncumbrancesForObligation input.custodianParty input.obligationId
+  holdingsBefore <- queryReferenceTokenHoldings input.custodianParty input.inventoryLotIds
+  (preparedPostingCid, preparedPosting) <- preparePostingForSettlement input postingCid initialPosting
+  (_, pendingInstruction) <- findInstructionFromPosting input.custodianParty preparedPosting
+  existingReceipts <- queryFilter @ReferenceTokenAdapterReceipt input.custodianParty (\receipt -> receipt.instructionId == pendingInstruction.instructionId)
+  assertMsg "adapter already executed for this settlement instruction" (null existingReceipts)
+  moveResults <- executeInstructionMoves input pendingInstruction (requireSome "settlement instruction is missing allocation scope details" pendingInstruction.allocationsInScope)
+  receiptTime <- getTime
+  receiptCid <- submit input.custodianParty do
+    createCmd ReferenceTokenAdapterReceipt with
+      receiptId = input.scenarioId <> "-reference-token-receipt"
+      adapterName = "quickstart-reference-token-adapter"
+      adapterVersion = "v0.1"
+      workflowType = pendingInstruction.workflowType
+      settlementAction = pendingInstruction.action
+      instructionId = pendingInstruction.instructionId
+      obligationId = pendingInstruction.obligationId
+      correlationId = pendingInstruction.correlationId
+      provider = pendingInstruction.provider
+      securedParty = pendingInstruction.securedParty
+      custodian = pendingInstruction.custodian
+      sourceAccount = pendingInstruction.fromAccount
+      destinationAccount = pendingInstruction.toAccount
+      encumbranceMode = encumbranceModeForAction pendingInstruction.action
+      movements = map (\result -> result.movement) moveResults
+      executedAt = receiptTime
+      status = "EXECUTED"
+      externalTransactionId = pendingInstruction.instructionId <> "-reference-token-transfer"
+      details = "Reference token adapter executed the settlement instruction against the Quickstart-backed reference token holdings."
+      visibilityObservers = [pendingInstruction.provider, pendingInstruction.securedParty]
+  confirmedPostingCid <- submit input.custodianParty do
+    exerciseCmd preparedPostingCid ConfirmPostingSettlement
+  finishedAt <- getTime
+  confirmedPosting <- expectActivePostingIntent input.custodianParty confirmedPostingCid "posting should remain visible after settlement confirmation"
+  (_, settledInstruction) <- findInstructionById input.custodianParty pendingInstruction.instructionId
+  receipt <- expectActiveReceipt input.custodianParty receiptCid "adapter receipt should remain visible after creation"
+  holdingsAfter <- queryReferenceTokenHoldings input.custodianParty input.inventoryLotIds
+  encumbrancesAfter <- queryEncumbrancesForObligation input.custodianParty input.obligationId
+  executionReports <- queryFilter @ExecutionReportRecord input.custodianParty (\report -> report.obligationId == input.obligationId)
+  pure QuickstartReferenceTokenAdapterReport with
+    reportVersion = "adapter-execution-report-v0.1"
+    adapterName = "quickstart-reference-token-adapter"
+    adapterVersion = "v0.1"
+    scenarioId = input.scenarioId
+    startedAt
+    finishedAt
+    settlementInstruction = instructionView pendingInstruction
+    encumbranceContextBefore = encumbrancesBefore
+    referenceTokenHoldingsBefore = holdingsBefore
+    adapterReceipt = buildReceiptView receipt
+    referenceTokenHoldingsAfter = holdingsAfter
+    workflowConfirmation =
+      AdapterWorkflowConfirmationView with
+        postingStateBefore = show initialPosting.state
+        postingStateAfterPreparation = show preparedPosting.state
+        postingStateAfterConfirmation = show confirmedPosting.state
+        settledInstructionState = show settledInstruction.state
+        providerVisibleExecutionReportCount = length executionReports
+        providerVisibleEncumbranceCount = length encumbrancesAfter
+    encumbranceContextAfter = encumbrancesAfter
+
+expectActiveReceipt : Party -> ContractId ReferenceTokenAdapterReceipt -> Text -> Script ReferenceTokenAdapterReceipt
+expectActiveReceipt party cid missingMessage = do
+  receipts <- query @ReferenceTokenAdapterReceipt party
+  expectContractFromQuery receipts cid missingMessage
+
+referenceTokenAdapterStatus : QuickstartReferenceTokenAdapterStatusInput -> Script QuickstartReferenceTokenAdapterStatusResult
+referenceTokenAdapterStatus input = script do
+  (_, posting) <- findPostingById input.providerParty input.postingId
+  maybeInstruction <- queryFilter @SettlementInstruction input.providerParty (\instruction -> instruction.obligationId == input.obligationId)
+  holdings <- queryReferenceTokenHoldings input.providerParty input.inventoryLotIds
+  receipts <- queryFilter @ReferenceTokenAdapterReceipt input.providerParty (\receipt -> receipt.obligationId == input.obligationId)
+  executionReports <- queryFilter @ExecutionReportRecord input.providerParty (\report -> report.obligationId == input.obligationId)
+  encumbrances <- queryFilter @EncumbranceState input.providerParty (\encumbrance -> encumbrance.obligationId == input.obligationId)
+  pure QuickstartReferenceTokenAdapterStatusResult with
+    scenarioId = input.scenarioId
+    postingState = show posting.state
+    settlementInstructionState =
+      case maybeInstruction of
+        (_, instruction) :: _ -> Some (show instruction.state)
+        [] -> None
+    providerVisibleExecutionReportCount = length executionReports
+    providerVisibleEncumbranceCount = length encumbrances
+    providerVisibleReferenceTokenHoldings = holdings
+    providerVisibleAdapterReceipts =
+      map
+        (\(_, receipt) ->
+          AdapterReceiptStatusView with
+            receiptId = receipt.receiptId
+            instructionId = receipt.instructionId
+            settlementAction = show receipt.settlementAction
+            status = receipt.status
+            externalTransactionId = receipt.externalTransactionId
+            executedAt = receipt.executedAt
+        )
+        receipts

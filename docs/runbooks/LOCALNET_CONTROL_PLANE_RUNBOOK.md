@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Bootstrap the pinned Quickstart checkout, start the repo-owned isolated overlay, deploy the Canton Collateral Control Plane DAR, seed the default confidential collateral scenario, inspect the resulting Quickstart state, and tear the environment down cleanly.
+Bootstrap the pinned Quickstart checkout, start the repo-owned isolated overlay, deploy the Canton Collateral Control Plane DAR, seed the default confidential collateral scenario, run the reference token adapter, inspect the resulting Quickstart state, and tear the environment down cleanly.
 
-This runbook covers the Prompt 14 Quickstart surface only. The existing IDE-ledger demos remain documented in the margin-call, return, substitution, and final-demo runbooks.
+This runbook now covers the Prompt 14 and Prompt 15 Quickstart surfaces. The existing IDE-ledger demos remain documented in the margin-call, return, substitution, and final-demo runbooks.
 
 ## Prerequisites
 
@@ -54,8 +54,8 @@ What this command does:
 
 The current default successful deployment proof shows:
 
-- DAR file: `.daml/dist-quickstart/canton-collateral-control-plane-0.1.1.dar`
-- package id: `829c57ff1186dd09d4e3e232f2ac08c447de2bfe7c7f3b0cc3bf433fb3190f63`
+- DAR file: `.daml/dist-quickstart/canton-collateral-control-plane-0.1.5.dar`
+- package id: `7fb85f0678a49f3a07f3e4bf7233aeec7bbfbdce53f1bddd58d97d24b86b7ee6`
 - onboarding container: `control-plane-splice-onboarding`
 
 ## Seed
@@ -70,11 +70,11 @@ What this command seeds:
 
 - provider role anchored on the existing Quickstart `app-user` party
 - secured-party role anchored on the existing Quickstart `app-provider` party
-- repo-allocated custodian party `controlplane-custodian-1`
+- reference-adapter custodian role intentionally reuses the existing hosted Quickstart `app-provider` identity so the first asset-side path stays on the participant that can already act there safely
 - repo-allocated operator party `controlplane-operator-1`
-- obligation `quickstart-margin-obligation-001`
-- posting intent `quickstart-margin-posting-001`
-- inventory lots `quickstart-us-tbill-lot-001` and `quickstart-us-tbill-lot-002`
+- obligation `quickstart-reference-token-obligation-004`
+- posting intent `quickstart-reference-token-posting-004`
+- inventory lots `quickstart-reference-token-lot-007` and `quickstart-reference-token-lot-008`
 
 Generated artifacts:
 
@@ -84,13 +84,53 @@ Generated artifacts:
 
 Current default seed result:
 
-- scenario id: `quickstart-confidential-margin-001`
+- scenario id: `quickstart-reference-token-margin-004`
 - obligation state: `Submitted`
 - posting intent state: `Submitted`
 - provider-visible inventory-lot count: `2`
 - provider-visible execution-report count: `0`
+- provider-visible reference-token-holding count: `0`
 
 `make localnet-seed-demo` is idempotent for the default manifest. If the scenario is already present, the command keeps the existing seed receipt and refreshes status instead of creating duplicate state.
+
+## Run Reference Token Adapter
+
+Execute the first concrete data-plane adapter path:
+
+```sh
+make localnet-run-token-adapter
+```
+
+Refresh the provider-visible adapter status independently:
+
+```sh
+make localnet-adapter-status
+```
+
+What the adapter command does:
+
+- reads the seeded posting workflow state and `SettlementInstruction`
+- backfills or reuses `ReferenceTokenHolding` records on the Quickstart reference path
+- performs token-style movement from `custody-provider-001` to `secured-account-001`
+- creates `ReferenceTokenAdapterReceipt`
+- confirms posting settlement on Canton so encumbrances and the workflow execution report commit authoritatively
+
+Generated artifacts:
+
+- `reports/generated/localnet-reference-token-adapter-execution-report.json`
+- `reports/generated/localnet-reference-token-adapter-summary.md`
+- `reports/generated/localnet-reference-token-adapter-status.json`
+- `reports/generated/localnet-reference-token-adapter-status-summary.md`
+
+The current default adapter result proves:
+
+- scenario `quickstart-reference-token-margin-004` completed with posting state `Closed`
+- settlement instruction `quickstart-reference-token-posting-correlation-004-instruction` reached state `Settled`
+- receipt `quickstart-reference-token-margin-004-reference-token-receipt` was emitted with adapter status `EXECUTED`
+- two provider-visible reference token holdings now exist in `secured-account-001`
+- two pledged encumbrances and one workflow execution report now exist for the obligation
+
+If you need to execute the adapter again from a clean posting state, rotate the scenario identifiers and lot ids in `infra/quickstart/scenarios/confidential-margin-scenario.json` or reset the LocalNet state before reseeding.
 
 ## Inspect
 
@@ -110,6 +150,18 @@ Inspect the machine-readable status snapshot:
 
 ```sh
 cat reports/generated/localnet-control-plane-status.json
+```
+
+Inspect the adapter execution summary:
+
+```sh
+sed -n '1,220p' reports/generated/localnet-reference-token-adapter-summary.md
+```
+
+Inspect the provider-visible adapter status summary:
+
+```sh
+sed -n '1,220p' reports/generated/localnet-reference-token-adapter-status-summary.md
 ```
 
 Inspect the running overlay containers:
@@ -171,7 +223,11 @@ If you only need to re-query status or reseed the existing scenario, do not tear
   Re-run `make localnet-status-control-plane` only after `make localnet-seed-demo` succeeds; the status command depends on `reports/generated/localnet-control-plane-seed-receipt.json`.
 - status shows no seeded scenario
   Rerun `make localnet-seed-demo`; if it still fails, inspect `reports/generated/localnet-control-plane-seed-receipt.json` and the onboarding or canton container logs.
+- adapter command fails with a closed posting
+  The current reference path is one execution per seeded scenario. Rotate the scenario identifiers in the manifest or reset the LocalNet before reseeding.
+- adapter command fails before writing its report
+  Inspect `reports/generated/localnet-reference-token-adapter-status.json` after rerunning `make localnet-adapter-status`; if that also fails, inspect the Daml Script output and confirm the currently deployed DAR matches the current `daml.yaml` version.
 
 ## Remaining Boundary
 
-This runbook proves that the Control Plane package can be deployed and that one confidential scenario can be seeded and queried on Quickstart. It does not yet prove live asset movement, settlement-window enforcement, workflow-coupled optimizer reservation, or a Quickstart-backed execution report.
+This runbook now proves that the Control Plane package can be deployed, that one confidential scenario can be seeded and queried on Quickstart, and that one narrow reference token adapter can perform token-style movement and emit machine-readable evidence. It still does not prove a production-grade custodian integration, a generic external adapter bus, substitution or return adapter coverage, settlement-window enforcement, or workflow-coupled optimizer reservation.

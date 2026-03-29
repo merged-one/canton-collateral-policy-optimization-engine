@@ -24,6 +24,8 @@ The current repository remains a prototype. The integration surface described he
 | optimization output | optimizer | operator, workflow orchestration, venue, financing app | `OptimizationReport` JSON |
 | workflow input payload | orchestration layer | Daml workflow package | generated JSON input file |
 | workflow result output | Daml workflow package | reporting layer, conformance suite, operators | generated JSON output file |
+| settlement and control output | workflow package | reference token adapter or future asset adapter | `SettlementInstruction` plus related control context on Quickstart |
+| adapter execution output | reference token adapter | operators, reporters, future integrators | `ReferenceTokenAdapterReceipt` plus adapter execution report JSON |
 | execution evidence | reporting and conformance layers | operators, reviewers, future integrators | `ExecutionReport`, `SubstitutionReport`, `ReturnReport`, conformance report, final demo pack |
 
 ## Integration Patterns
@@ -66,6 +68,13 @@ This lets the application stay product-specific while the Control Plane remains 
 
 A token issuer or asset-network adapter integrates at the settlement and control boundary, not the policy boundary.
 
+The current repository now demonstrates that boundary through the Quickstart-backed reference token adapter path:
+
+- it consumes `SettlementInstruction`
+- it uses the lot-level account and asset mapping carried by `allocationsInScope`
+- it performs the token-style movement on `ReferenceTokenHolding`
+- it returns `ReferenceTokenAdapterReceipt` and machine-readable adapter execution evidence
+
 The issuer should consume:
 
 - settlement-system routing
@@ -99,6 +108,7 @@ The custodian returns:
 - approval or rejection
 - settlement confirmation or failure
 - the evidence needed to support the resulting workflow report
+- adapter receipts or status keyed to workflow instruction and asset identifiers
 
 ### Future Canton Project
 
@@ -118,13 +128,15 @@ The repository already proves that a third party can inspect and rely on:
 - deterministic optimizer recommendations
 - parameterized workflow input payloads
 - machine-readable workflow results
+- live Quickstart deployment, seeded status, and provider-visible state inspection
+- one real Quickstart-backed reference token adapter execution artifact
 - aggregate conformance output
 - an operator-ready final demo pack
 
 The prototype does not yet prove:
 
-- live Quickstart deployment of the Control Plane DAR
-- live token or custody adapter execution
+- a production-grade custodian or issuer adapter
+- a generic external integration bus
 - production disclosure profiles for different external roles
 - reference-data contracts for valuation, FX, or issuer facts
 
@@ -135,6 +147,10 @@ For a future integration, start with these commands and artifacts:
 ```sh
 make policy-eval
 make optimize
+make localnet-start-control-plane
+make localnet-seed-demo
+make localnet-run-token-adapter
+make localnet-adapter-status
 make demo-margin-call
 make demo-substitution
 make demo-return
@@ -151,6 +167,8 @@ Read these artifacts in order:
 5. `reports/generated/return-demo-report.json`
 6. `reports/generated/conformance-suite-report.json`
 7. `reports/generated/final-demo-pack.json`
+8. `reports/generated/localnet-reference-token-adapter-execution-report.json`
+9. `reports/generated/localnet-reference-token-adapter-status.json`
 
 ## Boundary Discipline
 

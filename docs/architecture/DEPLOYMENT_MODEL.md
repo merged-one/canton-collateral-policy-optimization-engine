@@ -13,6 +13,7 @@ The prototype is intended to run on a Quickstart-based LocalNet with Control Pla
 | participant for secured-party roles | hosts parties that issue calls, approve substitutions, and receive collateral control rights | LocalNet overlay |
 | participant for custodian or control roles | hosts parties that acknowledge control, delivery, release, and return instructions | LocalNet overlay |
 | Control Plane workflow package | defines obligation, encumbrance, approval, and settlement contracts | deployed on LocalNet participants |
+| reference token adapter | consumes settlement instructions, performs the Quickstart-backed token-style movement, and returns adapter receipts | adjacent adapter runner against LocalNet participants |
 | policy registry service | publishes and serves policy packages outside the ledger | adjacent service |
 | reference data and valuation service | creates immutable valuation snapshots from market and static data | adjacent service |
 | optimization service | ranks feasible candidate lots using policy-constrained inputs | adjacent service |
@@ -61,6 +62,7 @@ The prototype is intended to run on a Quickstart-based LocalNet with Control Pla
 - keep upstream Quickstart artifacts vendored or referenced as-is where possible
 - express repo-specific topology through overlays, not edits to upstream defaults
 - deploy Control Plane services beside Canton, not inside Canton internals
+- keep data-plane adapter logic adjacent to the workflow package rather than hiding it inside policy, optimization, or reporting services
 - treat observability as a runtime concern; it must not become a hidden source of truth
 - isolate demo bootstrap data from production-intended schema or contract design
 

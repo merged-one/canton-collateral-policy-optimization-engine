@@ -6,6 +6,7 @@
 | C-COPE (deprecated) | Historical alias for the former repository name "Canton Collateral Policy & Optimization Engine". Retained only for continuity in older records; new docs should use "Canton Collateral Control Plane" or "the Control Plane". |
 | Control plane | The subsystem set that authors policy, evaluates eligibility, computes haircuts and lendable value, manages concentration and release logic, orchestrates workflows, runs conformance checks, and generates reports. |
 | Data plane | The asset, ledger, settlement, and runtime surfaces the control plane evaluates or drives, including token-standard-style assets, Daml Finance-style assets, contract state on Canton, DvP rails, and LocalNet execution. |
+| Reference token adapter | The first narrow data-plane adapter path in this repository. It consumes Control Plane settlement and control artifacts on Quickstart, performs a reference token movement, and emits adapter receipts without reinterpreting policy. |
 | Canton | The distributed application platform targeted for confidential, atomic multi-party workflow execution. |
 | LocalNet | A local development deployment based on Canton Quickstart or equivalent tooling. |
 | CPL | Collateral Policy Language, the versioned machine-readable schema for collateral-policy rules. |
@@ -15,6 +16,9 @@
 | Lendable value | The value recognized for collateral coverage after haircuting and policy adjustments. |
 | Concentration limit | A policy-defined cap on exposure to a bucket such as issuer, asset class, currency, jurisdiction, or custodian. |
 | Encumbrance | The portion of an asset or position committed to satisfy an obligation. |
+| Reference token holding | The reference-grade asset-side holding contract used by the first Quickstart-backed adapter path to model token-style movement or control transitions. |
+| Settlement instruction | The explicit workflow-owned movement or control intent emitted by the Daml workflow package for a custodian or asset adapter to consume. |
+| Adapter receipt | Machine-readable evidence returned by an adapter to prove what asset-side action it executed for a workflow instruction. |
 | Pre-positioning | Operationally preparing eligible collateral inventory in advance so it can be mobilized quickly when needed. |
 | Best-to-post | An optimization objective that prefers the most efficient assets to satisfy a collateral obligation under policy constraints. |
 | Cheapest-to-deliver | An optimization objective that minimizes delivery cost or opportunity cost subject to policy constraints. |

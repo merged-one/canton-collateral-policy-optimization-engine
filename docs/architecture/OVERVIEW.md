@@ -13,6 +13,8 @@ The repository does not model a venue, a CCP, or a custodian. It models the cont
 - machine-readable reporting and evidence
 - reproducible demo and runtime infrastructure
 
+The current prototype now also proves one Quickstart-backed posting-to-reference-token adapter path. That path is intentionally narrow and reference-grade: it demonstrates how the Control Plane hands settlement intent to a data-plane adapter without turning the adapter into a hidden workflow authority.
+
 ## Design Goals
 
 - keep policy, optimization, workflow, reporting, and runtime concerns separate
@@ -74,7 +76,8 @@ The workflow library is part of the control plane, but the committed ledger stat
 
 ## Out Of Scope For This Phase
 
-- live integrations with custodians, CCPs, or central-bank infrastructure
+- production-grade live integrations with custodians, CCPs, or central-bank infrastructure
+- generic external integration buses or broad asset-adapter frameworks
 - legal document management or agreement negotiation
 - quantitative model calibration beyond documented schedule structure
 - user interfaces or operational dashboards

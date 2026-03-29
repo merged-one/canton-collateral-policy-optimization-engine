@@ -6,6 +6,7 @@ This registry defines system properties that future code, reports, and tests mus
 
 - authorization and role control
 - architecture separation
+- adapter-boundary discipline
 - schema-version discipline
 - eligibility determinism
 - haircut and lendable-value correctness
@@ -33,6 +34,7 @@ This registry defines system properties that future code, reports, and tests mus
 | --- | --- | --- | --- |
 | AUTH-001 | Authorization and role control | Only authorized roles may create, approve, amend, or release collateral policy and workflow actions, and every authorization decision must be attributable to an identity and role. | ADR 0007, Daml role and workflow modules, Daml script authorization tests, `make test-conformance`, conformance report, execution reports |
 | ARCH-001 | Architecture separation | Control-plane artifacts such as policy packages, policy decisions, optimization proposals, workflow-library outputs, conformance outputs, and execution reports must remain versioned artifacts with explicit boundaries; data-plane asset state, ledger state, settlement rails, and runtime infrastructure must stay explicit adjacent surfaces rather than hidden extensions of the control plane. | architecture docs, ADR 0003, ADR 0007, ADR 0010, Daml mapping |
+| ADAPT-001 | Adapter-boundary discipline | Asset adapters may consume `SettlementInstruction` and related control contracts, execute asset-side actions, and emit machine-readable receipts, but they must not reinterpret policy, bypass workflow approvals, or authoritatively mutate obligation, encumbrance, or settlement workflow state off-ledger. | ADR 0018, `daml/CantonCollateral/ReferenceToken.daml`, `daml/CantonCollateral/QuickstartAdapter.daml`, `make localnet-run-token-adapter`, `make localnet-adapter-status`, adapter execution report, Prompt 15 evidence |
 | CPL-001 | Schema-version discipline | Every CPL policy package must declare both `cplVersion` and `policyVersion`, and loaders must reject undeclared fields rather than inferring hidden semantics from unknown data. | CPL spec, schema, ADR 0005, validation command |
 | ELIG-001 | Eligibility determinism | Given the same policy version, asset facts, valuation inputs, and concentration state, eligibility evaluation must produce the same decision and explanation every time. | decision procedure spec, deterministic tests, `make test-conformance`, conformance determinism artifact, execution reports |
 | HAIR-001 | Haircut and lendable-value correctness | Lendable value must equal the policy-defined valuation basis adjusted by the policy-defined haircut and rounding rules, with no hidden adjustments. | valuation formulas, test vectors, report fields, `make test-conformance`, conformance haircut artifact |
@@ -67,6 +69,7 @@ This registry defines system properties that future code, reports, and tests mus
 - The first end-to-end substitution demo now adds executable evidence that encumbered-collateral replacement, approval-gated release, atomic all-or-nothing settlement, and substitution-report fidelity can be linked through one reproducible command without fabricating success on blocked paths.
 - The Quickstart foundation and runtime bridge now add executable evidence that upstream pinning, overlay discipline, containerized cross-version DAR builds, and package deployment commands are explicit rather than hidden inside undocumented environment drift.
 - The seeded Quickstart scenario now adds executable evidence that repo-owned overlays can allocate parties, seed real contract state, and query provider-visible status on LocalNet without inventing synthetic success artifacts.
+- The Quickstart-backed reference token adapter now adds executable evidence that a narrow data-plane adapter can consume workflow settlement intent, perform token-style movement, emit a machine-readable receipt, and still leave workflow authority and encumbrance creation on Canton.
 - The aggregate conformance suite now adds executable evidence that authorization, determinism, haircut arithmetic, replay safety, no double-encumbrance, report fidelity, and audit completeness are visible in one machine-readable package rather than only across separate demos.
 - The verification surface now distinguishes portable repository validation from Docker-backed Quickstart smoke validation so toolchain regressions and environment-service failures remain separately attributable.
 - Future invariant updates should extend the current Daml-script, policy-engine, optimizer, conformance, and demo-pack evidence into expiry, privacy-profile, and workflow-coupled concentration scenarios.

@@ -28,11 +28,26 @@ test -f "${LOCALNET_DAR_OUTPUT_DIR:-"$repo_root/.daml/dist-quickstart"}/quicksta
 }
 
 if [ -f "$LOCALNET_SEED_RECEIPT" ]; then
-	LOCALNET_WORKDIR="$LOCALNET_WORKDIR" \
-	LOCALNET_CONTROL_PLANE_STATE_DIR="$LOCALNET_CONTROL_PLANE_STATE_DIR" \
-	LOCALNET_CONTROL_PLANE_OUTPUT_DIR="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR" \
-		"$script_dir/localnet-status-control-plane.sh" >/dev/null
-	if SEED_STATUS_PATH="$LOCALNET_STATUS_JSON" python3 - <<'PY'
+	if CURRENT_SEED_RECEIPT="$LOCALNET_SEED_RECEIPT" CURRENT_SCENARIO_MANIFEST="${LOCALNET_SCENARIO_MANIFEST:-"$repo_root/infra/quickstart/scenarios/confidential-margin-scenario.json"}" python3 - <<'PY'
+import json
+import os
+import sys
+
+with open(os.environ["CURRENT_SEED_RECEIPT"], "r", encoding="utf-8") as f:
+    receipt = json.load(f)
+with open(os.environ["CURRENT_SCENARIO_MANIFEST"], "r", encoding="utf-8") as f:
+    scenario = json.load(f)
+
+if receipt.get("scenarioId") == scenario.get("scenarioId"):
+    sys.exit(0)
+sys.exit(1)
+PY
+	then
+		LOCALNET_WORKDIR="$LOCALNET_WORKDIR" \
+		LOCALNET_CONTROL_PLANE_STATE_DIR="$LOCALNET_CONTROL_PLANE_STATE_DIR" \
+		LOCALNET_CONTROL_PLANE_OUTPUT_DIR="$LOCALNET_CONTROL_PLANE_OUTPUT_DIR" \
+			"$script_dir/localnet-status-control-plane.sh" >/dev/null
+		if SEED_STATUS_PATH="$LOCALNET_STATUS_JSON" python3 - <<'PY'
 import json
 import os
 import sys
@@ -44,9 +59,10 @@ if status.get("seeded"):
     sys.exit(0)
 sys.exit(1)
 PY
-	then
+		then
 		echo "localnet-seed-demo: scenario already active on Quickstart; refreshed status artifacts instead of reseeding"
 		exit 0
+		fi
 	fi
 fi
 

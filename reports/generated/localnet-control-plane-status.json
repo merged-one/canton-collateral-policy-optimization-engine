@@ -1,15 +1,15 @@
 {
   "providerVisibleInventoryLots": [{
-    "lotId": "quickstart-us-tbill-lot-001",
+    "lotId": "quickstart-reference-token-lot-007",
     "issuer": "UST",
-    "contractId": "001914fcb1439fc0f996f713f577c109ab302adbba11416b5aa6e2684c97b8f11cca1212201faa844ce24c84871b8d2409e521f355d7bd4e1e0042c0eae26774c5c3b7e230",
+    "contractId": "00e63c48397da1ae827b1fc3b8c841091169eca192e613553785e9863858f68c7eca12122076f641af0c7be3492e922dd4bb31403bc1cf00f097907a843eb5d7f3ee22a64a",
     "availableQuantity": 60.0000000000,
     "custodyAccount": "custody-provider-001",
     "assetId": "us-tbill-2029-01"
   }, {
-    "lotId": "quickstart-us-tbill-lot-002",
+    "lotId": "quickstart-reference-token-lot-008",
     "issuer": "UST",
-    "contractId": "003d09b5bb4e29afe22a0112651cd41b474cc7fa9d7068c4612347117d4eae1877ca121220be2a790c13873154aa6e695423686f0f64833b40043726f23799bbf3daf06591",
+    "contractId": "008fbc0b789766eaf59191e87fbd04f0f2368bcb78f3f754cbc58af0d6ce8c92c5ca121220af0232e55dd671e36a6994a6626c2561e29161f2e7196df03af08e2ffb91a2cf",
     "availableQuantity": 40.0000000000,
     "custodyAccount": "custody-provider-001",
     "assetId": "us-tbill-2030-03"
@@ -19,27 +19,72 @@
     "label": "provider",
     "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
     "contractId": "0071dba72298b0c728957edf4d7a81af8c5bb02127dc320ad428686bbd5c5391f3ca121220178fc26232d791af6ed50ee7ea39a7f4444da9c3c653b89cf97994cd8183a83a"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00b552deeeb5b4829b98739f0f4a27d9a0582881b6bd1ed0630297a5cf7144a6d5ca1212206c3a49af5f0a807ab14c384ce328df918bcc7c9c122548196c5d5fb3c5cf7257"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "008b7bc356fa70f67ddd0ed40a33fc3a6ca0d44e9fd631ce6ccd5999bdd4a04542ca121220718209209e76efb35dec8f5b347f3b3504a7ba09f18543a98a2ba857916b18c1"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00a986b5dc207f5dc30699998552de97c329350edb0baac21c8602a2ba60431253ca1212209e3dd2d200e8eecdf115a990d9bc5d1a7f6801b137c55fe9495e5685c20919f8"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00d6698022692549cbe777e2ef6cb42fe1efd929c05cb3b7fcca8b95c9fc91ab27ca1212206a2e83ab277763d1cd69ddf6f943d81bf54d6174745aa79d33c8fcd0d654f856"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0066c97fdd6f908e47b8b3a80288205b41d8b1b9d382580b4b8359ded639ba2099ca121220e66c5daa3950c0c5bcfa78c39403394d1a65c8d2c89bc768f343c47c53cdaa7a"
   }],
   "seeded": true,
   "providerVisiblePostingIntents": [{
-    "state": "Submitted",
-    "custodianApproval": "ApprovalPending",
-    "contractId": "00c3efadc11126a9b2c292ab1b877fb172de301b0ce9c59f7d27a0fc5c6ac1d94fca121220317035a2be0a176d559ce4b8f7552c4bd16c8c50d98a63c07a967bc3c382bcfd",
-    "nominatedLotIds": ["quickstart-us-tbill-lot-001", "quickstart-us-tbill-lot-002"],
-    "postingId": "quickstart-margin-posting-001",
-    "correlationId": "quickstart-margin-posting-correlation-001",
-    "securedPartyApproval": "ApprovalPending"
+    "state": "Closed",
+    "custodianApproval": "ApprovalGranted",
+    "contractId": "00064aca054a9e2102ed960c18df511f954e0f5314b56c2278103e44fc6646a8e1ca1212204dfca1468c1105066b6b176606dfffc30b2c24e492acff834e0115351bf132e1",
+    "nominatedLotIds": ["quickstart-reference-token-lot-007", "quickstart-reference-token-lot-008"],
+    "postingId": "quickstart-reference-token-posting-004",
+    "correlationId": "quickstart-reference-token-posting-correlation-004",
+    "securedPartyApproval": "ApprovalGranted"
   }],
-  "scenarioId": "quickstart-confidential-margin-001",
+  "scenarioId": "quickstart-reference-token-margin-004",
+  "providerVisibleReferenceTokenHoldings": [{
+    "quantity": 60.0000000000,
+    "lotId": "quickstart-reference-token-lot-007",
+    "accountId": "secured-account-001",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "00e333443aaebb68532756e1c03f67655e318dd401240eeda763c21a5ddbcb4a2dca121220d8d3b6f9465a2c0b54aac6c258ef3326758f1dfe1bdfe4f7f4861af03c6a706c",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "us-tbill-2029-01",
+    "holdingId": "quickstart-reference-token-margin-004-holding-quickstart-reference-token-lot-007-moved-quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-007"
+  }, {
+    "quantity": 40.0000000000,
+    "lotId": "quickstart-reference-token-lot-008",
+    "accountId": "secured-account-001",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "004e1477f7c5c2d623953461d16a5a99b6090387fbb440d5128a1e45ec1a3dc3ceca12122017c6918c8827e19af5c07388852e5e6f963b13fbb4cc481960b2193c29881340",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "us-tbill-2030-03",
+    "holdingId": "quickstart-reference-token-margin-004-holding-quickstart-reference-token-lot-008-moved-quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-008"
+  }],
   "providerVisibleObligations": [{
     "requiredCoverage": 100.0000000000,
     "state": "Submitted",
-    "obligationId": "quickstart-margin-obligation-001",
+    "obligationId": "quickstart-reference-token-obligation-004",
     "uncoveredAmount": 100.0000000000,
-    "correlationId": "quickstart-margin-call-001",
+    "correlationId": "quickstart-reference-token-call-004",
     "dueAt": "2030-01-15T16:00:00Z",
-    "contractId": "001cc057d2d710d0481f3958fb4a9a6ea24b0d6afe793c4daa1ffdf269ac04dfa5ca1212206f27aee27d9010d88f4304dae08c8151f1ba7979e4e56b0dba6f2ec3e84e00d4"
+    "contractId": "00a4d05eb89ccabfe6a65b124ef52abca7c6b5ee7b41019e5eac96520d440c77eaca1212204f99f4e832f5a20c02a7432d596a33a92cc497c1e8e57f3434a08c1c3cfc6719"
   }],
-  "providerVisibleEncumbranceCount": 0,
-  "providerVisibleExecutionReportCount": 0
+  "providerVisibleEncumbranceCount": 2,
+  "providerVisibleExecutionReportCount": 1,
+  "providerVisibleAdapterReceiptCount": 1
 }

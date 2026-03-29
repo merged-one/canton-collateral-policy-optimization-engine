@@ -9,6 +9,7 @@
 | Policy evaluation engine | evaluate eligibility, haircut schedule, concentration limits, encumbrance availability, and release rules deterministically | policy package, valuation snapshot, inventory facts, obligation context | policy decision report with explanations | reproducible decision cache optional |
 | Optimization engine | produce candidate posting and substitution plans under policy-feasible constraints | policy decision report, inventory availability, objective settings, operational constraints | optimization proposal and ranking trace | proposal cache optional |
 | Daml workflow package | encode obligations, encumbrance records, approvals, settlement instructions, and lifecycle transitions | approved actions, party identities, policy references | authoritative ledger state | Canton ledger |
+| Reference token adapter | consume settlement instructions and perform the asset-side token movement or control transition while returning adapter receipts | settlement instruction, lot allocations, asset references, account mappings | adapter receipt, adapter status, asset-side movement evidence | asset-side ledger state and adapter artifacts |
 | Workflow orchestrator | translate integration requests into Daml choices and correlate multi-step workflow progress | API requests, optimization references, party approvals | submitted commands, workflow correlation state | orchestrator store optional |
 | Reporting and evidence service | generate execution reports, audit views, and traceability links from committed state | Canton events, decision reports, snapshot metadata | execution report, evidence references | report store |
 | Integration gateway | expose stable interfaces to external apps and adapters without leaking internal template layout | consumer requests, auth context | API responses, request IDs, status views | gateway logs |
@@ -20,8 +21,9 @@
 2. The policy evaluation engine depends on policy and snapshot inputs only; it must remain side-effect free from a business perspective.
 3. The optimization engine may consume policy decisions and inventory state, but it may not bypass the policy engine or commit encumbrances.
 4. The Daml workflow package is the only component allowed to change obligation, approval, encumbrance, and settlement state.
-5. The reporting and evidence service reads committed state and immutable references; it does not act as a hidden orchestrator.
-6. Demo infrastructure may host components and seed data, but it may not alter domain semantics or fabricate successful outcomes.
+5. Reference adapters may consume settlement and control outputs and emit receipts or status, but they may not reinterpret policy or close workflows on their own.
+6. The reporting and evidence service reads committed state and immutable references; it does not act as a hidden orchestrator.
+7. Demo infrastructure may host components and seed data, but it may not alter domain semantics or fabricate successful outcomes.
 
 ## Canonical Interfaces
 
@@ -32,6 +34,7 @@
 | `PolicyDecisionReport` | evaluation engine | optimizer, workflow orchestrator, reporter | explain eligibility, haircuts, concentration checks, and release constraints |
 | `OptimizationProposal` | optimization engine | workflow orchestrator, reporter | propose ranked posting or substitution candidates |
 | `SettlementInstruction` | workflow package and orchestrator | custodian role, reporter, external adapters | direct delivery, control, release, or return actions |
+| `ReferenceTokenAdapterReceipt` | reference token adapter | reporter, operators, future integrators | prove what the adapter executed on the asset-side surface |
 | `ExecutionReport` | reporting service | operators, auditors, external consumers | describe what actually committed and why |
 
 ## Responsibilities By Concern
@@ -79,6 +82,7 @@
 | invalid policy package | reject at publication time; do not let workflow depend on it |
 | stale valuation snapshot | fail evaluation or mark results unusable; do not silently recompute with hidden data |
 | optimizer failure | preserve workflow safety by falling back to manual or deterministic non-optimized submission |
+| adapter execution failure | keep workflow pending settlement or in exception; do not let the adapter create authoritative encumbrance state on its own |
 | settlement or custodian failure | keep workflow in an exception state rather than partially releasing encumbrance |
 | reporting failure | workflow state remains authoritative; reports can be regenerated from committed state |
 | LocalNet bootstrap failure | treat as environment failure only; do not mutate policy or workflow semantics to compensate |

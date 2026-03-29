@@ -36,9 +36,11 @@ Every workflow in the Control Plane is anchored to the same control inputs, whil
 | 1 | pledgor or operator selects candidate inventory or requests optimization | posting request |
 | 2 | policy evaluation engine checks each candidate lot for eligibility, haircut, and concentration impact | feasible candidate set |
 | 3 | optimization engine ranks the feasible set if optimization is enabled | `OptimizationProposal` |
-| 4 | workflow orchestrator submits Daml choices to reserve and pledge the selected lots | committed encumbrance state |
+| 4 | workflow orchestrator submits Daml choices to evaluate and route the posting intent | committed posting-intent state |
 | 5 | workflow package creates `SettlementInstruction` records for control or delivery actions | settlement instructions |
-| 6 | reporting service derives the posting execution report from committed events | `ExecutionReport` |
+| 6 | reference token adapter or future asset adapter consumes the settlement instruction and executes the asset-side action | adapter receipt and asset-side movement evidence |
+| 7 | workflow package confirms settlement and commits `EncumbranceState` plus workflow execution evidence | committed encumbrance state and `ExecutionReport` |
+| 8 | reporting and evidence surfaces expose the linked workflow and adapter artifacts | machine-readable execution and adapter evidence |
 
 ## Flow 4: Substitution Request And Approval
 

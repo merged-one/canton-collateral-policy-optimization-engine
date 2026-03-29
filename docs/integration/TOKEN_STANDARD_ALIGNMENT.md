@@ -16,11 +16,11 @@ Describe how the Control Plane will represent collateral assets so that token-st
 | Concern | Control Plane Representation | Expected Token-Standard-Style Mapping |
 | --- | --- | --- |
 | asset identity | `CollateralAsset` with `asset_id`, issuer, class, currency, and adapter reference | token or instrument identifier exposed by the asset application |
-| holding or position | `CollateralInventoryLot` with owner, custodian, account, quantity, and provenance | token balance, position contract, or custody entitlement mapped into lot form |
+| holding or position | `CollateralInventoryLot` with owner, custodian, account, quantity, and provenance; the current reference adapter uses `ReferenceTokenHolding` as the asset-side movement surface | token balance, position contract, or custody entitlement mapped into lot form |
 | control or lock state | `EncumbranceState` and control metadata | token lock, escrow, custody control account, or adapter-managed hold |
 | valuation inputs | `ValuationSnapshot` | off-ledger market data and static asset facts referenced by the asset application |
 | movement intent | `SettlementInstruction` | transfer, control change, lock, unlock, or return call on the asset application |
-| workflow evidence | `ExecutionReport` | external report keyed by workflow and asset identifiers rather than a token-side report |
+| workflow evidence | `ExecutionReport` plus adapter-side receipts such as `ReferenceTokenAdapterReceipt` | external report keyed by workflow and asset identifiers rather than a token-side report |
 
 ## Required Integration Interfaces
 
@@ -39,6 +39,17 @@ Describe how the Control Plane will represent collateral assets so that token-st
 - one `CollateralAsset` may correspond to many lots with different custody accounts or provenance
 - encumbrance is modeled as a control-plane overlay, not as a mutation of policy schedules
 - asset transfers may initially be represented as instruction emission plus status callback rather than a live external settlement integration
+
+## Current Reference Path
+
+The current Quickstart-backed reference adapter proves one concrete token-standard-style mapping:
+
+- the workflow package emits `SettlementInstruction` with `allocationsInScope`
+- the adapter maps each allocation into `ReferenceTokenHolding`
+- `MoveByCustodian` performs the token-style movement from provider account to secured account
+- `ReferenceTokenAdapterReceipt` and `adapter-execution-report-v0.1` carry the adapter evidence back into the reporting surface
+
+This path is intentionally reference-grade. It demonstrates the boundary shape without claiming a production custodian or issuer integration.
 
 ## Intentional Simplifications
 
@@ -62,3 +73,4 @@ Describe how the Control Plane will represent collateral assets so that token-st
 - defining a new universal asset token standard in this repository
 - forcing every future integrator to adopt one Daml package layout
 - modeling issuance, trading, or servicing logic that belongs in an asset platform rather than the collateral control plane
+- treating the current reference token adapter as a generic external integration bus

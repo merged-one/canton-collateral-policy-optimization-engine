@@ -10,6 +10,7 @@ import CantonCollateral.Encumbrance
 import CantonCollateral.Inventory
 import CantonCollateral.Obligation
 import CantonCollateral.Posting
+import CantonCollateral.ReferenceToken
 import CantonCollateral.Report
 import CantonCollateral.Roles
 import CantonCollateral.Types
@@ -77,6 +78,13 @@ data SeededInventoryLot = SeededInventoryLot
     contractId : ContractId CollateralInventoryLot
   deriving (Eq, Show)
 
+data SeededReferenceTokenHolding = SeededReferenceTokenHolding
+  with
+    lotId : Text
+    holdingId : Text
+    contractId : ContractId ReferenceTokenHolding
+  deriving (Eq, Show)
+
 data QuickstartSeedResult = QuickstartSeedResult
   with
     scenarioId : Text
@@ -90,6 +98,7 @@ data QuickstartSeedResult = QuickstartSeedResult
     inventoryLots : [SeededInventoryLot]
     obligationContractId : ContractId CallObligation
     postingIntentContractId : ContractId CollateralPostingIntent
+    referenceTokenHoldings : Optional [SeededReferenceTokenHolding]
   deriving (Eq, Show)
 
 data ProviderVisibleRoleRegistration = ProviderVisibleRoleRegistration
@@ -132,6 +141,18 @@ data ProviderVisiblePostingIntent = ProviderVisiblePostingIntent
     correlationId : Text
   deriving (Eq, Show)
 
+data ProviderVisibleReferenceTokenHolding = ProviderVisibleReferenceTokenHolding
+  with
+    holdingId : Text
+    lotId : Text
+    contractId : ContractId ReferenceTokenHolding
+    beneficialOwner : Party
+    accountId : Text
+    quantity : Decimal
+    controlState : Text
+    assetId : Text
+  deriving (Eq, Show)
+
 data QuickstartStatusInput = QuickstartStatusInput
   with
     scenarioId : Text
@@ -151,6 +172,8 @@ data QuickstartStatusResult = QuickstartStatusResult
     providerVisiblePostingIntents : [ProviderVisiblePostingIntent]
     providerVisibleExecutionReportCount : Int
     providerVisibleEncumbranceCount : Int
+    providerVisibleReferenceTokenHoldings : Optional [ProviderVisibleReferenceTokenHolding]
+    providerVisibleAdapterReceiptCount : Optional Int
   deriving (Eq, Show)
 
 mkAsset : QuickstartSeedLotInput -> CollateralAsset
@@ -331,6 +354,7 @@ seedScenario input = script do
         inventoryCids
     obligationContractId = obligationCid
     postingIntentContractId = postingCid
+    referenceTokenHoldings = Some []
 
 statusForProviderView : QuickstartStatusInput -> Script QuickstartStatusResult
 statusForProviderView input = script do
@@ -338,8 +362,10 @@ statusForProviderView input = script do
   obligations <- queryFilter @CallObligation input.providerParty (\contract -> contract.obligationId == input.obligationId)
   inventoryLots <- queryFilter @CollateralInventoryLot input.providerParty (\lot -> containsText lot.lotId input.inventoryLotIds)
   postingIntents <- queryFilter @CollateralPostingIntent input.providerParty (\contract -> contract.postingId == input.postingId)
+  referenceTokenHoldings <- queryFilter @ReferenceTokenHolding input.providerParty (\holding -> containsText holding.lotId input.inventoryLotIds)
   executionReports <- queryFilter @ExecutionReportRecord input.providerParty (\report -> report.obligationId == input.obligationId)
   encumbrances <- queryFilter @EncumbranceState input.providerParty (\encumbrance -> encumbrance.obligationId == input.obligationId)
+  adapterReceipts <- queryFilter @ReferenceTokenAdapterReceipt input.providerParty (\receipt -> receipt.obligationId == input.obligationId)
 
   pure QuickstartStatusResult with
     scenarioId = input.scenarioId
@@ -394,3 +420,20 @@ statusForProviderView input = script do
         postingIntents
     providerVisibleExecutionReportCount = length executionReports
     providerVisibleEncumbranceCount = length encumbrances
+    providerVisibleReferenceTokenHoldings =
+      Some
+        (map
+          (\(contractId, holding) ->
+            ProviderVisibleReferenceTokenHolding with
+              holdingId = holding.holdingId
+              lotId = holding.lotId
+              contractId
+              beneficialOwner = holding.beneficialOwner
+              accountId = holding.accountId
+              quantity = holding.quantity
+              controlState = holding.controlState
+              assetId = holding.asset.assetId
+          )
+          referenceTokenHoldings
+        )
+    providerVisibleAdapterReceiptCount = Some (length adapterReceipts)

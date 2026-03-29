@@ -10,6 +10,8 @@ The repository already has:
 
 - normalized inventory inputs for deterministic policy evaluation and optimization
 - Daml workflow contracts for obligations, posting, substitution, return, encumbrance, settlement intent, and execution reporting
+- a real Quickstart package deployment, seeded-scenario, and status-query path
+- a first Quickstart-backed reference token adapter path that consumes settlement instructions, performs token-style movement, and emits adapter evidence
 - architecture guidance that keeps asset issuance and raw ownership outside the Control Plane
 
 The repository does not yet have:
@@ -17,7 +19,7 @@ The repository does not yet have:
 - a live asset issuer integration
 - a live custodian or control adapter
 - a settlement callback contract implementation
-- a package deployment path into the pinned Quickstart LocalNet
+- a production-grade adapter surface that spans posting, substitution, return, release, retries, and external custody APIs
 
 ## Adapter Principles
 
@@ -54,11 +56,17 @@ Status: deferred
 
 ### Stage 3: Settlement-Intent Adapter
 
-Status: deferred
+Status: partially implemented
 
-- consume `SettlementInstruction` artifacts emitted by workflow state
-- submit the corresponding issuer, venue, or custodian action
-- return status callbacks that the workflow library can record without trusting the adapter blindly
+- Prompt 15 now implements the first concrete reference path:
+  - consume `SettlementInstruction` emitted by the posting workflow on Quickstart
+  - map each allocation to a `ReferenceTokenHolding`
+  - execute a token-style `MoveByCustodian`
+  - emit `ReferenceTokenAdapterReceipt` plus `adapter-execution-report-v0.1`
+- the current implementation is intentionally narrow:
+  - posting-focused rather than substitution or return-complete
+  - Quickstart-backed reference token movement rather than a production custodian API
+  - evidence-bearing rather than a generic external integration bus
 
 ### Stage 4: Demo-Grade Multi-App Integration
 
@@ -104,3 +112,5 @@ Status: deferred
 - one control-state signal can be mapped into `EncumbranceState`
 - one settlement action can be acknowledged back into workflow state through explicit callbacks
 - the adapter boundary is documented well enough that venues, financing apps, token issuers, custodians, and margining applications can see where their responsibilities start and stop
+
+Prompt 15 satisfies the third criterion for a narrow reference path by proving one real settlement action on Quickstart with explicit adapter evidence.

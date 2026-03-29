@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canton-collateral-control-plane/reports/schemas/adapter-execution-report.schema.json",
+  "title": "AdapterExecutionReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reportVersion",
+    "adapterName",
+    "adapterVersion",
+    "scenarioId",
+    "startedAt",
+    "finishedAt",
+    "settlementInstruction",
+    "encumbranceContextBefore",
+    "referenceTokenHoldingsBefore",
+    "adapterReceipt",
+    "referenceTokenHoldingsAfter",
+    "workflowConfirmation",
+    "encumbranceContextAfter"
+  ],
+  "properties": {
+    "reportVersion": {
+      "type": "string"
+    },
+    "adapterName": {
+      "type": "string"
+    },
+    "adapterVersion": {
+      "type": "string"
+    },
+    "scenarioId": {
+      "type": "string"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "settlementInstruction": {
+      "$ref": "#/$defs/settlementInstruction"
+    },
+    "encumbranceContextBefore": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/encumbrance"
+      }
+    },
+    "referenceTokenHoldingsBefore": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/holding"
+      }
+    },
+    "adapterReceipt": {
+      "$ref": "#/$defs/receipt"
+    },
+    "referenceTokenHoldingsAfter": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/holding"
+      }
+    },
+    "workflowConfirmation": {
+      "$ref": "#/$defs/workflowConfirmation"
+    },
+    "encumbranceContextAfter": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/encumbrance"
+      }
+    }
+  },
+  "$defs": {
+    "allocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lotId",
+        "assetId",
+        "quantity",
+        "sourceAccount",
+        "destinationAccount"
+      ],
+      "properties": {
+        "lotId": {
+          "type": "string"
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "sourceAccount": {
+          "type": "string"
+        },
+        "destinationAccount": {
+          "type": "string"
+        }
+      }
+    },
+    "settlementInstruction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instructionId",
+        "workflowType",
+        "settlementAction",
+        "obligationId",
+        "correlationId",
+        "state",
+        "fromAccount",
+        "toAccount",
+        "quantity",
+        "policyVersion",
+        "snapshotId",
+        "decisionReference",
+        "lotIdsInScope",
+        "allocationsInScope"
+      ],
+      "properties": {
+        "instructionId": {
+          "type": "string"
+        },
+        "workflowType": {
+          "type": "string"
+        },
+        "settlementAction": {
+          "type": "string"
+        },
+        "obligationId": {
+          "type": "string"
+        },
+        "correlationId": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "fromAccount": {
+          "type": "string"
+        },
+        "toAccount": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "snapshotId": {
+          "type": "string"
+        },
+        "decisionReference": {
+          "type": "string"
+        },
+        "lotIdsInScope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allocationsInScope": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/allocation"
+          }
+        }
+      }
+    },
+    "encumbrance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "encumbranceId",
+        "lotId",
+        "quantity",
+        "status",
+        "correlationId"
+      ],
+      "properties": {
+        "encumbranceId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "correlationId": {
+          "type": "string"
+        }
+      }
+    },
+    "holding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "holdingId",
+        "lotId",
+        "assetId",
+        "beneficialOwner",
+        "accountId",
+        "quantity",
+        "controlState",
+        "sourceReference"
+      ],
+      "properties": {
+        "holdingId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "beneficialOwner": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "controlState": {
+          "type": "string"
+        },
+        "sourceReference": {
+          "type": "string"
+        }
+      }
+    },
+    "movement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "movementId",
+        "instructionId",
+        "obligationId",
+        "lotId",
+        "assetId",
+        "sourceAccount",
+        "destinationAccount",
+        "quantity",
+        "resultingControlState",
+        "externalTransactionId"
+      ],
+      "properties": {
+        "movementId": {
+          "type": "string"
+        },
+        "instructionId": {
+          "type": "string"
+        },
+        "obligationId": {
+          "type": "string"
+        },
+        "lotId": {
+          "type": "string"
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "sourceAccount": {
+          "type": "string"
+        },
+        "destinationAccount": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "resultingControlState": {
+          "type": "string"
+        },
+        "externalTransactionId": {
+          "type": "string"
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receiptId",
+        "adapterName",
+        "adapterVersion",
+        "status",
+        "encumbranceMode",
+        "externalTransactionId",
+        "sourceAccount",
+        "destinationAccount",
+        "executedAt",
+        "movements"
+      ],
+      "properties": {
+        "receiptId": {
+          "type": "string"
+        },
+        "adapterName": {
+          "type": "string"
+        },
+        "adapterVersion": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "encumbranceMode": {
+          "type": "string"
+        },
+        "externalTransactionId": {
+          "type": "string"
+        },
+        "sourceAccount": {
+          "type": "string"
+        },
+        "destinationAccount": {
+          "type": "string"
+        },
+        "executedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "movements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/movement"
+          }
+        }
+      }
+    },
+    "workflowConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "postingStateBefore",
+        "postingStateAfterPreparation",
+        "postingStateAfterConfirmation",
+        "settledInstructionState",
+        "providerVisibleExecutionReportCount",
+        "providerVisibleEncumbranceCount"
+      ],
+      "properties": {
+        "postingStateBefore": {
+          "type": "string"
+        },
+        "postingStateAfterPreparation": {
+          "type": "string"
+        },
+        "postingStateAfterConfirmation": {
+          "type": "string"
+        },
+        "settledInstructionState": {
+          "type": "string"
+        },
+        "providerVisibleExecutionReportCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "providerVisibleEncumbranceCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

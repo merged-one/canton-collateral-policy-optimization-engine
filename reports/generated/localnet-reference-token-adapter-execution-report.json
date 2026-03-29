@@ -1,0 +1,112 @@
+{
+  "adapterReceipt": {
+    "movements": [{
+      "quantity": 60.0000000000,
+      "lotId": "quickstart-reference-token-lot-007",
+      "assetId": "us-tbill-2029-01",
+      "instructionId": "quickstart-reference-token-posting-correlation-004-instruction",
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001",
+      "movementId": "quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-007",
+      "externalTransactionId": "quickstart-reference-token-posting-correlation-004-instruction-txn-quickstart-reference-token-lot-007",
+      "obligationId": "quickstart-reference-token-obligation-004",
+      "resultingControlState": "SettledToSecuredAccount"
+    }, {
+      "quantity": 40.0000000000,
+      "lotId": "quickstart-reference-token-lot-008",
+      "assetId": "us-tbill-2030-03",
+      "instructionId": "quickstart-reference-token-posting-correlation-004-instruction",
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001",
+      "movementId": "quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-008",
+      "externalTransactionId": "quickstart-reference-token-posting-correlation-004-instruction-txn-quickstart-reference-token-lot-008",
+      "obligationId": "quickstart-reference-token-obligation-004",
+      "resultingControlState": "SettledToSecuredAccount"
+    }],
+    "sourceAccount": "custody-provider-001",
+    "adapterVersion": "v0.1",
+    "destinationAccount": "secured-account-001",
+    "executedAt": "2026-03-29T21:46:57.923151Z",
+    "receiptId": "quickstart-reference-token-margin-004-reference-token-receipt",
+    "encumbranceMode": "CREATE_ENCUMBRANCE",
+    "status": "EXECUTED",
+    "adapterName": "quickstart-reference-token-adapter",
+    "externalTransactionId": "quickstart-reference-token-posting-correlation-004-instruction-reference-token-transfer"
+  },
+  "workflowConfirmation": {
+    "postingStateBefore": "Submitted",
+    "settledInstructionState": "Settled",
+    "postingStateAfterPreparation": "PendingSettlement",
+    "postingStateAfterConfirmation": "Closed",
+    "providerVisibleEncumbranceCount": 2,
+    "providerVisibleExecutionReportCount": 1
+  },
+  "referenceTokenHoldingsAfter": [{
+    "quantity": 60.0000000000,
+    "lotId": "quickstart-reference-token-lot-007",
+    "accountId": "secured-account-001",
+    "controlState": "SettledToSecuredAccount",
+    "assetId": "us-tbill-2029-01",
+    "holdingId": "quickstart-reference-token-margin-004-holding-quickstart-reference-token-lot-007-moved-quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-007",
+    "sourceReference": "quickstart-reference-token-posting-correlation-004-instruction-txn-quickstart-reference-token-lot-007",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc"
+  }, {
+    "quantity": 40.0000000000,
+    "lotId": "quickstart-reference-token-lot-008",
+    "accountId": "secured-account-001",
+    "controlState": "SettledToSecuredAccount",
+    "assetId": "us-tbill-2030-03",
+    "holdingId": "quickstart-reference-token-margin-004-holding-quickstart-reference-token-lot-008-moved-quickstart-reference-token-posting-correlation-004-instruction-move-quickstart-reference-token-lot-008",
+    "sourceReference": "quickstart-reference-token-posting-correlation-004-instruction-txn-quickstart-reference-token-lot-008",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc"
+  }],
+  "adapterVersion": "v0.1",
+  "settlementInstruction": {
+    "quantity": 100.0000000000,
+    "decisionReference": "quickstart-reference-token-decision-trace-004",
+    "obligationId": "quickstart-reference-token-obligation-004",
+    "lotIdsInScope": ["quickstart-reference-token-lot-007", "quickstart-reference-token-lot-008"],
+    "allocationsInScope": [{
+      "quantity": 60.0000000000,
+      "lotId": "quickstart-reference-token-lot-007",
+      "assetId": "us-tbill-2029-01",
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001"
+    }, {
+      "quantity": 40.0000000000,
+      "lotId": "quickstart-reference-token-lot-008",
+      "assetId": "us-tbill-2030-03",
+      "sourceAccount": "custody-provider-001",
+      "destinationAccount": "secured-account-001"
+    }],
+    "state": "PendingSettlement",
+    "toAccount": "secured-account-001",
+    "workflowType": "PostingWorkflow",
+    "instructionId": "quickstart-reference-token-posting-correlation-004-instruction",
+    "fromAccount": "custody-provider-001",
+    "correlationId": "quickstart-reference-token-posting-correlation-004",
+    "settlementAction": "PostCollateral",
+    "policyVersion": "cpl-v0.1-quickstart-demo",
+    "snapshotId": "quickstart-reference-token-snapshot-2026-03-29"
+  },
+  "scenarioId": "quickstart-reference-token-margin-004",
+  "startedAt": "2026-03-29T21:46:54.086955Z",
+  "reportVersion": "adapter-execution-report-v0.1",
+  "finishedAt": "2026-03-29T21:46:58.678398Z",
+  "adapterName": "quickstart-reference-token-adapter",
+  "encumbranceContextBefore": [],
+  "referenceTokenHoldingsBefore": [],
+  "encumbranceContextAfter": [{
+    "quantity": 60.0000000000,
+    "lotId": "quickstart-reference-token-lot-007",
+    "status": "EncumbrancePledged",
+    "encumbranceId": "quickstart-reference-token-posting-correlation-004-enc-quickstart-reference-token-lot-007",
+    "correlationId": "quickstart-reference-token-posting-correlation-004"
+  }, {
+    "quantity": 40.0000000000,
+    "lotId": "quickstart-reference-token-lot-008",
+    "status": "EncumbrancePledged",
+    "encumbranceId": "quickstart-reference-token-posting-correlation-004-enc-quickstart-reference-token-lot-008",
+    "correlationId": "quickstart-reference-token-posting-correlation-004"
+  }]
+}

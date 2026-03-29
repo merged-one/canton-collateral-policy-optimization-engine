@@ -1,43 +1,44 @@
 {
-  "postingIntentContractId": "00c3efadc11126a9b2c292ab1b877fb172de301b0ce9c59f7d27a0fc5c6ac1d94fca121220317035a2be0a176d559ce4b8f7552c4bd16c8c50d98a63c07a967bc3c382bcfd",
-  "custodianUserId": "control-plane-custodian",
-  "custodianParty": "controlplane-custodian-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
-  "obligationContractId": "001cc057d2d710d0481f3958fb4a9a6ea24b0d6afe793c4daa1ffdf269ac04dfa5ca1212206f27aee27d9010d88f4304dae08c8151f1ba7979e4e56b0dba6f2ec3e84e00d4",
+  "postingIntentContractId": "00ffa3de936fea9858432971bce91cc0a73b77eec1019cb3edcbcd651cead0deb3ca121220966ee5ee75095e1b94f65ebdba6f059fce9316ec26a391553ddfa176f0aac6ae",
+  "custodianUserId": "c87743ab-80e0-4b83-935a-4c0582226691",
+  "custodianParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "obligationContractId": "00a4d05eb89ccabfe6a65b124ef52abca7c6b5ee7b41019e5eac96520d440c77eaca1212204f99f4e832f5a20c02a7432d596a33a92cc497c1e8e57f3434a08c1c3cfc6719",
   "roleRegistrations": [
     {
       "role": "CollateralProviderRole",
       "label": "provider",
       "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
-      "contractId": "0071dba72298b0c728957edf4d7a81af8c5bb02127dc320ad428686bbd5c5391f3ca121220178fc26232d791af6ed50ee7ea39a7f4444da9c3c653b89cf97994cd8183a83a"
+      "contractId": "0066c97fdd6f908e47b8b3a80288205b41d8b1b9d382580b4b8359ded639ba2099ca121220e66c5daa3950c0c5bcfa78c39403394d1a65c8d2c89bc768f343c47c53cdaa7a"
     },
     {
       "role": "SecuredPartyRole",
       "label": "secured-party",
       "participant": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
-      "contractId": "0030a8b7f2f5a2f773677d10a1f4eefe486711e2d0a180756dd68cc6e4cb28a095ca121220867e6788a5569d9ed6b12dd74a3bbb868c5b9a27d627cdb0640e7f857c64a5ae"
+      "contractId": "0000753408259b0d01bc829b8f1f0cd5b684ed7da9c9e371155c01de4d662e7653ca121220796361150680710461a16072167a9a52ae38d6708279a6068029ef7decfbb3f0"
     },
     {
       "role": "CustodianRole",
       "label": "custodian",
-      "participant": "controlplane-custodian-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
-      "contractId": "0039b64af5e66d8136f18f5d738b08be0dc8061ee49792458174e4fbff17e2850dca121220c5dff805804de81c8a7748a61077c499ae0476f98483bf1d1afa3f70c30a688e"
+      "participant": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+      "contractId": "0090d178a391cb655bb214929a8d6178d5d48df51305934b06fb4e48197bfee4a6ca12122009962c8d3e2b0c18d1db49025f481a93e0e7f2258a2878b85caf0b99c9a4874a"
     }
   ],
+  "referenceTokenHoldings": [],
   "providerParty": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
   "operatorUserId": "control-plane-operator",
   "inventoryLots": [
     {
-      "lotId": "quickstart-us-tbill-lot-001",
-      "contractId": "001914fcb1439fc0f996f713f577c109ab302adbba11416b5aa6e2684c97b8f11cca1212201faa844ce24c84871b8d2409e521f355d7bd4e1e0042c0eae26774c5c3b7e230"
+      "lotId": "quickstart-reference-token-lot-007",
+      "contractId": "00e63c48397da1ae827b1fc3b8c841091169eca192e613553785e9863858f68c7eca12122076f641af0c7be3492e922dd4bb31403bc1cf00f097907a843eb5d7f3ee22a64a"
     },
     {
-      "lotId": "quickstart-us-tbill-lot-002",
-      "contractId": "003d09b5bb4e29afe22a0112651cd41b474cc7fa9d7068c4612347117d4eae1877ca121220be2a790c13873154aa6e695423686f0f64833b40043726f23799bbf3daf06591"
+      "lotId": "quickstart-reference-token-lot-008",
+      "contractId": "008fbc0b789766eaf59191e87fbd04f0f2368bcb78f3f754cbc58af0d6ce8c92c5ca121220af0232e55dd671e36a6994a6626c2561e29161f2e7196df03af08e2ffb91a2cf"
     }
   ],
   "operatorParty": "controlplane-operator-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
-  "scenarioId": "quickstart-confidential-margin-001",
+  "scenarioId": "quickstart-reference-token-margin-004",
   "securedParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
-  "obligationId": "quickstart-margin-obligation-001",
-  "postingId": "quickstart-margin-posting-001"
+  "obligationId": "quickstart-reference-token-obligation-004",
+  "postingId": "quickstart-reference-token-posting-004"
 }

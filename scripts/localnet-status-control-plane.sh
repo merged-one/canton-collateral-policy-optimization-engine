@@ -81,8 +81,10 @@ lines.extend(
         f"- Obligations visible: `{len(status['providerVisibleObligations'])}`",
         f"- Inventory lots visible: `{len(status['providerVisibleInventoryLots'])}`",
         f"- Posting intents visible: `{len(status['providerVisiblePostingIntents'])}`",
+        f"- Reference token holdings visible: `{len(status.get('providerVisibleReferenceTokenHoldings') or [])}`",
         f"- Execution reports visible: `{status['providerVisibleExecutionReportCount']}`",
         f"- Encumbrances visible: `{status['providerVisibleEncumbranceCount']}`",
+        f"- Adapter receipts visible: `{status.get('providerVisibleAdapterReceiptCount', 0)}`",
         "",
         "## Seeded Contracts",
         "",
@@ -93,6 +95,9 @@ lines.extend(
 
 for lot in receipt["inventoryLots"]:
     lines.append(f"- Inventory lot `{lot['lotId']}` cid: `{lot['contractId']}`")
+
+for holding in receipt.get("referenceTokenHoldings") or []:
+    lines.append(f"- Reference token holding `{holding['holdingId']}` cid: `{holding['contractId']}`")
 
 Path(os.environ["STATUS_MD_PATH"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
 PY

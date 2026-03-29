@@ -2,6 +2,113 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-29 - Prompt 15 Reference Token Adapter Path - Pre-Change
+
+Intent:
+Implement the first concrete Quickstart-backed reference token adapter path so the Control Plane can hand a real `SettlementInstruction` and related control state to a narrow data-plane adapter that performs a minimal token-style movement and emits machine-readable execution evidence.
+
+Task summary:
+
+- define the first stable reference token adapter boundary for settlement-instruction consumption, asset and lot identity mapping, account references, release or replacement confirmation carriage, and adapter receipt output
+- implement the smallest real Quickstart-backed adapter path that reads Control Plane workflow outputs, performs a token-style movement or encumbrance-state transition, and emits a machine-readable adapter execution artifact
+- add reproducible operator commands for running the adapter and inspecting adapter status without collapsing policy, optimization, workflow authority, or report generation into the adapter layer
+- update ADRs, mission-control documents, invariants, evidence, architecture, integration, runbook, and glossary surfaces so the adapter boundary and residual non-goals are explicit
+
+Expected affected files:
+
+- `Makefile`
+- new or updated adapter scripts under `scripts/`
+- `daml/CantonCollateral/` modules for the reference token adapter path and any supporting Quickstart script hooks
+- `reports/schemas/adapter-execution-report.schema.json`
+- generated adapter artifacts under `reports/generated/`
+- `docs/adrs/` with the next sequential ADR number because ADR `0017` is already assigned to the Quickstart confidential-seed decision
+- `docs/integration/ASSET_ADAPTER_PLAN.md`
+- `docs/integration/TOKEN_STANDARD_ALIGNMENT.md`
+- `docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md`
+- `docs/domain/DAML_MAPPING.md`
+- relevant architecture, runbook, glossary, mission-control, invariant, evidence, risk, and setup docs required to keep the new command and boundary surfaces consistent
+- `docs/evidence/prompt-15-execution-report.md`
+- `docs/mission-control/WORKLOG.md`
+
+Risk assessment:
+
+- the adapter could accidentally collapse workflow authority into the data-plane path if it directly reinterprets approval or policy semantics instead of only consuming declared settlement and control contracts
+- a Quickstart-backed reference token move may require additional seed state or participant visibility that, if modeled poorly, could weaken the confidentiality or role-boundary demonstration
+- an adapter receipt that is not keyed tightly enough to workflow, instruction, lot, and external action identifiers would weaken auditability and downstream execution reporting
+- the first implementation must stay explicitly reference-grade; if it drifts toward a generic external integration bus or production custodian abstraction, the repo would overclaim the current milestone
+
+Acceptance criteria:
+
+- one documented reference token adapter path exists and is clearly data-plane scoped relative to Control Plane authority
+- `make localnet-run-token-adapter` and `make localnet-adapter-status` exist, are documented, and fail clearly when Quickstart prerequisites are missing
+- the adapter produces a real machine-readable artifact from actual execution against the seeded Quickstart-backed environment
+- invariants, evidence, ADRs, tracker, and runbooks consistently describe what the adapter consumes, what it emits, and what remains intentionally out of scope
+- relevant build, schema, Daml, docs, and Quickstart-backed adapter checks are executed and captured in evidence
+
+## 2026-03-29 - Prompt 15 Reference Token Adapter Path - Post-Change
+
+Outcome:
+Implemented the first real Quickstart-backed reference token adapter path so the Control Plane can hand settlement and encumbrance workflow outputs to a narrow data-plane adapter that performs a minimal token-style collateral movement, confirms settlement closure, and emits machine-readable adapter evidence.
+
+Completed changes:
+
+- added the first stable reference token adapter boundary with `daml/CantonCollateral/ReferenceToken.daml` and `daml/CantonCollateral/QuickstartAdapter.daml`, including settlement-instruction consumption, lot and asset mapping, account references, adapter receipt output, and machine-readable status surfaces
+- extended `daml/CantonCollateral/Settlement.daml` so a `SettlementInstruction` carries `allocationsInScope`, letting the adapter consume the workflow-declared lot set without reinterpreting policy
+- updated `daml/CantonCollateral/QuickstartSeed.daml` and the confidential Quickstart scenario manifest so the seeded scenario can reuse the hosted secured-party identity as the Quickstart custodian and support a real adapter action path against the running LocalNet
+- added the reproducible operator command surface:
+  - `make localnet-run-token-adapter`
+  - `make localnet-adapter-status`
+- added adapter helper scripts plus adapter artifacts and schema:
+  - `scripts/localnet-run-token-adapter.sh`
+  - `scripts/localnet-adapter-status.sh`
+  - `reports/schemas/adapter-execution-report.schema.json`
+  - `reports/generated/localnet-reference-token-adapter-execution-report.json`
+  - `reports/generated/localnet-reference-token-adapter-summary.md`
+  - `reports/generated/localnet-reference-token-adapter-status.json`
+  - `reports/generated/localnet-reference-token-adapter-status-summary.md`
+- added ADR 0018 and aligned architecture, integration, runbook, glossary, mission-control, invariant, evidence, setup, risk, and threat-model documentation with the new reference adapter boundary and its explicit non-goals
+
+Architecture and ADR note:
+
+- ADR 0018 was added because Prompt 15 introduces the first durable asset-side adapter boundary: the Control Plane still owns policy, optimization, workflow authority, and reporting, while the reference adapter only consumes declared settlement and control contracts and emits execution receipts plus status evidence
+
+Commands run:
+
+```sh
+sh -n scripts/localnet-control-plane-common.sh
+sh -n scripts/localnet-seed-demo.sh
+sh -n scripts/localnet-status-control-plane.sh
+sh -n scripts/localnet-run-token-adapter.sh
+sh -n scripts/localnet-adapter-status.sh
+make daml-build
+make localnet-deploy-dar
+make localnet-run-token-adapter
+make localnet-adapter-status
+make docs-lint
+git diff --check
+git status --short --branch
+```
+
+Results:
+
+- `make localnet-deploy-dar` passed and deployed `.daml/dist-quickstart/canton-collateral-control-plane-0.1.5.dar` with package id `7fb85f0678a49f3a07f3e4bf7233aeec7bbfbdce53f1bddd58d97d24b86b7ee6`
+- the Quickstart-backed adapter execution passed against seeded scenario `quickstart-reference-token-margin-004` and produced `reports/generated/localnet-reference-token-adapter-execution-report.json` plus the matching Markdown summary
+- the execution report captured one settled instruction `quickstart-reference-token-posting-correlation-004-instruction`, one adapter receipt `quickstart-reference-token-margin-004-reference-token-receipt`, and one external transfer id `quickstart-reference-token-posting-correlation-004-instruction-reference-token-transfer`
+- the adapter moved two lots into the secured holding reference:
+  - `quickstart-reference-token-lot-007` for `60.0` of `us-tbill-2029-01`
+  - `quickstart-reference-token-lot-008` for `40.0` of `us-tbill-2030-03`
+- the workflow-confirmation portion of the adapter evidence showed posting state progression `Submitted -> PendingSettlement -> Closed`, settlement-instruction state `Settled`, provider-visible encumbrance count `2`, and provider-visible execution-report count `1`
+- the refreshed adapter status command passed and confirmed provider-visible post-execution state with `2` reference-token holdings in `secured-account-001`, `2` encumbrances, `1` execution report, and `1` adapter receipt
+- the adapter execution artifact validated against `reports/schemas/adapter-execution-report.schema.json`
+- `make docs-lint` passed after the ADR, docs, runbook, command-surface, invariant, and evidence updates were added
+- `git diff --check` passed with no whitespace or malformed patch issues
+
+Residual risks and follow-up:
+
+- the reference token adapter remains intentionally Quickstart-scoped and reference-grade; it does not yet model real custodian connectivity, settlement windows, reservation coordination, or production reconciliation behavior
+- the adapter currently backfills reference-token holdings from provider inventory during execution, so pre-execution holdings are absent from the initial adapter report even though post-execution holdings and receipts are real and provider-visible
+- future adapter paths must preserve the same boundary discipline and avoid reintroducing policy interpretation or workflow authority into the data-plane layer
+
 ## 2026-03-29 - Prompt 14 Quickstart Seeded Confidential Scenario - Pre-Change
 
 Intent:
