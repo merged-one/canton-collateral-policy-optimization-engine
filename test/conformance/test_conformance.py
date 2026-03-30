@@ -64,9 +64,10 @@ class ConformanceSuiteTest(unittest.TestCase):
         self.assertEqual(failing, [])
 
     def test_coverage_counts_match_expected_demo_shape(self) -> None:
-        self.assertEqual(self.report["coverage"]["totalScenarioCount"], 13)
+        self.assertEqual(self.report["coverage"]["totalScenarioCount"], 10)
         self.assertEqual(self.report["coverage"]["positiveScenarioCount"], 3)
-        self.assertEqual(self.report["coverage"]["negativeScenarioCount"], 10)
+        self.assertEqual(self.report["coverage"]["negativeScenarioCount"], 7)
+        self.assertEqual(self.report["coverage"]["runtimeModes"], ["QUICKSTART"])
 
     def test_demo_reports_are_indexed(self) -> None:
         self.assertEqual(len(self.report["demoReports"]), 3)
@@ -74,6 +75,20 @@ class ConformanceSuiteTest(unittest.TestCase):
             self.assertTrue((REPO_ROOT / demo_report["reportPath"]).is_file())
             self.assertTrue((REPO_ROOT / demo_report["summaryPath"]).is_file())
             self.assertTrue((REPO_ROOT / demo_report["timelinePath"]).is_file())
+            self.assertEqual(demo_report["runtimeMode"], "QUICKSTART")
+
+    def test_runtime_evidence_is_indexed(self) -> None:
+        runtime_evidence = self.report["runtimeEvidence"]
+        self.assertEqual(runtime_evidence["runtimeMode"], "QUICKSTART")
+        self.assertEqual(runtime_evidence["validationFailures"], [])
+        for field in (
+            "deploymentReceiptPath",
+            "deploymentSummaryPath",
+            "referenceAdapterExecutionReportPath",
+            "referenceAdapterStatusPath",
+            "referenceAdapterSummaryPath",
+        ):
+            self.assertTrue((REPO_ROOT / runtime_evidence[field]).is_file())
 
 
 if __name__ == "__main__":

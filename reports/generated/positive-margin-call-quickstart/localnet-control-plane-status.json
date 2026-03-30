@@ -63,29 +63,140 @@
     "label": "provider",
     "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
     "contractId": "009b3acc9dce65cd1a6775006c00e8686bac4a36e0fc3a3719f6564b34f6cd6830ca121220cb17dede7cc8d41bbc3a475543cf2bde1cd0ab4701ec8a47c7dbebf231b8f613"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "008981315ce89e9dcf042a546206e3dd1481e41daaab66172110c1f722f9122000ca1212208a3c29bd449aac0b89c83344395495dbfd32219f90990ecce8daffb9ea10dba3"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "009daa9c29712cf3a81bb84a8289e2279a25d9f98359e4d5103041b56c4f34e281ca1212208f5693aee1273abcdc2081f681a9866420d4eaf329f2d9949433760e3d48b620"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0092e3b5284b6c85a278c14d973eb6ea26561d7dde1b1d36ac293c36e8b33963b3ca12122067571d4822a205964bde7d7b58c7abdea003183d021f73fa9c572f0161329d67"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00dc0f0efba36738f946270ec9c9adf7dd734beff2bd52fe4c83971572ada2b70eca121220bae9dfe4cf1476d4e52e9996ce439c2e0089f30e90727b5d73148e5d515a46e0"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "008e3a06b875486af66b34c8fb857ad05fbe53a4564a3d552416b24bfaf8cbd40eca1212205fc9a9ef6bbbdaea8a21895414feb708a6113c8c9567956a9d6cf1f9d36c960a"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "003e47a6416ef3948866dc27ab57948c5784d069cd3b2d5d07e583eac18d9591d4ca121220ba811077ac5171a3eb40aecf1f75a27aeb0f63ae97324e01e6b62b08dbb90e8b"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "000d5ebb28203ceb3710b8164c228e44e0c9ddaaffab6bfa087bbf371645ac069eca1212206cd1676a73e836f35193f5dbb53893623a9b55388390538036a5929e1925444b"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00dba16acd57ac4e42ddb15ab13a9c617808daa5eb5707221c6c8465be3217a690ca12122047509d92129d0abd46244d7b74f9502b77f22924827bdb46f2cfd6d218406440"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00f2e43333298484ff07b59a7eab428ecdb199a96c2728564bf5eb3ebf45b6c021ca121220755ecc7ecbcb07a8e2ecc1fd22e69327d8517d8a2c3f6b8f45b40f5bf9d9193a"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00b904fcb8adc02feb6e99ce0e20008badb917508c11fb373fdab3eb9133e21f7eca121220c23071a7dcfcf4f82dcfd63bcd99d6b19821bba024ad7363f3d2e35892b84827"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "004ee9dd2aa8625eeb6b083b284d4636ab8ec89f7037ea1bed4a7cdfcd0271131fca1212206474fad90d7dfebc301f1640e1e554d463c4fabc50990c4a635de7e1b3820c7b"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0054156c6d830c68396177144570fba5b039d86132422e3296a6703fdd35854985ca1212202882ab17d3ba3d6fcb97e35b27c781c661f332951c0e941bf9535bb34614269a"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "00a412b9061ed21ae5305c8bb409a893f4986daa6f48d08cbfd5c93f5bb487821dca121220fc5006c54dc282e2295230ec9175dcff1028b3fe25f891cd2a6fefc02fb36d5d"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "008ec96c133f093d3d06b61138a9d24ff453bf44d34938857a6920d1379d21718eca1212209c77d363f97b6b1c7893c13d8a3dcc74ce5799b959ed2637f2fd5aacf679524d"
+  }, {
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0002a9259b5c8316d4ec14b18b281f0a210ada3214b35fcc1c7c28866e6976b72aca121220dae8f02cfad1dedce2118e74471024ec0709b4ddcabc86f9ec26bdff88a98e92"
   }],
   "seeded": true,
   "providerVisiblePostingIntents": [{
-    "state": "Submitted",
-    "custodianApproval": "ApprovalPending",
-    "contractId": "00f28091b37be43a4476e228812cd4371995e0210c4d5f743fefbdf676e6db11a6ca1212202d8443bd462174c7005bd8cb2d5b6056e08545d6bf37df71adbd25bbd718e133",
+    "state": "Closed",
+    "custodianApproval": "ApprovalGranted",
+    "contractId": "002064d531901a87805ef4515cfdff97a58c02db88416d6dad8a243231167b5172ca121220daca1870736acd071b272e366fcc1eacaa9c05c1b100dc9682ee796f97249aaf",
     "nominatedLotIds": ["quickstart-demo-lot-101", "quickstart-demo-lot-102", "quickstart-demo-lot-103", "quickstart-demo-lot-104"],
     "postingId": "quickstart-demo-posting-101",
     "correlationId": "quickstart-demo-posting-correlation-101",
-    "securedPartyApproval": "ApprovalPending"
+    "securedPartyApproval": "ApprovalGranted"
   }],
   "scenarioId": "quickstart-demo-margin-101",
-  "providerVisibleReferenceTokenHoldings": [],
+  "providerVisibleReferenceTokenHoldings": [{
+    "quantity": 30.0000000000,
+    "lotId": "quickstart-demo-lot-101",
+    "accountId": "secured-account-quickstart-demo-101",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "00f25654a18f7136e8fe2db6ae6eb43184f788d7b90c72c74a7a48146f658ee75bca1212206b57a029568ac362e4336057fa2b3a54a6384498db3fa56b4d2b32ab41ccd703",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "ust-2027-01",
+    "holdingId": "quickstart-demo-margin-101-holding-quickstart-demo-lot-101-moved-quickstart-demo-posting-correlation-101-instruction-move-quickstart-demo-lot-101"
+  }, {
+    "quantity": 30.0000000000,
+    "lotId": "quickstart-demo-lot-102",
+    "accountId": "secured-account-quickstart-demo-101",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "00b28e63a959cac00e32a6778c18f01178933cadba23552b30aac5928c14dff705ca121220d2c5556a8cc9e79d2a4b3648b4ddd6d4e7c458b7d5cf01c1a46e28fe75349701",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "kfw-2029-01",
+    "holdingId": "quickstart-demo-margin-101-holding-quickstart-demo-lot-102-moved-quickstart-demo-posting-correlation-101-instruction-move-quickstart-demo-lot-102"
+  }, {
+    "quantity": 20.0000000000,
+    "lotId": "quickstart-demo-lot-103",
+    "accountId": "secured-account-quickstart-demo-101",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "00747ace1f228dc40c6ad1c5246c2e3105a18776ce01fcd17a59bfe9b48571b7d3ca1212208075993a8148bdfb6661bfe04220cae5faac3e4d87a0f1c9e84c79980b9ffcf2",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "eib-2030-01",
+    "holdingId": "quickstart-demo-margin-101-holding-quickstart-demo-lot-103-moved-quickstart-demo-posting-correlation-101-instruction-move-quickstart-demo-lot-103"
+  }, {
+    "quantity": 20.0000000000,
+    "lotId": "quickstart-demo-lot-104",
+    "accountId": "secured-account-quickstart-demo-101",
+    "controlState": "SettledToSecuredAccount",
+    "contractId": "00698b9b4219016861baa9d6c5a2104ac257f73027c7a3fb208789c0ff146dd510ca1212209039880d70dfcd10cc1031f95d949cc0541bf1b50f578922afbbc52474fcffca",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "assetId": "fannie-2028-01",
+    "holdingId": "quickstart-demo-margin-101-holding-quickstart-demo-lot-104-moved-quickstart-demo-posting-correlation-101-instruction-move-quickstart-demo-lot-104"
+  }],
   "providerVisibleObligations": [{
     "requiredCoverage": 560000.0000000000,
-    "state": "Submitted",
+    "state": "Closed",
     "obligationId": "quickstart-demo-obligation-101",
     "uncoveredAmount": 560000.0000000000,
     "correlationId": "quickstart-demo-call-101",
     "dueAt": "2030-01-15T16:00:00Z",
-    "contractId": "00ff5c7278e1ad8561f0d5973309dc1412894341b5c97974dc67154adba51f9018ca1212200c0d1a7b03ab06c11595010f7db9bae30f96c232e803ace438dadb4c1a571e85"
+    "contractId": "00a384ffff7d3216c153a4bc681d21f38008dbada8326251e885cebfe1a890ed7aca1212207702833ac8398401e6619827cb5f1f5016114029e073867568296e3290feeec0"
   }],
-  "providerVisibleEncumbranceCount": 0,
-  "providerVisibleExecutionReportCount": 0,
-  "providerVisibleAdapterReceiptCount": 0
+  "providerVisibleEncumbranceCount": 4,
+  "providerVisibleExecutionReportCount": 2,
+  "providerVisibleAdapterReceiptCount": 1
 }

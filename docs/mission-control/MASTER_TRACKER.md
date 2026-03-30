@@ -37,7 +37,7 @@ The repository's active user-facing name is "Canton Collateral Control Plane". T
 
 ## Current Phase
 
-Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, reporting, and first data-plane reference-adapter layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack plus one concrete Quickstart-backed workflow-execution and adapter path that consume declared scenario inputs, emit machine-readable evidence, prove positive plus negative paths, expose invariant pass or fail output, and document the third-party integration boundary without pretending production-grade external integration is complete.
+Milestone 5 / Phase 5 now packages the existing policy, optimization, workflow, reporting, and first data-plane reference-adapter layers into one reproducible proposal-ready surface. The expected output is a reproducible conformance suite and final demo pack that center the pinned Quickstart deployment, one concrete reference token adapter path, and the Quickstart-backed margin-call, substitution, and return flows while still documenting what remains staged prototype scope.
 
 Prompt 1 status:
 
@@ -183,20 +183,28 @@ Prompt 18 status:
 - `make demo-return-quickstart` now starts or reuses the pinned Quickstart overlay, evaluates the positive and negative Quickstart return scenarios, runs the positive and replay workflow-plus-adapter chains, proves blocked unauthorized release and stale-coverage mismatch without adapter side effects, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts
 - the positive Quickstart path now links policy evaluation, retained-set optimization, workflow execution, adapter-driven release, provider-visible status refresh, and final return reporting through generated artifacts rather than operator-authored summaries
 - the replay Quickstart path now proves the original release settled once, the duplicate `returnRequestId` was blocked, and provider-visible adapter receipt count did not increment beyond the committed release
-- margin-call, return, and substitution now all have Quickstart-backed end-to-end demo commands, while role-scoped report disclosure, production-grade custodian integrations, settlement-window enforcement, workflow-coupled optimizer reservation, and packaging decisions for the Quickstart return path remain staged follow-on work
+- margin-call, return, and substitution now all have Quickstart-backed end-to-end demo commands, while role-scoped report disclosure, production-grade custodian integrations, settlement-window enforcement, and workflow-coupled optimizer reservation remain staged follow-on work
+
+Prompt 19 status:
+
+- ADR 0022 now chooses a Quickstart-first conformance and final-packaging posture that treats deployment evidence, one concrete reference token adapter path, and the three Quickstart-backed demo flows as the primary proposal proof surface
+- `make test-conformance` now starts or reuses the pinned Quickstart deployment, validates one concrete reference token adapter proof path, validates the Quickstart-backed margin-call, substitution, and return demo artifact chains, and emits a machine-readable `ConformanceSuiteReport` centered on runtime-backed evidence
+- `make demo-all` now emits a final package that includes Quickstart deployment evidence, standalone adapter-path evidence, per-demo Quickstart command provenance, and explicit real-versus-staged readiness notes rather than indexing the older IDE-ledger comparison path as the primary story
+- the third-party integration guide now states exactly where future adopters plug into the Control Plane, what the reference token adapter consumes and proves, what remains prototype scope, and how to replace the adapter without collapsing workflow authority
+- the repository now has an explicit proposal-readiness assessment that distinguishes what is real on Quickstart, what is machine-proven by generated artifacts, what remains prototype-only, and what changed versus the earlier IDE-ledger-only prototype
 
 ## Next 5 Tasks
 
 1. Specify role-scoped `ExecutionReport`, `ReturnReport`, `SubstitutionReport`, and adapter-receipt disclosure profiles beyond the current workflow-party and provider-visible baseline.
 2. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
 3. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
-4. Decide how the Quickstart-backed return path should feed `make test-conformance` and `make demo-all` without losing the current portable verification split.
-5. Define replay, retry, failure-recovery, and settlement-window semantics for future production-grade asset adapters without weakening the current control-plane boundary.
+4. Define replay, retry, failure-recovery, and settlement-window semantics for future production-grade asset adapters without weakening the current control-plane boundary.
+5. Decide how role-scoped external disclosure and reviewer-facing evidence packs should evolve once non-reference adapters exist.
 
 ## Blockers
 
 - There is no current blocker for continued documentation, policy-engine, optimizer, and report-contract work.
-- There is no current blocker preventing Control Plane DAR build, package installation, seeded confidential-scenario creation, Quickstart-backed margin-call workflow execution, Quickstart-backed substitution workflow execution, or the first Quickstart-backed reference token adapter execution in the pinned Quickstart LocalNet; the remaining gated work is broader adapter coverage, role-scoped reporting, reference-data contracts, and workflow-coupled reservation on top of that baseline.
+- There is no current blocker preventing Control Plane DAR build, package installation, seeded confidential-scenario creation, the concrete reference token adapter execution path, Quickstart-backed margin-call workflow execution, Quickstart-backed substitution workflow execution, Quickstart-backed return workflow execution, or the runtime-backed conformance and final demo package in the pinned Quickstart LocalNet; the remaining gated work is broader adapter coverage, role-scoped reporting, reference-data contracts, and workflow-coupled reservation on top of that baseline.
 - Production-grade asset-adapter and workflow-coupled implementation beyond the current reference adapter, off-ledger engines, and Daml workflow package should not proceed until the seeded LocalNet package surface and asset interface versions are pinned explicitly.
 - Economic calibration beyond the current deterministic proxy objective is intentionally deferred until reference-data contracts and richer report contracts are specified.
 - The current roadmap reflects the 2026-03-28 proposal and may need ADR-backed revision if the proposal changes materially.

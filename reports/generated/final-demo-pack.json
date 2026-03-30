@@ -1,8 +1,8 @@
 {
   "reportType": "FinalDemoPack",
   "reportVersion": "0.1.0",
-  "demoPackId": "fdp-3ef235fefb11f2eb",
-  "generatedAt": "2026-03-29T17:07:19Z",
+  "demoPackId": "fdp-ad4246d5144c77eb",
+  "generatedAt": "2026-03-30T05:08:33Z",
   "overallStatus": "PASS",
   "command": "make demo-all",
   "artifacts": {
@@ -12,69 +12,124 @@
     "conformanceSummaryPath": "reports/generated/conformance-suite-summary.md",
     "demoArtifactIndexPath": "docs/evidence/DEMO_ARTIFACT_INDEX.md",
     "integrationGuidePath": "docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md",
+    "proposalReadinessPath": "docs/evidence/PROPOSAL_READINESS_ASSESSMENT.md",
     "runbookPath": "docs/runbooks/FINAL_DEMO_RUNBOOK.md"
   },
-  "commandSurface": [
-    "make demo-margin-call",
-    "make demo-substitution",
-    "make demo-return",
-    "make test-conformance",
-    "make demo-all",
-    "make verify-portable",
-    "make verify"
-  ],
+  "commandSurface": {
+    "primaryQuickstartCommands": [
+      "make localnet-start-control-plane",
+      "make localnet-run-token-adapter",
+      "make localnet-adapter-status",
+      "make demo-margin-call-quickstart",
+      "make demo-substitution-quickstart",
+      "make demo-return-quickstart",
+      "make test-conformance",
+      "make demo-all"
+    ],
+    "comparisonOnlyCommands": [
+      "make demo-margin-call",
+      "make demo-substitution",
+      "make demo-return",
+      "make verify-portable"
+    ],
+    "fullRepositoryVerificationCommands": [
+      "make verify"
+    ]
+  },
+  "runtimeEvidence": {
+    "runtimeMode": "QUICKSTART",
+    "deploymentCommand": "make localnet-start-control-plane",
+    "deploymentReceiptPath": "reports/generated/localnet-control-plane-deployment-receipt.json",
+    "deploymentSummaryPath": "reports/generated/localnet-control-plane-deployment-summary.md",
+    "referenceAdapterCommand": "make localnet-run-token-adapter",
+    "referenceAdapterStatusCommand": "make localnet-adapter-status",
+    "referenceAdapterExecutionReportPath": "reports/generated/localnet-reference-token-adapter-execution-report.json",
+    "referenceAdapterStatusPath": "reports/generated/localnet-reference-token-adapter-status.json",
+    "referenceAdapterSummaryPath": "reports/generated/localnet-reference-token-adapter-summary.md",
+    "deployment": {
+      "quickstartCommit": "fe56d460af650b71b8e20098b3e76693397a8bf9",
+      "darFile": ".daml/dist-quickstart/canton-collateral-control-plane-0.1.10.dar",
+      "packageId": "2535dc1e6f8ab629482bc6c186334df1c79ab0fe5c59302d7bcb20f5a7c139fb",
+      "participants": [
+        "app-provider",
+        "app-user"
+      ]
+    },
+    "referenceAdapterPath": {
+      "adapterName": "quickstart-reference-token-adapter",
+      "settlementAction": "PostCollateral",
+      "workflowType": "PostingWorkflow",
+      "receiptStatus": "EXECUTED",
+      "movementLotIds": [
+        "quickstart-reference-token-lot-007",
+        "quickstart-reference-token-lot-008"
+      ],
+      "providerVisibleAdapterReceiptCount": 1,
+      "providerVisibleEncumbranceCount": 2
+    },
+    "validationFailures": []
+  },
   "demoFlows": [
     {
       "demoType": "CONFIDENTIAL_MARGIN_CALL",
       "reportType": "ExecutionReport",
-      "command": "make demo-margin-call",
+      "runtimeMode": "QUICKSTART",
+      "command": "make demo-margin-call-quickstart",
+      "comparisonCommand": "make demo-margin-call",
       "overallStatus": "PASS",
-      "reportPath": "reports/generated/margin-call-demo-execution-report.json",
-      "summaryPath": "reports/generated/margin-call-demo-summary.md",
-      "timelinePath": "reports/generated/margin-call-demo-timeline.md",
+      "reportPath": "reports/generated/margin-call-quickstart-execution-report.json",
+      "summaryPath": "reports/generated/margin-call-quickstart-summary.md",
+      "timelinePath": "reports/generated/margin-call-quickstart-timeline.md",
       "positiveScenarioIds": [
-        "positive-margin-call"
+        "positive-margin-call-quickstart"
       ],
       "negativeScenarioIds": [
-        "negative-ineligible-asset",
-        "negative-insufficient-lendable-value",
-        "negative-expired-policy-window"
-      ]
+        "negative-ineligible-asset-quickstart",
+        "negative-workflow-rejected-quickstart"
+      ],
+      "whatIsRealNow": "make demo-margin-call-quickstart executes on Quickstart and emits reports/generated/positive-margin-call-quickstart-policy-evaluation-report.json, reports/generated/positive-margin-call-quickstart-workflow-result.json, and the adapter-backed runtime evidence for the positive path.",
+      "whatRemainsStaged": "The IDE-ledger margin-call path remains a comparison surface only; broader adapter coverage and role-scoped disclosure are still staged."
     },
     {
       "demoType": "CONFIDENTIAL_COLLATERAL_SUBSTITUTION",
       "reportType": "SubstitutionReport",
-      "command": "make demo-substitution",
+      "runtimeMode": "QUICKSTART",
+      "command": "make demo-substitution-quickstart",
+      "comparisonCommand": "make demo-substitution",
       "overallStatus": "PASS",
-      "reportPath": "reports/generated/substitution-demo-report.json",
-      "summaryPath": "reports/generated/substitution-demo-summary.md",
-      "timelinePath": "reports/generated/substitution-demo-timeline.md",
+      "reportPath": "reports/generated/substitution-quickstart-report.json",
+      "summaryPath": "reports/generated/substitution-quickstart-summary.md",
+      "timelinePath": "reports/generated/substitution-quickstart-timeline.md",
       "positiveScenarioIds": [
-        "positive-substitution"
+        "positive-substitution-quickstart"
       ],
       "negativeScenarioIds": [
-        "negative-replacement-becomes-ineligible",
-        "negative-concentration-breach",
-        "negative-unauthorized-release",
-        "negative-partial-substitution"
-      ]
+        "negative-replacement-becomes-ineligible-quickstart",
+        "negative-partial-substitution-quickstart"
+      ],
+      "whatIsRealNow": "make demo-substitution-quickstart executes on Quickstart and emits reports/generated/positive-substitution-quickstart-policy-evaluation-report.json, reports/generated/positive-substitution-quickstart-workflow-result.json, and the adapter-backed runtime evidence for the positive path.",
+      "whatRemainsStaged": "The narrow reference adapter proves the replacement handoff, but production custodian or tri-party substitution integrations remain staged."
     },
     {
       "demoType": "CONFIDENTIAL_MARGIN_RETURN",
       "reportType": "ReturnReport",
-      "command": "make demo-return",
+      "runtimeMode": "QUICKSTART",
+      "command": "make demo-return-quickstart",
+      "comparisonCommand": "make demo-return",
       "overallStatus": "PASS",
-      "reportPath": "reports/generated/return-demo-report.json",
-      "summaryPath": "reports/generated/return-demo-summary.md",
-      "timelinePath": "reports/generated/return-demo-timeline.md",
+      "reportPath": "reports/generated/return-quickstart-report.json",
+      "summaryPath": "reports/generated/return-quickstart-summary.md",
+      "timelinePath": "reports/generated/return-quickstart-timeline.md",
       "positiveScenarioIds": [
-        "positive-return"
+        "positive-return-quickstart"
       ],
       "negativeScenarioIds": [
-        "negative-unauthorized-return",
-        "negative-replayed-return-instruction",
-        "negative-obligation-state-mismatch"
-      ]
+        "negative-unauthorized-return-quickstart",
+        "negative-replayed-return-instruction-quickstart",
+        "negative-obligation-state-mismatch-quickstart"
+      ],
+      "whatIsRealNow": "make demo-return-quickstart executes on Quickstart and emits reports/generated/positive-return-quickstart-policy-evaluation-report.json, reports/generated/positive-return-quickstart-workflow-result.json, and the adapter-backed runtime evidence for the positive path.",
+      "whatRemainsStaged": "The Quickstart return path proves one release handoff, while broader settlement-window semantics and production-grade release adapters remain staged."
     }
   ],
   "invariantOutput": {
@@ -91,10 +146,12 @@
           "WF-001"
         ],
         "evidence": [
-          "reports/generated/negative-unauthorized-release-workflow-result.json",
-          "reports/generated/negative-unauthorized-return-workflow-result.json"
+          "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+          "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+          "reports/generated/positive-substitution-quickstart-workflow-result.json",
+          "reports/generated/positive-substitution-quickstart/localnet-control-plane-seed-receipt.json"
         ],
-        "detail": "Unauthorized substitution release and return release attempts were blocked by approval and role controls without changing the incumbent encumbrance set."
+        "detail": "Quickstart proved approval gates stayed on Canton before substitution settlement intent could be exposed, and an unauthorized return release attempt stayed blocked without any adapter-side movement."
       },
       {
         "checkId": "ELIGIBILITY_DETERMINISM",
@@ -127,13 +184,21 @@
           "CTRL-001"
         ],
         "evidence": [
-          "reports/generated/positive-margin-call-workflow-result.json",
-          "reports/generated/positive-substitution-workflow-result.json",
-          "reports/generated/negative-unauthorized-release-workflow-result.json",
-          "reports/generated/positive-return-workflow-result.json",
-          "reports/generated/negative-unauthorized-return-workflow-result.json"
+          "reports/generated/negative-partial-substitution-quickstart-workflow-result.json",
+          "reports/generated/negative-partial-substitution-quickstart/localnet-substitution-status.json",
+          "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+          "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+          "reports/generated/positive-margin-call-quickstart-workflow-result.json",
+          "reports/generated/positive-margin-call-quickstart/localnet-reference-token-adapter-execution-report.json",
+          "reports/generated/positive-margin-call-quickstart/localnet-reference-token-adapter-status.json",
+          "reports/generated/positive-return-quickstart-workflow-result.json",
+          "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+          "reports/generated/positive-return-quickstart/localnet-return-status.json",
+          "reports/generated/positive-substitution-quickstart-workflow-result.json",
+          "reports/generated/positive-substitution-quickstart/localnet-substitution-adapter-execution-report.json",
+          "reports/generated/positive-substitution-quickstart/localnet-substitution-status.json"
         ],
-        "detail": "Across posting, substitution, and return flows the suite preserved disjoint encumbrance sets and blocked state changes that would overlap or duplicate collateral commitments."
+        "detail": "Across the Quickstart posting, substitution, and return paths, final encumbrance and release evidence remained disjoint, blocked paths preserved incumbent scope, and adapter receipts stayed absent where workflow gates failed."
       },
       {
         "checkId": "ATOMIC_SUBSTITUTION_WHEN_REQUIRED",
@@ -143,11 +208,13 @@
           "CTRL-001"
         ],
         "evidence": [
-          "reports/generated/positive-substitution-workflow-result.json",
-          "reports/generated/negative-partial-substitution-workflow-result.json",
-          "reports/generated/negative-unauthorized-release-workflow-result.json"
+          "reports/generated/negative-partial-substitution-quickstart-workflow-result.json",
+          "reports/generated/negative-partial-substitution-quickstart/localnet-substitution-status.json",
+          "reports/generated/positive-substitution-quickstart-workflow-result.json",
+          "reports/generated/positive-substitution-quickstart/localnet-substitution-adapter-execution-report.json",
+          "reports/generated/positive-substitution-quickstart/localnet-substitution-status.json"
         ],
-        "detail": "When full replacement is required, substitution either commits the new set atomically or leaves the incumbent encumbrances untouched."
+        "detail": "The Quickstart substitution path either committed the full incumbent-release and replacement set atomically or preserved the incumbent encumbrances with zero adapter side effects."
       },
       {
         "checkId": "REPLAY_SAFETY",
@@ -156,9 +223,11 @@
           "REPL-001"
         ],
         "evidence": [
-          "reports/generated/negative-replayed-return-instruction-workflow-result.json"
+          "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+          "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+          "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-status.json"
         ],
-        "detail": "The return workflow committed the original release once and then blocked a replayed instruction using the same request identifier."
+        "detail": "The Quickstart return path settled the original release once, preserved the request identifier, and blocked the duplicate instruction without creating a second adapter receipt."
       },
       {
         "checkId": "REPORT_FIDELITY",
@@ -168,15 +237,18 @@
           "PDR-001"
         ],
         "evidence": [
-          "reports/generated/margin-call-demo-execution-report.json",
-          "reports/generated/margin-call-demo-summary.md",
-          "reports/generated/margin-call-demo-timeline.md",
-          "reports/generated/return-demo-report.json",
-          "reports/generated/return-demo-summary.md",
-          "reports/generated/return-demo-timeline.md",
-          "reports/generated/substitution-demo-report.json",
-          "reports/generated/substitution-demo-summary.md",
-          "reports/generated/substitution-demo-timeline.md"
+          "reports/generated/localnet-control-plane-deployment-receipt.json",
+          "reports/generated/localnet-reference-token-adapter-execution-report.json",
+          "reports/generated/localnet-reference-token-adapter-status.json",
+          "reports/generated/margin-call-quickstart-execution-report.json",
+          "reports/generated/margin-call-quickstart-summary.md",
+          "reports/generated/margin-call-quickstart-timeline.md",
+          "reports/generated/return-quickstart-report.json",
+          "reports/generated/return-quickstart-summary.md",
+          "reports/generated/return-quickstart-timeline.md",
+          "reports/generated/substitution-quickstart-report.json",
+          "reports/generated/substitution-quickstart-summary.md",
+          "reports/generated/substitution-quickstart-timeline.md"
         ],
         "detail": "Every demo report references real generated artifacts, preserves scenario and workflow counts, and keeps machine-readable summaries aligned with the committed evidence files."
       },
@@ -187,18 +259,47 @@
           "AUD-001"
         ],
         "evidence": [
-          "reports/generated/margin-call-demo-execution-report.json",
-          "reports/generated/margin-call-demo-summary.md",
-          "reports/generated/margin-call-demo-timeline.md",
-          "reports/generated/return-demo-report.json",
-          "reports/generated/return-demo-summary.md",
-          "reports/generated/return-demo-timeline.md",
-          "reports/generated/substitution-demo-report.json",
-          "reports/generated/substitution-demo-summary.md",
-          "reports/generated/substitution-demo-timeline.md"
+          "reports/generated/margin-call-quickstart-execution-report.json",
+          "reports/generated/margin-call-quickstart-summary.md",
+          "reports/generated/margin-call-quickstart-timeline.md",
+          "reports/generated/return-quickstart-report.json",
+          "reports/generated/return-quickstart-summary.md",
+          "reports/generated/return-quickstart-timeline.md",
+          "reports/generated/substitution-quickstart-report.json",
+          "reports/generated/substitution-quickstart-summary.md",
+          "reports/generated/substitution-quickstart-timeline.md"
         ],
         "detail": "Each positive flow records step-level workflow history, execution-report events, and top-level timeline entries that can be audited without hidden reconstruction."
       }
+    ]
+  },
+  "readiness": {
+    "realOnQuickstart": [
+      "Pinned Quickstart deployment and DAR installation into app-provider and app-user participants.",
+      "One concrete reference token adapter posting path with machine-readable execution and status evidence.",
+      "Quickstart-backed confidential margin call, substitution, and return demo flows with real workflow-to-adapter handoff evidence.",
+      "Aggregate invariant evidence across those runtime-backed demo paths through make test-conformance and make demo-all."
+    ],
+    "machineReadableProof": [
+      "reports/generated/localnet-control-plane-deployment-receipt.json",
+      "reports/generated/localnet-reference-token-adapter-execution-report.json",
+      "reports/generated/localnet-reference-token-adapter-status.json",
+      "reports/generated/margin-call-quickstart-execution-report.json",
+      "reports/generated/substitution-quickstart-report.json",
+      "reports/generated/return-quickstart-report.json",
+      "reports/generated/conformance-suite-report.json",
+      "reports/generated/final-demo-pack.json"
+    ],
+    "prototypeOnly": [
+      "Production-grade custodian or issuer adapters beyond the narrow reference token path.",
+      "Role-scoped disclosure profiles beyond the current workflow-party and provider-visible baseline.",
+      "Workflow-coupled optimizer reservation and consent interfaces.",
+      "Settlement-window enforcement and broader collateral business logic hardening."
+    ],
+    "technicalDeltaFromEarlierPrototype": [
+      "The primary demo package no longer centers IDE-ledger-only workflow runs; it now centers Quickstart deployment plus adapter-backed runtime evidence.",
+      "The conformance suite now validates real Quickstart workflow, adapter, and provider-visible status artifacts rather than only the pre-Quickstart report chain.",
+      "The final demo pack now distinguishes real runtime-backed proof from staged roadmap scope explicitly instead of implying parity across all integrations."
     ]
   },
   "machineReadableArtifacts": [
@@ -206,61 +307,82 @@
     "reports/generated/conformance-haircut-policy-evaluation-report.json",
     "reports/generated/conformance-suite-report.json",
     "reports/generated/final-demo-pack.json",
-    "reports/generated/margin-call-demo-execution-report.json",
-    "reports/generated/negative-concentration-breach-optimization-report.json",
-    "reports/generated/negative-concentration-breach-policy-evaluation-report.json",
-    "reports/generated/negative-expired-policy-window-policy-evaluation-report.json",
-    "reports/generated/negative-ineligible-asset-policy-evaluation-report.json",
-    "reports/generated/negative-insufficient-lendable-value-optimization-report.json",
-    "reports/generated/negative-insufficient-lendable-value-policy-evaluation-report.json",
-    "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
-    "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
-    "reports/generated/negative-obligation-state-mismatch-workflow-input.json",
-    "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
-    "reports/generated/negative-partial-substitution-optimization-report.json",
-    "reports/generated/negative-partial-substitution-policy-evaluation-report.json",
-    "reports/generated/negative-partial-substitution-workflow-input.json",
-    "reports/generated/negative-partial-substitution-workflow-result.json",
-    "reports/generated/negative-replacement-becomes-ineligible-policy-evaluation-report.json",
-    "reports/generated/negative-replayed-return-instruction-optimization-report.json",
-    "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
-    "reports/generated/negative-replayed-return-instruction-workflow-input.json",
-    "reports/generated/negative-replayed-return-instruction-workflow-result.json",
-    "reports/generated/negative-unauthorized-release-optimization-report.json",
-    "reports/generated/negative-unauthorized-release-policy-evaluation-report.json",
-    "reports/generated/negative-unauthorized-release-workflow-input.json",
-    "reports/generated/negative-unauthorized-release-workflow-result.json",
-    "reports/generated/negative-unauthorized-return-optimization-report.json",
-    "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
-    "reports/generated/negative-unauthorized-return-workflow-input.json",
-    "reports/generated/negative-unauthorized-return-workflow-result.json",
-    "reports/generated/positive-margin-call-optimization-report.json",
-    "reports/generated/positive-margin-call-policy-evaluation-report.json",
-    "reports/generated/positive-margin-call-workflow-input.json",
-    "reports/generated/positive-margin-call-workflow-result.json",
-    "reports/generated/positive-return-optimization-report.json",
-    "reports/generated/positive-return-policy-evaluation-report.json",
-    "reports/generated/positive-return-workflow-input.json",
-    "reports/generated/positive-return-workflow-result.json",
-    "reports/generated/positive-substitution-optimization-report.json",
-    "reports/generated/positive-substitution-policy-evaluation-report.json",
-    "reports/generated/positive-substitution-workflow-input.json",
-    "reports/generated/positive-substitution-workflow-result.json",
-    "reports/generated/return-demo-report.json",
-    "reports/generated/substitution-demo-report.json"
+    "reports/generated/localnet-control-plane-deployment-receipt.json",
+    "reports/generated/localnet-reference-token-adapter-execution-report.json",
+    "reports/generated/localnet-reference-token-adapter-status.json",
+    "reports/generated/margin-call-quickstart-execution-report.json",
+    "reports/generated/negative-ineligible-asset-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart-optimization-report.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-input.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-result.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json",
+    "reports/generated/negative-partial-substitution-quickstart-optimization-report.json",
+    "reports/generated/negative-partial-substitution-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-partial-substitution-quickstart-workflow-input.json",
+    "reports/generated/negative-partial-substitution-quickstart-workflow-result.json",
+    "reports/generated/negative-partial-substitution-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/negative-partial-substitution-quickstart/localnet-substitution-status.json",
+    "reports/generated/negative-replacement-becomes-ineligible-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart-optimization-report.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart-workflow-input.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+    "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-status.json",
+    "reports/generated/negative-unauthorized-return-quickstart-optimization-report.json",
+    "reports/generated/negative-unauthorized-return-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-unauthorized-return-quickstart-workflow-input.json",
+    "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+    "reports/generated/negative-unauthorized-return-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+    "reports/generated/negative-workflow-rejected-quickstart-optimization-report.json",
+    "reports/generated/negative-workflow-rejected-quickstart-policy-evaluation-report.json",
+    "reports/generated/negative-workflow-rejected-quickstart-workflow-input.json",
+    "reports/generated/negative-workflow-rejected-quickstart-workflow-result.json",
+    "reports/generated/negative-workflow-rejected-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/negative-workflow-rejected-quickstart/localnet-reference-token-adapter-status.json",
+    "reports/generated/positive-margin-call-quickstart-optimization-report.json",
+    "reports/generated/positive-margin-call-quickstart-policy-evaluation-report.json",
+    "reports/generated/positive-margin-call-quickstart-workflow-input.json",
+    "reports/generated/positive-margin-call-quickstart-workflow-result.json",
+    "reports/generated/positive-margin-call-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/positive-margin-call-quickstart/localnet-reference-token-adapter-execution-report.json",
+    "reports/generated/positive-margin-call-quickstart/localnet-reference-token-adapter-status.json",
+    "reports/generated/positive-return-quickstart-optimization-report.json",
+    "reports/generated/positive-return-quickstart-policy-evaluation-report.json",
+    "reports/generated/positive-return-quickstart-workflow-input.json",
+    "reports/generated/positive-return-quickstart-workflow-result.json",
+    "reports/generated/positive-return-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+    "reports/generated/positive-return-quickstart/localnet-return-status.json",
+    "reports/generated/positive-substitution-quickstart-optimization-report.json",
+    "reports/generated/positive-substitution-quickstart-policy-evaluation-report.json",
+    "reports/generated/positive-substitution-quickstart-workflow-input.json",
+    "reports/generated/positive-substitution-quickstart-workflow-result.json",
+    "reports/generated/positive-substitution-quickstart/localnet-control-plane-seed-receipt.json",
+    "reports/generated/positive-substitution-quickstart/localnet-substitution-adapter-execution-report.json",
+    "reports/generated/positive-substitution-quickstart/localnet-substitution-status.json",
+    "reports/generated/return-quickstart-report.json",
+    "reports/generated/substitution-quickstart-report.json"
   ],
   "humanReadableArtifacts": [
     "docs/evidence/DEMO_ARTIFACT_INDEX.md",
+    "docs/evidence/PROPOSAL_READINESS_ASSESSMENT.md",
     "docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md",
     "docs/runbooks/FINAL_DEMO_RUNBOOK.md",
     "reports/generated/conformance-suite-summary.md",
     "reports/generated/final-demo-pack-summary.md",
-    "reports/generated/margin-call-demo-summary.md",
-    "reports/generated/margin-call-demo-timeline.md",
-    "reports/generated/return-demo-summary.md",
-    "reports/generated/return-demo-timeline.md",
-    "reports/generated/substitution-demo-summary.md",
-    "reports/generated/substitution-demo-timeline.md"
+    "reports/generated/localnet-control-plane-deployment-summary.md",
+    "reports/generated/localnet-reference-token-adapter-summary.md",
+    "reports/generated/margin-call-quickstart-summary.md",
+    "reports/generated/margin-call-quickstart-timeline.md",
+    "reports/generated/return-quickstart-summary.md",
+    "reports/generated/return-quickstart-timeline.md",
+    "reports/generated/substitution-quickstart-summary.md",
+    "reports/generated/substitution-quickstart-timeline.md"
   ],
   "integrationSurfaces": [
     {
@@ -300,7 +422,7 @@
     },
     {
       "participantType": "TOKEN_ISSUER",
-      "purpose": "Honor settlement and encumbrance state changes without taking over policy or workflow authority.",
+      "purpose": "Replace the reference adapter later by consuming workflow-declared settlement intent without taking over policy or workflow authority.",
       "requiredInputs": [
         "SettlementInstruction contract fields",
         "tokenAdapterReference",
@@ -312,6 +434,7 @@
         "execution reports",
         "audit trail evidence"
       ],
+      "prototypeScope": "Today this boundary is proven by the Quickstart reference token adapter path only.",
       "guidePath": "docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md"
     },
     {

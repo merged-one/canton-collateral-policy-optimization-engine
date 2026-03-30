@@ -5,7 +5,7 @@ This roadmap currently reflects the 2026-03-28 development-fund proposal. If the
 The roadmap describes the build-out of the Control Plane subsystems plus the adjacent data-plane integrations they depend on. The rename to "Canton Collateral Control Plane" is a clarification of the existing architecture, not a change in business direction.
 
 Current staging note:
-The repository now has a pinned Quickstart bootstrap, a containerized runtime bridge that builds the Control Plane DAR against the pinned Quickstart runtime line, real Quickstart start, deploy, seed, status, and reference-token-adapter commands, one seeded confidential Quickstart scenario with ledger-returned contract identifiers, one Quickstart-backed posting-to-adapter execution artifact, and first IDE-ledger-backed end-to-end margin-call, return, and substitution demos. The remaining roadmap still applies because the current adapter path is narrow and reference-grade rather than a broad production integration surface.
+The repository now has a pinned Quickstart bootstrap, a containerized runtime bridge that builds the Control Plane DAR against the pinned Quickstart runtime line, real Quickstart start, deploy, seed, status, and reference-token-adapter commands, one concrete Quickstart-backed adapter proof path, Quickstart-backed end-to-end margin-call, substitution, and return demos, plus a conformance suite and final demo pack that center those runtime-backed paths. The remaining roadmap still applies because the current adapter path is narrow and reference-grade rather than a broad production integration surface.
 
 ## Phase 0: Mission Control Spine
 
@@ -95,7 +95,7 @@ Acceptance focus:
 - end-to-end workflows execute on a real Canton-based environment
 - atomicity holds across supported legs
 - negative paths fail cleanly and reproducibly
-- invariant reports are generated from real execution
+- invariant reports are generated from real execution and package their runtime evidence clearly
 
 ## Milestone 5 / Phase 5: Public Release, Demo Environment, And Adoption Package
 
@@ -113,6 +113,7 @@ Expected outputs:
 
 Acceptance focus:
 
-- a third party can run the demo from documented commands
+- a third party can run the Quickstart-backed demo package from documented commands
 - at least two sample policy profiles and two sample execution reports are published
 - integration guidance is concrete enough for external adopters
+- proposal packaging distinguishes runtime-proven capability from staged prototype scope explicitly

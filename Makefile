@@ -466,6 +466,9 @@ docs-lint:
 	@grep -q "ADR 0017" docs/adrs/0017-quickstart-confidential-seed.md || { echo "docs-lint: ADR 0017 missing title"; exit 1; }
 	@grep -q "ADR 0018" docs/adrs/0018-reference-token-adapter-path.md || { echo "docs-lint: ADR 0018 missing title"; exit 1; }
 	@grep -q "ADR 0019" docs/adrs/0019-quickstart-margin-call-demo-orchestration.md || { echo "docs-lint: ADR 0019 missing title"; exit 1; }
+	@grep -q "ADR 0020" docs/adrs/0020-quickstart-substitution-demo-orchestration.md || { echo "docs-lint: ADR 0020 missing title"; exit 1; }
+	@grep -q "ADR 0021" docs/adrs/0021-quickstart-return-demo-orchestration.md || { echo "docs-lint: ADR 0021 missing title"; exit 1; }
+	@grep -q "ADR 0022" docs/adrs/0022-quickstart-conformance-and-demo-package.md || { echo "docs-lint: ADR 0022 missing title"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-04-execution-report.md || { echo "docs-lint: prompt 4 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-05-execution-report.md || { echo "docs-lint: prompt 5 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-06-execution-report.md || { echo "docs-lint: prompt 6 execution report incomplete"; exit 1; }
@@ -479,6 +482,9 @@ docs-lint:
 	@grep -q "^## Results" docs/evidence/prompt-14-execution-report.md || { echo "docs-lint: prompt 14 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-15-execution-report.md || { echo "docs-lint: prompt 15 execution report incomplete"; exit 1; }
 	@grep -q "^## Results" docs/evidence/prompt-16-execution-report.md || { echo "docs-lint: prompt 16 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-17-execution-report.md || { echo "docs-lint: prompt 17 execution report incomplete"; exit 1; }
+	@grep -q "^## Outcomes" docs/evidence/prompt-18-execution-report.md || { echo "docs-lint: prompt 18 execution report incomplete"; exit 1; }
+	@grep -q "^## Results" docs/evidence/prompt-19-execution-report.md || { echo "docs-lint: prompt 19 execution report incomplete"; exit 1; }
 	@grep -q "Prompt 5 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 5 status"; exit 1; }
 	@grep -q "Prompt 6 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 6 status"; exit 1; }
 	@grep -q "Prompt 7 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 7 status"; exit 1; }
@@ -491,6 +497,9 @@ docs-lint:
 	@grep -q "Prompt 14 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 14 status"; exit 1; }
 	@grep -q "Prompt 15 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 15 status"; exit 1; }
 	@grep -q "Prompt 16 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 16 status"; exit 1; }
+	@grep -q "Prompt 17 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 17 status"; exit 1; }
+	@grep -q "Prompt 18 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 18 status"; exit 1; }
+	@grep -q "Prompt 19 status" docs/mission-control/MASTER_TRACKER.md || { echo "docs-lint: tracker missing prompt 19 status"; exit 1; }
 	@echo "docs-lint: policy engine, optimizer, Quickstart seeded scenario, runtime bridge, return demo, substitution demo, runtime foundation, Daml workflow skeleton, and command surface documentation are present"
 
 localnet-bootstrap:
@@ -610,8 +619,9 @@ test-optimizer: $(CHECK_JSONSCHEMA)
 	@$(MAKE) --no-print-directory optimize POLICY=examples/policies/central-bank-style-policy.json INVENTORY=examples/inventory/central-bank-eligible-inventory.json OBLIGATION=examples/obligations/central-bank-window-call.json REPORT=reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json
 	@echo "test-optimizer: deterministic optimizer tests and report validation passed"
 
-test-conformance: daml-build $(CHECK_JSONSCHEMA)
+test-conformance: $(CHECK_JSONSCHEMA)
 	@set -e; \
+		$(MAKE) --no-print-directory localnet-start-control-plane; \
 		. "$(RUNTIME_ENV)"; \
 		output_path=$$($(PYTHON) app/orchestration/conformance_cli.py --output-dir "$(CONFORMANCE_OUTPUT_DIR)" --repo-root "$(REPO_ROOT)"); \
 		test -f "$$output_path" || { echo "test-conformance: missing conformance report"; exit 1; }; \

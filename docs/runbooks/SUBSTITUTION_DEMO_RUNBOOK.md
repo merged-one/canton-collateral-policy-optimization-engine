@@ -116,4 +116,4 @@ make optimize POLICY=examples/demo-scenarios/substitution/substitution-policy.js
 - `make demo-substitution` remains the IDE-ledger comparison path and does not exercise Quickstart or the adapter boundary.
 - `make demo-substitution-quickstart` now proves one real positive atomic replacement path and one real blocked partial-substitution path on Quickstart.
 - the current Quickstart substitution path still uses the narrow reference token adapter rather than a production custodian or issuer integration.
-- margin return remains outside the Quickstart-backed adapter chain and is still pending equivalent runtime coverage.
+- the aggregate proposal package now consumes this Quickstart report through `make test-conformance` and `make demo-all`; broader production adapter coverage and role-scoped disclosure remain future work.

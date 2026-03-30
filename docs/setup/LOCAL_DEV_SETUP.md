@@ -98,8 +98,8 @@ What each command does:
 - `make demo-return-quickstart`: start or reuse the Quickstart overlay, evaluate the Quickstart-backed positive and negative return scenarios, hand the positive and replay workflow results to the reference token adapter, refresh provider-visible status, and emit chained return-report artifacts
 - `make demo-substitution`: run the first positive and negative end-to-end substitution scenarios and emit substitution-report artifacts
 - `make demo-substitution-quickstart`: start or reuse the Quickstart overlay, evaluate the Quickstart-backed positive and negative substitution scenarios, hand the positive workflow result to the substitution adapter path, and emit chained substitution-report artifacts
-- `make test-conformance`: run the aggregate conformance suite and emit explicit invariant pass/fail output across the three confidential workflow demos
-- `make demo-all`: build the final demo pack from the aggregate conformance output
+- `make test-conformance`: refresh Quickstart deployment evidence, validate one concrete reference token adapter proof path, and rerun the three Quickstart-backed confidential workflow demos, then emit aggregate invariant pass/fail output
+- `make demo-all`: build the final demo pack from the aggregate conformance output, runtime evidence, and readiness assessment
 - `make verify-portable`: run the full verification loop across docs, CPL validation, policy-engine tests, optimizer tests, Daml build, Daml tests, aggregate conformance, and final demo packaging without requiring Docker
 - `make verify`: run the full verification loop and then add the Quickstart LocalNet smoke execution on top of `make verify-portable`
 

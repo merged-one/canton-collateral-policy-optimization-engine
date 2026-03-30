@@ -6,12 +6,12 @@
 - Secured party: `app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
 - Custodian party: `app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
 - Operator party: `controlplane-operator-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc`
-- Package id: `0c3c64ce3a3980e3eee18a9f7159403d6f63e021b92e1e12fdf49c990f0449ac`
+- Package id: `2535dc1e6f8ab629482bc6c186334df1c79ab0fe5c59302d7bcb20f5a7c139fb`
 - Quickstart commit: `fe56d460af650b71b8e20098b3e76693397a8bf9`
 
 ## Provider View
 
-- Role registrations visible: `6`
+- Role registrations visible: `22`
 - Obligations visible: `1`
 - Inventory lots visible: `2`
 - Posting intents visible: `1`

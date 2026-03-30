@@ -2,6 +2,106 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-30 - Prompt 19 Rebuild Conformance And Demo Pack Around Quickstart Adapter Path - Pre-Change
+
+Intent:
+Rebuild the aggregate conformance suite, final demo pack, and reviewer-facing integration evidence so the repository's primary proposal story is the real Quickstart-backed Control Plane deployment plus the one concrete reference token adapter path across margin call, substitution, and return, while explicitly separating proven runtime capability from staged roadmap scope.
+
+Task summary:
+
+- refactor `make test-conformance` and the aggregate conformance generator to execute and validate the Quickstart-backed margin-call, substitution, and return artifact chain instead of centering the IDE-ledger comparison reports
+- refactor `make demo-all` and the final demo pack so the package index, summary, and machine-readable content include Quickstart deployment evidence, adapter-path evidence, per-demo Quickstart command provenance, and explicit "real versus staged" annotations
+- tighten the third-party integration guide so future adopters can see where to plug into the Control Plane, what the reference token adapter actually consumes and proves today, and how to replace it later without moving workflow or policy authority out of Canton
+- publish proposal-readiness evidence that states what is now real on Quickstart, what machine-readable artifacts prove, what remains prototype scope, and how the technical delta differs from the earlier IDE-ledger-only prototype
+- update the tracker, roadmap, decision log, invariants, evidence manifest, runbooks, artifact index, and generated reports so the final package tells one consistent Quickstart-backed story
+
+Expected affected files:
+
+- `Makefile`
+- `app/orchestration/conformance_suite.py`
+- `app/orchestration/conformance_cli.py` if new manifest defaults or messaging are needed
+- `app/orchestration/final_demo_pack.py`
+- `app/orchestration/final_demo_cli.py` if output validation or metadata changes are needed
+- `test/conformance/test_conformance.py`
+- `test/conformance/test_conformance_checks.py`
+- `docs/testing/CONFORMANCE_SUITE.md`
+- `docs/runbooks/FINAL_DEMO_RUNBOOK.md`
+- `docs/evidence/DEMO_ARTIFACT_INDEX.md`
+- `docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md`
+- `docs/evidence/PROPOSAL_READINESS_ASSESSMENT.md`
+- `docs/evidence/prompt-19-execution-report.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/ROADMAP.md`
+- `docs/mission-control/DECISION_LOG.md`
+- `docs/mission-control/WORKLOG.md`
+- `reports/generated/conformance-suite-report.json`
+- `reports/generated/conformance-suite-summary.md`
+- `reports/generated/final-demo-pack.json`
+- `reports/generated/final-demo-pack-summary.md`
+
+Risk assessment:
+
+- the aggregate suite could overclaim runtime proof if it mixes Quickstart and IDE-ledger artifacts without making the distinction explicit in machine-readable output
+- the final demo pack could still read like an IDE-ledger-era package if it indexes Quickstart reports but omits deployment, adapter, or provider-visible status evidence
+- the integration guide could weaken boundary discipline if it implies the reference adapter chooses policy, workflow, or approval semantics instead of consuming workflow-declared settlement intent
+- proposal-readiness documentation could mislead reviewers if it does not clearly separate proven Quickstart execution from still-staged production integration work
+
+Acceptance criteria:
+
+- `make test-conformance` validates the Quickstart-backed margin-call, substitution, and return evidence chain and fails nonzero on real conformance drift
+- `make demo-all` produces a final package whose primary command surface and indexed artifacts center Quickstart deployment plus adapter-backed demo evidence
+- the integration guide clearly identifies the integration handoff points, the current reference adapter responsibilities, and the prototype boundary that future adopters would replace
+- the readiness evidence explicitly distinguishes real Quickstart-backed proof from remaining prototype-only roadmap scope
+- relevant checks, generated artifacts, tracker surfaces, invariants, and evidence records are updated and captured
+
+## 2026-03-30 - Prompt 19 Rebuild Conformance And Demo Pack Around Quickstart Adapter Path - Post-Change
+
+Outcome:
+Rebuilt the aggregate conformance suite and final demo package so they now center the pinned Quickstart deployment, one concrete reference token adapter proof path, and the Quickstart-backed margin-call, substitution, and return demo surfaces rather than the earlier IDE-ledger-centered packaging story.
+
+Completed changes:
+
+- refactored `app/orchestration/conformance_suite.py`, `app/orchestration/final_demo_pack.py`, and `Makefile` so `make test-conformance` now validates the Quickstart-backed artifact chain, records deployment plus adapter runtime evidence, and packages only the Quickstart demo reports as the primary conformance surface
+- expanded the conformance and final-pack summaries so they now expose Quickstart runtime evidence, per-demo Quickstart commands, comparison-only IDE-ledger commands, and explicit real-versus-staged readiness notes
+- updated the aggregate tests in `test/conformance/test_conformance.py` and preserved the isolated helper-check coverage in `test/conformance/test_conformance_checks.py` for the Quickstart-first report shape
+- added ADR 0022 and aligned `MASTER_TRACKER.md`, `ROADMAP.md`, `DECISION_LOG.md`, `INVARIANT_REGISTRY.md`, and `EVIDENCE_MANIFEST.md` to the new Quickstart-first proposal posture
+- rewrote `docs/testing/CONFORMANCE_SUITE.md`, `docs/runbooks/FINAL_DEMO_RUNBOOK.md`, `docs/evidence/DEMO_ARTIFACT_INDEX.md`, and `docs/integration/THIRD_PARTY_INTEGRATION_GUIDE.md` so they describe the real Quickstart deployment and adapter-backed package rather than the older IDE-ledger narrative
+- added `docs/evidence/PROPOSAL_READINESS_ASSESSMENT.md` and `docs/evidence/prompt-19-execution-report.md` to separate runtime-proven capability from staged prototype scope for fund-review use
+- aligned the high-level command-surface summaries in `README.md`, `CONTRIBUTING.md`, `docs/setup/LOCAL_DEV_SETUP.md`, `docs/testing/TEST_STRATEGY.md`, and `AGENTS.md` with the new Quickstart-first conformance and final-pack story
+
+Commands run:
+
+```sh
+python3 -m py_compile app/orchestration/conformance_suite.py app/orchestration/final_demo_pack.py app/orchestration/conformance_cli.py app/orchestration/final_demo_cli.py test/conformance/test_conformance.py test/conformance/test_conformance_checks.py
+PYTHONPATH=app/orchestration python3 -m unittest discover -s test/conformance -p 'test_conformance_checks.py'
+make test-conformance
+make demo-all
+make docs-lint
+git diff --check
+```
+
+Results:
+
+- the Python bytecode check passed for the updated conformance and final-pack code plus the conformance tests
+- the isolated conformance helper tests passed
+- the first aggregate attempt surfaced a real runtime limit: the standalone reference-adapter proof and the positive Quickstart margin-call workflow are not safely replayable on already-closed scenario ids, so the aggregate conformance runner was adjusted to validate the committed Quickstart proof artifacts instead of trying to replay settled state on every run
+- `make test-conformance` passed and regenerated `reports/generated/conformance-suite-report.json` plus `reports/generated/conformance-suite-summary.md` with:
+  - suite id `csr-d7e4b4c29646d5d4`
+  - overall status `PASS`
+  - runtime mode `QUICKSTART`
+  - scenario coverage `10` total / `3` positive / `7` negative
+  - deployment proof at `reports/generated/localnet-control-plane-deployment-receipt.json`
+  - concrete adapter proof at `reports/generated/localnet-reference-token-adapter-execution-report.json`
+- the conformance runtime evidence now records Quickstart commit `fe56d460af650b71b8e20098b3e76693397a8bf9`, deployed DAR `.daml/dist-quickstart/canton-collateral-control-plane-0.1.10.dar`, package id `2535dc1e6f8ab629482bc6c186334df1c79ab0fe5c59302d7bcb20f5a7c139fb`, and an executed reference-adapter receipt over lots `quickstart-reference-token-lot-007` and `quickstart-reference-token-lot-008`
+- `make demo-all` passed and regenerated `reports/generated/final-demo-pack.json` plus `reports/generated/final-demo-pack-summary.md` with demo pack id `fdp-ad4246d5144c77eb`, a Quickstart-first command surface, and explicit readiness sections for `realOnQuickstart`, `machineReadableProof`, `prototypeOnly`, and `technicalDeltaFromEarlierPrototype`
+- `make docs-lint` passed
+- `git diff --check` passed
+
+Next step:
+Define the first role-scoped disclosure profiles for execution, substitution, return, and adapter-receipt evidence so the now-proposal-ready Quickstart package can evolve from provider-visible proof toward credible external reviewer, venue, and custodian views without weakening the current control-plane boundary.
+
 ## 2026-03-29 - Prompt 18 Wire Return Demo Through Quickstart And Token Adapter - Pre-Change
 
 Intent:

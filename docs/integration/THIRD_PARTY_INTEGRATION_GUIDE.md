@@ -2,173 +2,166 @@
 
 ## Purpose
 
-This guide explains how a future venue, financing application, token issuer, custodian, or other Canton project would integrate with the Canton Collateral Control Plane without collapsing policy, optimization, workflow authority, or reporting into one opaque endpoint.
+This guide explains how a future venue, financing application, token issuer, custodian, or other Canton project should integrate with the Canton Collateral Control Plane without collapsing policy, optimization, workflow authority, or reporting into one opaque endpoint.
 
-The current repository remains a prototype. The integration surface described here is the stable boundary the prototype already demonstrates through real commands and artifacts, not a claim that all live adapters already exist.
+The current repository remains a prototype. The surfaces below describe what is already runtime-proven on Quickstart and what remains staged prototype scope.
 
-## Integration Principles
+## Core Boundary
+
+The boundary is simple and deliberate:
 
 1. The Control Plane owns policy evaluation, optimization, workflow orchestration, conformance, and reporting.
-2. External systems provide declared inputs and consume declared outputs. They do not gain hidden authority over policy semantics or workflow state.
-3. Canton remains the intended authority for workflow state transitions. Off-ledger services may propose, validate, and report, but they must not authoritatively mutate encumbrance state.
-4. Every integration should preserve confidentiality, role control, replay safety, and auditability.
+2. External systems supply declared inputs and consume declared outputs.
+3. Asset adapters consume workflow-declared settlement intent and emit receipts.
+4. Asset adapters do not decide eligibility, approve releases, reinterpret optimization output, or mutate workflow state off-ledger.
 
-## Stable Prototype Surfaces
+That split is the main integration discipline future adopters must preserve.
 
-| Surface | Producer | Consumer | Current Form |
-| --- | --- | --- | --- |
-| `CPL v0.1` policy package | policy author or governance process | policy engine, optimizer, workflow orchestration | JSON plus schema validation |
-| inventory snapshot | venue, custodian, financing app, or asset adapter | policy engine and optimizer | normalized JSON input |
-| obligation snapshot | venue or financing app | optimizer and workflow orchestration | normalized JSON input |
-| policy decision output | policy engine | operator, venue, financing app, conformance suite | `PolicyEvaluationReport` JSON |
-| optimization output | optimizer | operator, workflow orchestration, venue, financing app | `OptimizationReport` JSON |
-| workflow input payload | orchestration layer | Daml workflow package | generated JSON input file |
-| workflow result output | Daml workflow package | reporting layer, conformance suite, operators | generated JSON output file |
-| settlement and control output | workflow package | reference token adapter or future asset adapter | `SettlementInstruction` plus related control context on Quickstart |
-| adapter execution output | reference token adapter | operators, reporters, future integrators | `ReferenceTokenAdapterReceipt` plus adapter execution report JSON |
-| execution evidence | reporting and conformance layers | operators, reviewers, future integrators | `ExecutionReport`, `SubstitutionReport`, `ReturnReport`, conformance report, final demo pack |
+## Where To Plug In
 
-## Integration Patterns
+### Input Boundary
 
-### Venue
+External projects plug into the Control Plane first by supplying:
 
-A future venue integration would typically:
+- a `CPL v0.1` policy package
+- an inventory snapshot
+- an obligation snapshot
+- current posted lot ids when substitution or return scope matters
+- workflow correlation or request identifiers for downstream reconciliation
 
-1. create or expose an obligation snapshot
-2. hand the declared policy version, inventory snapshot, and obligation to the Control Plane
-3. consume the resulting optimization and workflow execution outputs
-4. use the execution artifacts as the venue-facing audit record
+The current prototype proves this boundary through the policy engine, optimizer, and the Quickstart-backed demo manifests.
 
-Required inputs:
+### Workflow Boundary
 
-- `obligationId`
-- `obligationAmount`
-- `settlementCurrency`
-- `currentPostedLotIds` when substitution or return is relevant
-- optional substitution request scope and atomicity requirements
+Once policy and optimization accept a path, the orchestration layer generates workflow input payloads and Canton becomes authoritative for state transition:
 
-Expected outputs:
+- posting intent
+- substitution request and approval flow
+- return request and approval flow
+- settlement instruction exposure
+- final closure or blocked outcome
 
-- `OptimizationReport`
-- `ExecutionReport`, `SubstitutionReport`, or `ReturnReport`
-- correlation identifiers and event identifiers for downstream reconciliation
+Future projects should integrate here by consuming generated workflow input or output artifacts, not by importing internal Python or Daml modules ad hoc.
 
-### Financing Application
+### Settlement And Adapter Boundary
 
-A financing or derivatives application integrates at the decision boundary:
+Once Canton exposes a `SettlementInstruction`, an adapter may consume:
 
-1. supply the policy package, inventory snapshot, and obligation snapshot
-2. call policy evaluation and optimization first
-3. if the workflow should proceed, hand the resulting workflow input payload to the workflow layer
-4. persist the resulting machine-readable report as the authoritative integration receipt
-
-This lets the application stay product-specific while the Control Plane remains reusable shared infrastructure.
-
-### Token Issuer
-
-A token issuer or asset-network adapter integrates at the settlement and control boundary, not the policy boundary.
-
-The current repository now demonstrates that boundary through the Quickstart-backed reference token adapter path:
-
-- it consumes `SettlementInstruction`
-- it uses the lot-level account and asset mapping carried by `allocationsInScope`
-- it performs the token-style movement on `ReferenceTokenHolding`
-- it returns `ReferenceTokenAdapterReceipt` and machine-readable adapter execution evidence
-
-The issuer should consume:
-
-- settlement-system routing
+- settlement action
+- workflow correlation id
 - source and destination accounts
-- token adapter reference
 - asset and lot identifiers
+- allocation scope
+- adapter reference metadata
 
-The issuer should not reinterpret:
+This is the only boundary where an external asset-network integration should move collateral.
 
-- eligibility rules
-- haircuting rules
-- optimizer objectives
-- approval semantics
+## What The Reference Token Adapter Path Does Today
 
-Those remain Control Plane responsibilities.
+The repository now proves one concrete adapter path on Quickstart.
 
-### Custodian
+The reference token adapter path:
 
-A custodian integration participates in approval and settlement confirmation.
+- consumes a real `SettlementInstruction` produced by the Control Plane workflow
+- reads the lot-level account mapping in `allocationsInScope`
+- performs token-style movement on `ReferenceTokenHolding`
+- emits a `ReferenceTokenAdapterReceipt`
+- emits machine-readable execution and provider-visible status artifacts
+- returns control to Canton for workflow confirmation and final closure
 
-The custodian needs:
+The reference token adapter path does not:
 
-- workflow request identifiers
-- current encumbered lot ids
-- replacement or return lot ids
-- settlement-system references
-- correlation ids and audit event ids
+- decide whether collateral is eligible
+- choose which lots to post, replace, or return
+- create settlement instructions on its own
+- bypass approval gates
+- change obligation, encumbrance, or workflow state outside Canton
 
-The custodian returns:
+That makes it a replacement seam for future adapters, not a special-case authority path.
 
-- approval or rejection
-- settlement confirmation or failure
-- the evidence needed to support the resulting workflow report
-- adapter receipts or status keyed to workflow instruction and asset identifiers
+## What Is Real On Quickstart
 
-### Future Canton Project
+The current prototype now proves:
 
-Another Canton project should integrate with the Control Plane through documented contracts rather than by importing internal Python or Daml modules ad hoc.
+- pinned Quickstart deployment of the Control Plane DAR into `app-provider` and `app-user`
+- one concrete reference token adapter posting path with execution and status receipts
+- confidential margin call on Quickstart with workflow-to-adapter handoff evidence
+- confidential substitution on Quickstart with atomic replacement evidence
+- confidential return on Quickstart with approval-gated release and replay-safe duplicate handling evidence
+- aggregate conformance and final packaging across those runtime-backed paths
 
-The recommended order is:
-
-1. consume published JSON inputs and outputs first
-2. align to the current workflow and report contracts
-3. only then negotiate deeper package or contract sharing through a new ADR if the boundary truly needs to move
-
-## What The Prototype Already Demonstrates
-
-The repository already proves that a third party can inspect and rely on:
-
-- deterministic policy evaluation
-- deterministic optimizer recommendations
-- parameterized workflow input payloads
-- machine-readable workflow results
-- live Quickstart deployment, seeded status, and provider-visible state inspection
-- one real Quickstart-backed reference token adapter execution artifact
-- aggregate conformance output
-- an operator-ready final demo pack
-
-The prototype does not yet prove:
-
-- a production-grade custodian or issuer adapter
-- a generic external integration bus
-- production disclosure profiles for different external roles
-- reference-data contracts for valuation, FX, or issuer facts
-
-## Recommended Consumption Path
-
-For a future integration, start with these commands and artifacts:
+The primary reproducible commands are:
 
 ```sh
-make policy-eval
-make optimize
 make localnet-start-control-plane
-make localnet-seed-demo
 make localnet-run-token-adapter
 make localnet-adapter-status
-make demo-margin-call
-make demo-substitution
-make demo-return
+make demo-margin-call-quickstart
+make demo-substitution-quickstart
+make demo-return-quickstart
 make test-conformance
 make demo-all
 ```
 
-Read these artifacts in order:
+## What Remains Prototype Scope
 
-1. `reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-policy-evaluation-report.json`
-2. `reports/generated/central-bank-domestic-window-policy-central-bank-eligible-set-central-bank-window-call-optimization-report.json`
-3. `reports/generated/margin-call-demo-execution-report.json`
-4. `reports/generated/substitution-demo-report.json`
-5. `reports/generated/return-demo-report.json`
-6. `reports/generated/conformance-suite-report.json`
-7. `reports/generated/final-demo-pack.json`
-8. `reports/generated/localnet-reference-token-adapter-execution-report.json`
-9. `reports/generated/localnet-reference-token-adapter-status.json`
+The repository does not yet prove:
+
+- production-grade custodian or issuer adapters
+- a generalized adapter bus or settlement network abstraction
+- role-scoped disclosure profiles beyond the current workflow-party and provider-visible baseline
+- workflow-coupled optimizer reservation or consent interfaces
+- production settlement-window enforcement and retry or recovery semantics
+- reference-data contracts for valuation, FX, issuer, and counterparty facts
+
+Future adopters should treat those items as roadmap scope, not as implied current capability.
+
+## How To Replace The Reference Adapter Later
+
+If a future project wants to replace the reference token adapter with a production asset-network, custodian, or token-issuer integration, keep this sequence:
+
+1. Preserve the `SettlementInstruction` contract as the adapter handoff.
+2. Preserve Canton as the authority for approval, encumbrance, substitution, and return state.
+3. Preserve machine-readable adapter receipts and status artifacts.
+4. Add any new routing, custody, or network fields through ADR-backed contract changes.
+5. Keep policy, optimization, and workflow semantics outside the adapter.
+
+In practical terms, a replacement adapter may change:
+
+- asset-side API calls
+- custody account mapping logic
+- receipt payload detail
+- provider-visible status fields
+
+A replacement adapter must not change:
+
+- approval semantics
+- workflow state authority
+- policy or haircut logic
+- optimizer objectives
+- invariant ownership
+
+## Recommended Consumption Path
+
+For a future integration, consume the surfaces in this order:
+
+1. policy and optimization outputs
+2. generated workflow input payloads
+3. workflow result artifacts
+4. settlement-instruction-to-adapter handoff evidence
+5. final execution, substitution, or return report
+6. conformance and final demo package outputs
+
+The most concrete artifacts to inspect first are:
+
+1. `reports/generated/localnet-control-plane-deployment-receipt.json`
+2. `reports/generated/localnet-reference-token-adapter-execution-report.json`
+3. `reports/generated/localnet-reference-token-adapter-status.json`
+4. `reports/generated/margin-call-quickstart-execution-report.json`
+5. `reports/generated/substitution-quickstart-report.json`
+6. `reports/generated/return-quickstart-report.json`
+7. `reports/generated/conformance-suite-report.json`
+8. `reports/generated/final-demo-pack.json`
 
 ## Boundary Discipline
 
@@ -177,7 +170,7 @@ Do not integrate by:
 - scraping Markdown summaries instead of consuming JSON artifacts
 - bypassing the workflow layer and mutating encumbrance state directly
 - treating optimization output as settlement authority
-- extending `CPL` with undeclared fields
-- assuming the current prototype already implies a live adapter or Quickstart deployment
+- embedding product-specific settlement logic back into policy evaluation
+- assuming the reference adapter path implies production-grade network coverage
 
-If an integration needs a new contract, reference field, or workflow state, record that change through the ADR process and update invariants plus evidence alongside the new interface.
+If an integration needs a new contract, field, or workflow state, record that change through the ADR process and update invariants plus evidence alongside the new interface.

@@ -9,14 +9,14 @@
 
 ## Provider View
 
-- Role registrations visible: `7`
+- Role registrations visible: `22`
 - Obligations visible: `1`
 - Inventory lots visible: `4`
 - Posting intents visible: `1`
-- Reference token holdings visible: `0`
-- Execution reports visible: `0`
-- Encumbrances visible: `0`
-- Adapter receipts visible: `0`
+- Reference token holdings visible: `4`
+- Execution reports visible: `2`
+- Encumbrances visible: `4`
+- Adapter receipts visible: `1`
 
 ## Seeded Contracts
 

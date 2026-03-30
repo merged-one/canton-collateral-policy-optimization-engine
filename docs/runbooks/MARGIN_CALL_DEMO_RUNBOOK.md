@@ -139,4 +139,4 @@ make daml-test
 - The Quickstart run reseeds scenario-scoped state directories under `.runtime/localnet/control-plane/` and rewrites scenario-scoped artifacts under `reports/generated/<scenario-id>/`.
 - The positive Quickstart path now proves policy evaluation, optimization, workflow preparation, adapter execution, and final execution reporting on the pinned LocalNet.
 - `make demo-margin-call` remains the IDE-ledger comparison path.
-- Substitution and return still do not execute through this Quickstart-backed chain, and role-scoped report disclosure remains future work.
+- The aggregate proposal package now consumes this Quickstart report through `make test-conformance` and `make demo-all`; role-scoped report disclosure and broader production adapter coverage remain future work.

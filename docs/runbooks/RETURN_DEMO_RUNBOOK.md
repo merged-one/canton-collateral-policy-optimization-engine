@@ -151,4 +151,4 @@ make daml-test
 - The run is idempotent with respect to generated artifacts under `reports/generated/`; re-running the command replaces the prior return outputs.
 - The IDE-ledger and Quickstart variants intentionally share the same policy and retained-set logic so report drift between runtimes stays visible.
 - The Quickstart-backed command now proves approval-gated release, real adapter execution, replay-safe request handling, and blocked unauthorized or stale-coverage paths with provider-visible status evidence.
-- Role-scoped report disclosure, conformance inclusion of the Quickstart return path, and production-grade custodian integrations remain future work.
+- The aggregate proposal package now consumes the Quickstart return report through `make test-conformance` and `make demo-all`; role-scoped report disclosure and production-grade custodian integrations remain future work.

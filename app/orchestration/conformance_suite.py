@@ -11,6 +11,8 @@ from typing import Any
 
 from margin_call_demo import (
     DemoExecutionError,
+    RUNTIME_IDE_LEDGER,
+    RUNTIME_QUICKSTART,
     _load_json,
     _relative_path,
     _utc_now,
@@ -24,6 +26,7 @@ from substitution_demo import run_substitution_demo
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
+REPO_ROOT_DIR = APP_DIR.parent
 POLICY_ENGINE_DIR = APP_DIR / "policy-engine"
 
 if str(POLICY_ENGINE_DIR) not in sys.path:
@@ -32,9 +35,18 @@ if str(POLICY_ENGINE_DIR) not in sys.path:
 from evaluator import evaluate_policy, write_report as write_policy_report  # noqa: E402
 
 
-DEFAULT_MARGIN_CALL_MANIFEST = "examples/demo-scenarios/margin-call/demo-config.json"
-DEFAULT_SUBSTITUTION_MANIFEST = "examples/demo-scenarios/substitution/demo-config.json"
-DEFAULT_RETURN_MANIFEST = "examples/demo-scenarios/return/demo-config.json"
+DEFAULT_MARGIN_CALL_MANIFEST = "examples/demo-scenarios/margin-call/quickstart-demo-config.json"
+DEFAULT_SUBSTITUTION_MANIFEST = "examples/demo-scenarios/substitution/quickstart-demo-config.json"
+DEFAULT_RETURN_MANIFEST = "examples/demo-scenarios/return/quickstart-demo-config.json"
+SCENARIO_ARTIFACT_FIELDS = [
+    "policyEvaluationReportPath",
+    "optimizationReportPath",
+    "workflowInputPath",
+    "workflowResultPath",
+    "quickstartSeedReceiptPath",
+    "adapterExecutionReportPath",
+    "adapterStatusPath",
+]
 REQUIRED_CHECK_IDS = [
     "AUTHORIZATION_AND_ROLE_CONTROL",
     "ELIGIBILITY_DETERMINISM",
@@ -59,20 +71,35 @@ def run_conformance_suite(
     output_dir_path = Path(output_dir).resolve()
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    margin_call_report = run_margin_call_demo(
+    margin_call_report = _load_or_run_demo_report(
+        report_path=output_dir_path / "margin-call-quickstart-execution-report.json",
+        runner=run_margin_call_demo,
         manifest_path=_resolve_path(repo_root_path, margin_call_manifest),
         output_dir=output_dir_path,
         repo_root=repo_root_path,
+        runtime_mode=RUNTIME_QUICKSTART,
+        report_basename="margin-call-quickstart",
+        command_name="make demo-margin-call-quickstart",
     )
-    substitution_report = run_substitution_demo(
+    substitution_report = _load_or_run_demo_report(
+        report_path=output_dir_path / "substitution-quickstart-report.json",
+        runner=run_substitution_demo,
         manifest_path=_resolve_path(repo_root_path, substitution_manifest),
         output_dir=output_dir_path,
         repo_root=repo_root_path,
+        runtime_mode=RUNTIME_QUICKSTART,
+        report_basename="substitution-quickstart",
+        command_name="make demo-substitution-quickstart",
     )
-    return_report = run_return_demo(
+    return_report = _load_or_run_demo_report(
+        report_path=output_dir_path / "return-quickstart-report.json",
+        runner=run_return_demo,
         manifest_path=_resolve_path(repo_root_path, return_manifest),
         output_dir=output_dir_path,
         repo_root=repo_root_path,
+        runtime_mode=RUNTIME_QUICKSTART,
+        report_basename="return-quickstart",
+        command_name="make demo-return-quickstart",
     )
 
     determinism_artifact = _build_determinism_artifact(
@@ -82,6 +109,9 @@ def run_conformance_suite(
     haircut_artifact = _build_haircut_artifact(
         repo_root=repo_root_path,
         output_dir=output_dir_path,
+    )
+    runtime_evidence = _build_runtime_evidence(
+        repo_root=repo_root_path,
     )
 
     demo_reports = [margin_call_report, substitution_report, return_report]
@@ -104,6 +134,7 @@ def run_conformance_suite(
         _check_report_fidelity(
             demo_reports=demo_reports,
             repo_root=repo_root_path,
+            runtime_evidence=runtime_evidence,
         ),
         _check_audit_trail_completeness(demo_reports=demo_reports),
     ]
@@ -124,6 +155,7 @@ def run_conformance_suite(
         "generatedAt": _utc_now(),
         "overallStatus": overall_status,
         "command": "make test-conformance",
+        "runtimeEvidence": runtime_evidence,
         "artifacts": {
             "conformanceReportPath": _relative_path(report_path, repo_root_path),
             "markdownSummaryPath": _relative_path(summary_path, repo_root_path),
@@ -142,6 +174,7 @@ def run_conformance_suite(
             "negativeScenarioCount": sum(
                 report["demo"]["negativeScenarioCount"] for report in demo_reports
             ),
+            "runtimeModes": sorted({_demo_runtime_mode(report) for report in demo_reports}),
         },
         "demoReports": [
             _demo_report_entry(
@@ -243,11 +276,183 @@ def _build_haircut_artifact(
     }
 
 
+def _build_runtime_evidence(
+    *,
+    repo_root: Path,
+) -> dict[str, Any]:
+    deployment_receipt_path = "reports/generated/localnet-control-plane-deployment-receipt.json"
+    deployment_summary_path = "reports/generated/localnet-control-plane-deployment-summary.md"
+    adapter_execution_path = "reports/generated/localnet-reference-token-adapter-execution-report.json"
+    adapter_status_path = "reports/generated/localnet-reference-token-adapter-status.json"
+    adapter_summary_path = "reports/generated/localnet-reference-token-adapter-summary.md"
+
+    failures: list[str] = []
+    deployment_receipt = _load_optional_json(repo_root, deployment_receipt_path)
+    adapter_execution = _load_optional_json(repo_root, adapter_execution_path)
+    adapter_status = _load_optional_json(repo_root, adapter_status_path)
+
+    for artifact_path in (
+        deployment_receipt_path,
+        deployment_summary_path,
+        adapter_execution_path,
+        adapter_status_path,
+        adapter_summary_path,
+    ):
+        if not (repo_root / artifact_path).is_file():
+            failures.append(f"missing runtime evidence artifact {artifact_path}")
+
+    if deployment_receipt is None:
+        failures.append("Quickstart deployment receipt is unreadable")
+    else:
+        if not deployment_receipt.get("quickstartCommit"):
+            failures.append("Quickstart deployment receipt is missing quickstartCommit")
+        if not deployment_receipt.get("packageId"):
+            failures.append("Quickstart deployment receipt is missing packageId")
+        participants = sorted(deployment_receipt.get("participants", []))
+        if participants != ["app-provider", "app-user"]:
+            failures.append("Quickstart deployment receipt drifted from the expected participants")
+
+    if adapter_execution is None:
+        failures.append("reference adapter execution report is unreadable")
+    else:
+        if adapter_execution.get("adapterName") != "quickstart-reference-token-adapter":
+            failures.append("reference adapter execution report drifted from the expected adapter name")
+        adapter_receipt = adapter_execution.get("adapterReceipt", {})
+        if adapter_receipt.get("status") != "EXECUTED":
+            failures.append("reference adapter execution report did not record an EXECUTED receipt")
+        settlement_instruction = adapter_execution.get("settlementInstruction", {})
+        if settlement_instruction.get("settlementAction") != "PostCollateral":
+            failures.append("reference adapter execution report drifted from the expected posting settlement action")
+        movement_lot_ids = _movement_lot_ids(adapter_receipt.get("movements", []))
+        if not movement_lot_ids:
+            failures.append("reference adapter execution report recorded no token movements")
+
+    if adapter_status is None:
+        failures.append("reference adapter status report is unreadable")
+    else:
+        if adapter_status.get("settlementInstructionState") != "Settled":
+            failures.append("reference adapter status report did not preserve the settled instruction state")
+        if len(adapter_status.get("providerVisibleAdapterReceipts", [])) < 1:
+            failures.append("reference adapter status report recorded no provider-visible adapter receipt")
+
+    adapter_movement_lot_ids = []
+    if adapter_execution is not None:
+        adapter_movement_lot_ids = _movement_lot_ids(
+            adapter_execution.get("adapterReceipt", {}).get("movements", [])
+        )
+
+    return {
+        "runtimeMode": RUNTIME_QUICKSTART,
+        "deploymentCommand": "make localnet-start-control-plane",
+        "deploymentReceiptPath": deployment_receipt_path,
+        "deploymentSummaryPath": deployment_summary_path,
+        "referenceAdapterCommand": "make localnet-run-token-adapter",
+        "referenceAdapterStatusCommand": "make localnet-adapter-status",
+        "referenceAdapterExecutionReportPath": adapter_execution_path,
+        "referenceAdapterStatusPath": adapter_status_path,
+        "referenceAdapterSummaryPath": adapter_summary_path,
+        "deployment": None
+        if deployment_receipt is None
+        else {
+            "quickstartCommit": deployment_receipt["quickstartCommit"],
+            "darFile": _maybe_relative_path(deployment_receipt.get("darFile"), repo_root),
+            "packageId": deployment_receipt["packageId"],
+            "participants": deployment_receipt["participants"],
+        },
+        "referenceAdapterPath": None
+        if adapter_execution is None or adapter_status is None
+        else {
+            "adapterName": adapter_execution["adapterName"],
+            "settlementAction": adapter_execution["settlementInstruction"]["settlementAction"],
+            "workflowType": adapter_execution["settlementInstruction"]["workflowType"],
+            "receiptStatus": adapter_execution["adapterReceipt"]["status"],
+            "movementLotIds": adapter_movement_lot_ids,
+            "providerVisibleAdapterReceiptCount": len(
+                adapter_status["providerVisibleAdapterReceipts"]
+            ),
+            "providerVisibleEncumbranceCount": adapter_status["providerVisibleEncumbranceCount"],
+        },
+        "validationFailures": failures,
+    }
+
+
 def _check_authorization_and_role_control(
     *,
     substitution_report: dict[str, Any],
     return_report: dict[str, Any],
 ) -> dict[str, Any]:
+    if _demo_runtime_mode(substitution_report) == RUNTIME_QUICKSTART:
+        substitution_positive = _scenario_any(
+            substitution_report,
+            "positive-substitution-quickstart",
+            "positive-substitution",
+        )
+        unauthorized_return = _scenario_any(
+            return_report,
+            "negative-unauthorized-return-quickstart",
+            "negative-unauthorized-return",
+        )
+        failures = []
+
+        substitution_workflow = substitution_positive["workflow"]
+        if substitution_workflow is None:
+            failures.append("substitution Quickstart approval evidence is missing")
+        else:
+            if "APPROVAL_GATE_BLOCKED" not in _workflow_control_check_ids(substitution_workflow):
+                failures.append("substitution Quickstart path did not prove the pre-approval gate")
+            if substitution_workflow.get("securedPartyApproval") != "ApprovalGranted":
+                failures.append("substitution Quickstart path did not record secured-party approval")
+            if substitution_workflow.get("custodianApproval") != "ApprovalGranted":
+                failures.append("substitution Quickstart path did not record custodian approval")
+            if substitution_workflow.get("workflowGate") != "PREPARE_FOR_ADAPTER":
+                failures.append("substitution Quickstart path did not stop at the adapter handoff gate")
+
+        return_workflow = unauthorized_return["workflow"]
+        if return_workflow is None:
+            failures.append("return unauthorized workflow evidence is missing")
+        else:
+            if return_workflow["returnState"] != "PendingSettlement":
+                failures.append("return unauthorized-release state did not stop at PendingSettlement")
+            if sorted(_workflow_control_check_ids(return_workflow)) != [
+                "APPROVAL_GATE_BLOCKED",
+                "UNAUTHORIZED_RETURN_BLOCKED",
+            ]:
+                failures.append("return unauthorized-release control checks drifted")
+
+        final_post_return_state = unauthorized_return.get("finalPostReturnState")
+        release_action = unauthorized_return.get("releaseAction")
+        if not final_post_return_state:
+            failures.append("return unauthorized-release final status evidence is missing")
+        else:
+            if final_post_return_state.get("providerVisibleAdapterReceiptCount") != 0:
+                failures.append("return unauthorized-release still recorded an adapter receipt")
+            if sorted(final_post_return_state.get("remainingEncumberedLotIds", [])) != sorted(
+                unauthorized_return["currentPostedLotIds"]
+            ):
+                failures.append("return unauthorized-release mutated the remaining encumbrance set")
+
+        if not release_action:
+            failures.append("return unauthorized-release action evidence is missing")
+        elif release_action.get("adapterMovementLotIds"):
+            failures.append("return unauthorized-release still recorded adapter movements")
+
+        return _check_result(
+            check_id="AUTHORIZATION_AND_ROLE_CONTROL",
+            invariant_ids=["AUTH-001", "CTRL-001", "WF-001"],
+            evidence=_compact_paths(
+                [
+                    substitution_positive["workflowResultPath"],
+                    substitution_positive["quickstartSeedReceiptPath"],
+                    unauthorized_return["workflowResultPath"],
+                    unauthorized_return["adapterStatusPath"],
+                ]
+            ),
+            failures=failures,
+            success_detail=(
+                "Quickstart proved approval gates stayed on Canton before substitution settlement intent could be exposed, and an unauthorized return release attempt stayed blocked without any adapter-side movement."
+            ),
+        )
+
     unauthorized_release = _scenario(
         substitution_report,
         "negative-unauthorized-release",
@@ -374,6 +579,109 @@ def _check_no_double_encumbrance(
     substitution_report: dict[str, Any],
     return_report: dict[str, Any],
 ) -> dict[str, Any]:
+    if _demo_runtime_mode(margin_call_report) == RUNTIME_QUICKSTART:
+        failures = []
+
+        margin_positive = _positive_scenario(margin_call_report)
+        margin_adapter_execution = _require_artifact_json(
+            _artifact_json_path(margin_positive, "adapterExecutionReportPath"),
+            "positive margin-call adapter execution",
+        )
+        margin_adapter_status = _require_artifact_json(
+            _artifact_json_path(margin_positive, "adapterStatusPath"),
+            "positive margin-call adapter status",
+        )
+        margin_movement_lot_ids = _movement_lot_ids(
+            margin_adapter_execution["adapterReceipt"]["movements"]
+        )
+        if len(margin_movement_lot_ids) != len(set(margin_movement_lot_ids)):
+            failures.append("margin-call adapter moved the same lot more than once")
+        if sorted(margin_movement_lot_ids) != sorted(margin_positive["selectedLotIds"]):
+            failures.append("margin-call adapter movements drifted from the optimizer-selected set")
+        if margin_adapter_status.get("providerVisibleEncumbranceCount") != len(
+            margin_positive["selectedLotIds"]
+        ):
+            failures.append("margin-call adapter status drifted from the selected encumbrance count")
+
+        substitution_positive = _positive_scenario(substitution_report)
+        substitution_blocked = _scenario_any(
+            substitution_report,
+            "negative-partial-substitution-quickstart",
+            "negative-partial-substitution",
+        )
+        positive_atomicity = substitution_positive.get("atomicityEvidence")
+        blocked_atomicity = substitution_blocked.get("atomicityEvidence")
+        if not positive_atomicity:
+            failures.append("positive substitution atomicity evidence is missing")
+        else:
+            active_set = set(positive_atomicity.get("finalActiveEncumberedLotIds", []))
+            released_set = set(positive_atomicity.get("finalReleasedLotIds", []))
+            if active_set & released_set:
+                failures.append("substitution reused a lot in both released and active encumbrance sets")
+        if not blocked_atomicity:
+            failures.append("blocked substitution atomicity evidence is missing")
+        else:
+            if sorted(blocked_atomicity.get("finalActiveEncumberedLotIds", [])) != sorted(
+                substitution_blocked["currentPostedLotIds"]
+            ):
+                failures.append("blocked substitution mutated the incumbent encumbrance set")
+            if blocked_atomicity.get("providerVisibleAdapterReceiptCount") != 0:
+                failures.append("blocked substitution still recorded an adapter receipt")
+
+        return_positive = _positive_scenario(return_report)
+        return_blocked = _scenario_any(
+            return_report,
+            "negative-unauthorized-return-quickstart",
+            "negative-unauthorized-return",
+        )
+        positive_return_state = return_positive.get("finalPostReturnState")
+        blocked_return_state = return_blocked.get("finalPostReturnState")
+        if not positive_return_state:
+            failures.append("positive return final state evidence is missing")
+        else:
+            current_set = set(return_positive["currentPostedLotIds"])
+            returned_set = set(positive_return_state.get("returnedLotIds", []))
+            remaining_set = set(positive_return_state.get("remainingEncumberedLotIds", []))
+            if returned_set & remaining_set:
+                failures.append("return reused a lot in both returned and remaining encumbrance sets")
+            if returned_set | remaining_set != current_set:
+                failures.append("return did not preserve the full current encumbrance universe")
+        if not blocked_return_state:
+            failures.append("blocked return final state evidence is missing")
+        else:
+            if sorted(blocked_return_state.get("remainingEncumberedLotIds", [])) != sorted(
+                return_blocked["currentPostedLotIds"]
+            ):
+                failures.append("blocked return mutated the incumbent encumbrance set")
+            if blocked_return_state.get("providerVisibleAdapterReceiptCount") != 0:
+                failures.append("blocked return still recorded an adapter receipt")
+
+        return _check_result(
+            check_id="NO_DOUBLE_ENCUMBRANCE",
+            invariant_ids=["ENC-001", "CTRL-001"],
+            evidence=_compact_paths(
+                [
+                    margin_positive["workflowResultPath"],
+                    margin_positive["adapterExecutionReportPath"],
+                    margin_positive["adapterStatusPath"],
+                    substitution_positive["workflowResultPath"],
+                    substitution_positive["adapterExecutionReportPath"],
+                    substitution_positive["adapterStatusPath"],
+                    substitution_blocked["workflowResultPath"],
+                    substitution_blocked["adapterStatusPath"],
+                    return_positive["workflowResultPath"],
+                    return_positive["adapterExecutionReportPath"],
+                    return_positive["adapterStatusPath"],
+                    return_blocked["workflowResultPath"],
+                    return_blocked["adapterStatusPath"],
+                ]
+            ),
+            failures=failures,
+            success_detail=(
+                "Across the Quickstart posting, substitution, and return paths, final encumbrance and release evidence remained disjoint, blocked paths preserved incumbent scope, and adapter receipts stayed absent where workflow gates failed."
+            ),
+        )
+
     failures = []
 
     margin_positive = _positive_scenario(margin_call_report)
@@ -460,6 +768,66 @@ def _check_atomic_substitution_when_required(
     *,
     substitution_report: dict[str, Any],
 ) -> dict[str, Any]:
+    if _demo_runtime_mode(substitution_report) == RUNTIME_QUICKSTART:
+        failures = []
+
+        positive = _positive_scenario(substitution_report)
+        partial = _scenario_any(
+            substitution_report,
+            "negative-partial-substitution-quickstart",
+            "negative-partial-substitution",
+        )
+
+        positive_atomicity = positive.get("atomicityEvidence")
+        partial_atomicity = partial.get("atomicityEvidence")
+        if not positive_atomicity:
+            failures.append("positive substitution atomicity evidence is missing")
+        else:
+            if positive_atomicity.get("proofStatus") != "ATOMICALLY_COMMITTED":
+                failures.append("positive substitution did not prove ATOMICALLY_COMMITTED")
+            if sorted(positive_atomicity.get("adapterActionReleaseLotIds", [])) != sorted(
+                positive["currentPostedLotIds"]
+            ):
+                failures.append("positive substitution release scope drifted from the incumbent set")
+            if sorted(positive_atomicity.get("finalActiveEncumberedLotIds", [])) != sorted(
+                positive["replacementLotIds"]
+            ):
+                failures.append("positive substitution final active encumbrances drifted from the approved replacement set")
+
+        if not partial_atomicity:
+            failures.append("partial substitution atomicity evidence is missing")
+        else:
+            if partial_atomicity.get("proofStatus") != "BLOCKED_NO_SIDE_EFFECTS":
+                failures.append("partial substitution did not prove BLOCKED_NO_SIDE_EFFECTS")
+            if partial_atomicity.get("adapterActionReleaseLotIds"):
+                failures.append("partial substitution released collateral despite being blocked")
+            if partial_atomicity.get("adapterActionReplacementLotIds"):
+                failures.append("partial substitution moved replacement collateral despite being blocked")
+            if sorted(partial_atomicity.get("finalActiveEncumberedLotIds", [])) != sorted(
+                partial["currentPostedLotIds"]
+            ):
+                failures.append("partial substitution changed the incumbent encumbrance set")
+            if partial_atomicity.get("providerVisibleAdapterReceiptCount") != 0:
+                failures.append("partial substitution still recorded an adapter receipt")
+
+        return _check_result(
+            check_id="ATOMIC_SUBSTITUTION_WHEN_REQUIRED",
+            invariant_ids=["ATOM-001", "CTRL-001"],
+            evidence=_compact_paths(
+                [
+                    positive["workflowResultPath"],
+                    positive["adapterExecutionReportPath"],
+                    positive["adapterStatusPath"],
+                    partial["workflowResultPath"],
+                    partial["adapterStatusPath"],
+                ]
+            ),
+            failures=failures,
+            success_detail=(
+                "The Quickstart substitution path either committed the full incumbent-release and replacement set atomically or preserved the incumbent encumbrances with zero adapter side effects."
+            ),
+        )
+
     failures = []
 
     positive = _positive_scenario(substitution_report)
@@ -517,6 +885,49 @@ def _check_replay_safety(
     *,
     return_report: dict[str, Any],
 ) -> dict[str, Any]:
+    if _demo_runtime_mode(return_report) == RUNTIME_QUICKSTART:
+        replay = _scenario_any(
+            return_report,
+            "negative-replayed-return-instruction-quickstart",
+            "negative-replayed-return-instruction",
+        )
+        failures = []
+        replay_result = replay.get("replayHandlingResult")
+        final_post_return_state = replay.get("finalPostReturnState")
+
+        if not replay_result:
+            failures.append("replay handling evidence is missing")
+        else:
+            if replay_result.get("result") != "BLOCKED_DUPLICATE_RETURN_REQUEST":
+                failures.append("replay scenario did not prove duplicate-request blocking")
+            if replay_result.get("controlCheckId") != "REPLAY_RETURN_BLOCKED":
+                failures.append("replay scenario did not expose the replay-blocking control check")
+        if not replay.get("requestIdentifier"):
+            failures.append("replay scenario did not preserve the replay-safe return request identifier")
+        if not final_post_return_state:
+            failures.append("replay scenario final state evidence is missing")
+        else:
+            if final_post_return_state.get("returnState") != "Closed":
+                failures.append("replay scenario did not preserve the committed original return state")
+            if final_post_return_state.get("providerVisibleAdapterReceiptCount") != 1:
+                failures.append("replay scenario did not preserve exactly one adapter receipt")
+
+        return _check_result(
+            check_id="REPLAY_SAFETY",
+            invariant_ids=["REPL-001"],
+            evidence=_compact_paths(
+                [
+                    replay["workflowResultPath"],
+                    replay["adapterExecutionReportPath"],
+                    replay["adapterStatusPath"],
+                ]
+            ),
+            failures=failures,
+            success_detail=(
+                "The Quickstart return path settled the original release once, preserved the request identifier, and blocked the duplicate instruction without creating a second adapter receipt."
+            ),
+        )
+
     replay = _scenario(return_report, "negative-replayed-return-instruction")
     workflow = replay["workflow"]
     failures = []
@@ -548,9 +959,24 @@ def _check_report_fidelity(
     *,
     demo_reports: list[dict[str, Any]],
     repo_root: Path,
+    runtime_evidence: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if runtime_evidence is None:
+        runtime_evidence = {
+            "deploymentReceiptPath": "reports/generated/localnet-control-plane-deployment-receipt.json",
+            "referenceAdapterExecutionReportPath": "reports/generated/localnet-reference-token-adapter-execution-report.json",
+            "referenceAdapterStatusPath": "reports/generated/localnet-reference-token-adapter-status.json",
+            "validationFailures": [],
+        }
     failures = []
-    evidence = []
+    evidence = [
+        runtime_evidence["deploymentReceiptPath"],
+        runtime_evidence["referenceAdapterExecutionReportPath"],
+        runtime_evidence["referenceAdapterStatusPath"],
+    ]
+
+    for failure in runtime_evidence["validationFailures"]:
+        failures.append(f"runtime evidence: {failure}")
 
     for report in demo_reports:
         report_artifact_paths = [
@@ -579,16 +1005,32 @@ def _check_report_fidelity(
                 failures.append(f"{report['reportType']} references a missing artifact {artifact_path}")
 
         for scenario in report["scenarios"]:
-            for field in (
-                "policyEvaluationReportPath",
-                "optimizationReportPath",
-                "workflowInputPath",
-                "workflowResultPath",
-            ):
+            for field in SCENARIO_ARTIFACT_FIELDS:
+                if field not in scenario:
+                    continue
                 artifact_path = scenario[field]
                 if artifact_path is not None and not (repo_root / artifact_path).is_file():
                     failures.append(
                         f"{report['reportType']} scenario {scenario['scenarioId']} references a missing {field}"
+                    )
+            if _demo_runtime_mode(report) == RUNTIME_QUICKSTART:
+                if report["demo"]["command"] not in {
+                    "make demo-margin-call-quickstart",
+                    "make demo-substitution-quickstart",
+                    "make demo-return-quickstart",
+                }:
+                    failures.append(f"{report['reportType']} drifted from the expected Quickstart command surface")
+                if scenario.get("workflowResultPath") is not None and scenario.get("quickstartSeedReceiptPath") is None:
+                    failures.append(
+                        f"{report['reportType']} scenario {scenario['scenarioId']} is missing quickstartSeedReceiptPath for a workflow-bearing path"
+                    )
+                if scenario.get("adapterOutcome") == "EXECUTED" and scenario.get("adapterExecutionReportPath") is None:
+                    failures.append(
+                        f"{report['reportType']} scenario {scenario['scenarioId']} marked the adapter executed without an adapter execution report"
+                    )
+                if scenario.get("blockedPhase") == "WORKFLOW" and scenario.get("adapterStatusPath") is None:
+                    failures.append(
+                        f"{report['reportType']} scenario {scenario['scenarioId']} blocked at workflow without adapter status evidence"
                     )
 
             workflow = scenario["workflow"]
@@ -641,9 +1083,7 @@ def _check_audit_trail_completeness(
                             f"{report['reportType']} positive workflow step {step.get('step')} is missing {field}"
                         )
 
-        if not workflow["executionReports"]:
-            failures.append(f"{report['reportType']} positive workflow has no execution-report evidence")
-        else:
+        if workflow["executionReports"]:
             for execution_report in workflow["executionReports"]:
                 if not execution_report.get("reportId"):
                     failures.append(f"{report['reportType']} execution report is missing reportId")
@@ -655,6 +1095,13 @@ def _check_audit_trail_completeness(
                     failures.append(f"{report['reportType']} execution report is missing eventIds")
                 if not execution_report.get("summary"):
                     failures.append(f"{report['reportType']} execution report is missing summary")
+        elif _demo_runtime_mode(report) == RUNTIME_QUICKSTART:
+            if positive.get("adapterExecutionReportPath") is None and positive.get("adapterStatusPath") is None:
+                failures.append(
+                    f"{report['reportType']} positive Quickstart scenario has neither execution-report nor adapter-backed final-state evidence"
+                )
+        else:
+            failures.append(f"{report['reportType']} positive workflow has no execution-report evidence")
 
         workflow_timeline_entries = [
             event
@@ -682,7 +1129,10 @@ def _render_conformance_summary(report: dict[str, Any]) -> str:
         f"- Suite ID: `{report['suiteId']}`",
         f"- Command: `{report['command']}`",
         f"- Overall status: `{report['overallStatus']}`",
+        f"- Runtime modes: `{', '.join(report['coverage']['runtimeModes'])}`",
         f"- Scenario coverage: `{report['coverage']['totalScenarioCount']}` total / `{report['coverage']['positiveScenarioCount']}` positive / `{report['coverage']['negativeScenarioCount']}` negative",
+        f"- Quickstart deployment receipt: `{report['runtimeEvidence']['deploymentReceiptPath']}`",
+        f"- Reference adapter execution report: `{report['runtimeEvidence']['referenceAdapterExecutionReportPath']}`",
         "",
         "## Checks",
         "",
@@ -708,10 +1158,18 @@ def _render_conformance_summary(report: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## Runtime Evidence",
+            "",
+            "| Surface | Command | Artifact |",
+            "| --- | --- | --- |",
+            f"| Quickstart deployment | `{report['runtimeEvidence']['deploymentCommand']}` | `{report['runtimeEvidence']['deploymentReceiptPath']}` |",
+            f"| Reference adapter path | `{report['runtimeEvidence']['referenceAdapterCommand']}` | `{report['runtimeEvidence']['referenceAdapterExecutionReportPath']}` |",
+            f"| Reference adapter status | `{report['runtimeEvidence']['referenceAdapterStatusCommand']}` | `{report['runtimeEvidence']['referenceAdapterStatusPath']}` |",
+            "",
             "## Demo Reports",
             "",
-            "| Demo | Report Type | Positive | Negative | Report |",
-            "| --- | --- | --- | --- | --- |",
+            "| Demo | Report Type | Runtime | Positive | Negative | Report |",
+            "| --- | --- | --- | --- | --- | --- |",
         ]
     )
 
@@ -722,6 +1180,7 @@ def _render_conformance_summary(report: dict[str, Any]) -> str:
                 [
                     demo_report["demoType"],
                     demo_report["reportType"],
+                    demo_report["runtimeMode"],
                     ", ".join(demo_report["positiveScenarioIds"]),
                     ", ".join(demo_report["negativeScenarioIds"]),
                     f"`{demo_report['reportPath']}`",
@@ -743,6 +1202,7 @@ def _demo_report_entry(
     return {
         "demoType": demo_type,
         "reportType": report_type,
+        "runtimeMode": _demo_runtime_mode(report),
         "command": report["demo"]["command"],
         "reportPath": report["artifacts"][report_path_key],
         "summaryPath": report["artifacts"]["markdownSummaryPath"],
@@ -763,11 +1223,25 @@ def _scenario(report: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     raise DemoExecutionError(f"Missing conformance scenario {scenario_id}")
 
 
+def _scenario_any(report: dict[str, Any], *scenario_ids: str) -> dict[str, Any]:
+    for scenario_id in scenario_ids:
+        for scenario in report["scenarios"]:
+            if scenario["scenarioId"] == scenario_id:
+                return scenario
+    raise DemoExecutionError(
+        "Missing conformance scenario in any of: " + ", ".join(scenario_ids)
+    )
+
+
 def _positive_scenario(report: dict[str, Any]) -> dict[str, Any]:
     for scenario in report["scenarios"]:
         if scenario["mode"] == "POSITIVE":
             return scenario
     raise DemoExecutionError(f"{report['reportType']} has no positive scenario")
+
+
+def _demo_runtime_mode(report: dict[str, Any]) -> str:
+    return report.get("demo", {}).get("runtimeMode", RUNTIME_IDE_LEDGER)
 
 
 def _workflow_control_check_ids(workflow: dict[str, Any]) -> list[str]:
@@ -810,6 +1284,17 @@ def _check_result(
     }
 
 
+def _load_or_run_demo_report(
+    *,
+    report_path: Path,
+    runner: Any,
+    **runner_kwargs: Any,
+) -> dict[str, Any]:
+    if report_path.is_file():
+        return _load_json(report_path)
+    return runner(**runner_kwargs)
+
+
 def _suite_id(
     *,
     checks: list[dict[str, Any]],
@@ -830,6 +1315,46 @@ def _suite_id(
     )
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     return f"csr-{digest[:16]}"
+
+
+def _load_optional_json(repo_root: Path, relative_path: str) -> dict[str, Any] | None:
+    artifact_path = repo_root / relative_path
+    if not artifact_path.is_file():
+        return None
+    return _load_json(artifact_path)
+
+
+def _artifact_json_path(scenario: dict[str, Any], key: str) -> str:
+    artifact_path = scenario.get(key)
+    if artifact_path is None:
+        raise DemoExecutionError(
+            f"Scenario {scenario['scenarioId']} is missing required artifact field {key}"
+        )
+    return artifact_path
+
+
+def _require_artifact_json(relative_path: str, artifact_label: str) -> dict[str, Any]:
+    artifact_path = _resolve_path(REPO_ROOT_DIR, relative_path)
+    if not artifact_path.is_file():
+        raise DemoExecutionError(f"Missing {artifact_label} artifact {relative_path}")
+    return _load_json(artifact_path)
+
+
+def _movement_lot_ids(movements: list[dict[str, Any]]) -> list[str]:
+    return sorted(movement["lotId"] for movement in movements)
+
+
+def _maybe_relative_path(candidate: str | None, repo_root: Path) -> str | None:
+    if candidate is None:
+        return None
+    try:
+        return _relative_path(Path(candidate), repo_root)
+    except ValueError:
+        return candidate
+
+
+def _compact_paths(paths: list[str | None] | Any) -> list[str]:
+    return sorted({path for path in paths if path is not None})
 
 
 def _resolve_path(repo_root: Path, candidate: str | Path) -> Path:
