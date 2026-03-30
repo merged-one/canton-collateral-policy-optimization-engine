@@ -1,0 +1,247 @@
+{
+  "demoId": "return-quickstart",
+  "demoVersion": "0.1.0",
+  "scenarios": [
+    {
+      "scenarioId": "positive-return-quickstart",
+      "mode": "POSITIVE",
+      "description": "The Control Plane evaluates the currently encumbered set, retains the minimum pledged coverage, prepares the Quickstart return workflow, executes the reference-token release path, and proves the final post-return state.",
+      "policy": "return-policy.json",
+      "inventory": "quickstart-positive-inventory.json",
+      "obligation": "quickstart-positive-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "runAdapter": true,
+      "quickstartScenarioManifest": "../../../infra/quickstart/scenarios/confidential-return-demo-positive-scenario.json",
+      "workflowGate": "PREPARE_FOR_ADAPTER",
+      "workflow": {
+        "returnRequestId": "quickstart-return-request-831"
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "PendingSettlement",
+        "workflowSettlementInstructionState": "PendingSettlement",
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-831",
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-831",
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "PENDING_ATOMIC_SETTLEMENT",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "APPROVAL_GATE_BLOCKED"
+        ],
+        "adapterReceiptStatus": "EXECUTED",
+        "adapterReturnLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "adapterReturnStateAfterConfirmation": "Closed",
+        "adapterSettledInstructionState": "Settled",
+        "finalReturnedLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "finalRemainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "finalReturnedHoldingLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "finalRemainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "adapterReplayHandlingResult": "NOT_REQUESTED",
+        "reasonCodes": []
+      }
+    },
+    {
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "mode": "NEGATIVE",
+      "description": "Quickstart reaches pending settlement for the approved return, but the provider cannot confirm release and the adapter path remains untouched.",
+      "policy": "return-policy.json",
+      "inventory": "quickstart-negative-unauthorized-inventory.json",
+      "obligation": "quickstart-negative-unauthorized-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "runAdapter": false,
+      "quickstartScenarioManifest": "../../../infra/quickstart/scenarios/confidential-return-demo-unauthorized-scenario.json",
+      "workflowGate": "ATTEMPT_UNAUTHORIZED_RELEASE",
+      "workflow": {
+        "returnRequestId": "quickstart-return-request-841"
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "PendingSettlement",
+        "workflowSettlementInstructionState": "PendingSettlement",
+        "workflowGate": "ATTEMPT_UNAUTHORIZED_RELEASE",
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "APPROVAL_GATE_BLOCKED",
+          "UNAUTHORIZED_RETURN_BLOCKED"
+        ],
+        "blockedReturnState": "PendingSettlement",
+        "blockedReturnedLotIds": [],
+        "blockedRemainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "blockedHoldingLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "reasonCodes": [
+          "APPROVAL_GATE_BLOCKED",
+          "UNAUTHORIZED_RETURN_BLOCKED"
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "mode": "NEGATIVE",
+      "description": "The original Quickstart return settles through the adapter, and a replayed return instruction using the same request identifier is then rejected without a second release side effect.",
+      "policy": "return-policy.json",
+      "inventory": "quickstart-negative-replay-inventory.json",
+      "obligation": "quickstart-negative-replay-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "runAdapter": true,
+      "quickstartScenarioManifest": "../../../infra/quickstart/scenarios/confidential-return-demo-replay-scenario.json",
+      "workflowGate": "PREPARE_FOR_ADAPTER",
+      "workflow": {
+        "returnRequestId": "quickstart-return-request-851",
+        "simulateReplayAttempt": true
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "PendingSettlement",
+        "workflowSettlementInstructionState": "PendingSettlement",
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-851",
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-851",
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "releaseConditionSatisfied": true,
+        "atomicityOutcome": "PENDING_ATOMIC_SETTLEMENT",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "APPROVAL_GATE_BLOCKED"
+        ],
+        "adapterReceiptStatus": "EXECUTED",
+        "adapterReturnLotIds": [
+          "quickstart-ret-current-ust-851"
+        ],
+        "adapterReturnStateAfterConfirmation": "Closed",
+        "adapterSettledInstructionState": "Settled",
+        "finalReturnedLotIds": [
+          "quickstart-ret-current-ust-851"
+        ],
+        "finalRemainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "finalReturnedHoldingLotIds": [
+          "quickstart-ret-current-ust-851"
+        ],
+        "finalRemainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "adapterReplayHandlingResult": "BLOCKED_DUPLICATE_RETURN_REQUEST",
+        "reasonCodes": [
+          "APPROVAL_GATE_BLOCKED",
+          "REPLAY_RETURN_BLOCKED"
+        ]
+      }
+    },
+    {
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "mode": "NEGATIVE",
+      "description": "The retained-set recommendation was built from a stale obligation amount, so Quickstart blocks the return before adapter release can start.",
+      "policy": "return-policy.json",
+      "inventory": "quickstart-negative-mismatch-inventory.json",
+      "obligation": "quickstart-negative-mismatch-obligation.json",
+      "runOptimization": true,
+      "runWorkflow": true,
+      "runAdapter": false,
+      "quickstartScenarioManifest": "../../../infra/quickstart/scenarios/confidential-return-demo-mismatch-scenario.json",
+      "workflowGate": "BLOCK_STALE_COVERAGE",
+      "workflow": {
+        "returnRequestId": "quickstart-return-request-861",
+        "remainingRequiredCoverageOverride": 300000.0
+      },
+      "expected": {
+        "policyOverallDecision": "ACCEPT",
+        "optimizationStatus": "OPTIMAL",
+        "workflowReturnState": "UnderEvaluation",
+        "workflowSettlementInstructionState": null,
+        "workflowGate": "BLOCK_STALE_COVERAGE",
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "releaseConditionSatisfied": false,
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "minimumExecutionReportCount": 0,
+        "requiredControlChecks": [
+          "OBLIGATION_STATE_MISMATCH_BLOCKED"
+        ],
+        "blockedReturnState": "UnderEvaluation",
+        "blockedReturnedLotIds": [],
+        "blockedRemainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "blockedHoldingLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "reasonCodes": [
+          "OBLIGATION_STATE_MISMATCH_BLOCKED"
+        ]
+      }
+    }
+  ]
+}

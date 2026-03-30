@@ -1,0 +1,82 @@
+{
+  "executionReports": [],
+  "executionReportCount": 0,
+  "workflowGate": "PREPARE_FOR_ADAPTER",
+  "settlementInstructionId": "quickstart-return-correlation-831-instruction",
+  "settlementInstructionState": "PendingSettlement",
+  "custodianApproval": "ApprovalGranted",
+  "currentSecuredAmount": 450000.0000000000,
+  "obligationId": "quickstart-return-obligation-831",
+  "atomicityOutcome": "PENDING_ATOMIC_SETTLEMENT",
+  "controlChecks": [{
+    "checkId": "APPROVAL_GATE_BLOCKED",
+    "status": "PASS",
+    "detail": "provider could not create a return settlement intent until the required approvals were recorded on Quickstart"
+  }],
+  "returnedLotIds": [],
+  "currentEncumberedLotIds": ["quickstart-ret-current-ust-831", "quickstart-ret-current-fannie-831", "quickstart-ret-current-kfw-831"],
+  "releaseConditionSatisfied": true,
+  "returnRequestId": "quickstart-return-request-831",
+  "scenarioId": "positive-return-quickstart",
+  "requestedReturnQuantity": 180000.0000000000,
+  "remainingRequiredCoverage": 250000.0000000000,
+  "remainingEncumberedLotIds": ["quickstart-ret-current-ust-831", "quickstart-ret-current-fannie-831", "quickstart-ret-current-kfw-831"],
+  "returnState": "PendingSettlement",
+  "steps": [{
+    "actor": "provider",
+    "step": 1,
+    "state": "Encumbered",
+    "phase": "BASELINE",
+    "detail": "provider started from an already pledged collateral set on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 2,
+    "state": "Draft",
+    "phase": "RETURN",
+    "detail": "provider created the draft return request on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 3,
+    "state": "Submitted",
+    "phase": "RETURN",
+    "detail": "provider submitted the return request on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 4,
+    "state": "UnderEvaluation",
+    "phase": "RETURN",
+    "detail": "provider moved the return request into evaluation on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 5,
+    "state": "PendingApproval",
+    "phase": "RETURN",
+    "detail": "provider recorded a feasible return after checking the retained-set coverage condition on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 6,
+    "state": "Blocked",
+    "phase": "CONTROL",
+    "detail": "provider could not create the return settlement intent before the required approvals were recorded"
+  }, {
+    "actor": "secured-party",
+    "step": 7,
+    "state": "PendingApproval",
+    "phase": "RETURN",
+    "detail": "secured party approved the return request on Quickstart"
+  }, {
+    "actor": "custodian",
+    "step": 8,
+    "state": "Approved",
+    "phase": "RETURN",
+    "detail": "custodian approved the return request on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 9,
+    "state": "PendingSettlement",
+    "phase": "SETTLEMENT",
+    "detail": "provider submitted the approved return settlement intent and exposed the release instruction to the adapter"
+  }],
+  "correlationId": "quickstart-return-correlation-831",
+  "securedPartyApproval": "ApprovalGranted"
+}

@@ -1,0 +1,75 @@
+{
+  "scenarioId": "quickstart-return-demo-851",
+  "obligationId": "quickstart-return-obligation-851",
+  "correlationId": "quickstart-return-correlation-851",
+  "policyVersion": "cpl-v0.1-quickstart-return-demo",
+  "snapshotId": "quickstart-return-snapshot-851",
+  "decisionReference": "quickstart-return-decision-851",
+  "operator": {
+    "partyHint": "controlplane-operator-quickstart-return-851",
+    "displayName": "Control Plane Operator Return 851",
+    "userId": "control-plane-operator-return-851"
+  },
+  "custodian": {
+    "partyHint": "controlplane-custodian-quickstart-return-851",
+    "displayName": "Control Plane Custodian Return 851",
+    "userId": "control-plane-custodian-return-851",
+    "reuseSecuredPartyHostedIdentity": true
+  },
+  "currentEncumberedLots": [
+    {
+      "lotId": "quickstart-ret-current-ust-851",
+      "assetId": "quickstart-ret-current-ust-asset-851",
+      "issuer": "UST",
+      "assetClass": "SovereignDebt",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "adapter/quickstart/return/us-treasury",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "custodyAccount": "secured-account-return-851",
+      "quantity": 180000.0,
+      "sourceAccount": "secured-account-return-851",
+      "destinationAccount": "provider-account-return-851"
+    },
+    {
+      "lotId": "quickstart-ret-current-fannie-851",
+      "assetId": "quickstart-ret-current-fannie-asset-851",
+      "issuer": "FANNIE_MAE",
+      "assetClass": "AgencyDebt",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "adapter/quickstart/return/fannie-mae",
+      "jurisdiction": "US",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "custodyAccount": "secured-account-return-851",
+      "quantity": 150000.0,
+      "sourceAccount": "secured-account-return-851",
+      "destinationAccount": "provider-account-return-851"
+    },
+    {
+      "lotId": "quickstart-ret-current-kfw-851",
+      "assetId": "quickstart-ret-current-kfw-asset-851",
+      "issuer": "KFW",
+      "assetClass": "AgencyDebt",
+      "currency": "USD",
+      "settlementSystem": "Fedwire",
+      "tokenAdapterReference": "adapter/quickstart/return/kfw",
+      "jurisdiction": "DE",
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "custodyAccount": "secured-account-return-851",
+      "quantity": 120000.0,
+      "sourceAccount": "secured-account-return-851",
+      "destinationAccount": "provider-account-return-851"
+    }
+  ]
+}

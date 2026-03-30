@@ -177,12 +177,20 @@ Prompt 17 status:
 - the blocked Quickstart partial-substitution path now proves incumbent encumbrances and holdings remain intact and provider-visible adapter receipt count stays `0`
 - return still remains on the IDE-ledger workflow path, and role-scoped report disclosure, production-grade custodian integrations, settlement-window enforcement, and workflow-coupled optimizer reservation remain staged follow-on work
 
+Prompt 18 status:
+
+- ADR 0021 now chooses a Quickstart-backed return orchestration path that reseeds scenario-scoped state, advances the return workflow on-ledger, invokes the reference token adapter only from the real pending-settlement handoff, and folds the resulting artifacts into one machine-readable return report
+- `make demo-return-quickstart` now starts or reuses the pinned Quickstart overlay, evaluates the positive and negative Quickstart return scenarios, runs the positive and replay workflow-plus-adapter chains, proves blocked unauthorized release and stale-coverage mismatch without adapter side effects, and emits a schema-valid `ReturnReport` plus Markdown summary and timeline artifacts
+- the positive Quickstart path now links policy evaluation, retained-set optimization, workflow execution, adapter-driven release, provider-visible status refresh, and final return reporting through generated artifacts rather than operator-authored summaries
+- the replay Quickstart path now proves the original release settled once, the duplicate `returnRequestId` was blocked, and provider-visible adapter receipt count did not increment beyond the committed release
+- margin-call, return, and substitution now all have Quickstart-backed end-to-end demo commands, while role-scoped report disclosure, production-grade custodian integrations, settlement-window enforcement, workflow-coupled optimizer reservation, and packaging decisions for the Quickstart return path remain staged follow-on work
+
 ## Next 5 Tasks
 
 1. Specify role-scoped `ExecutionReport`, `ReturnReport`, `SubstitutionReport`, and adapter-receipt disclosure profiles beyond the current workflow-party and provider-visible baseline.
 2. Define versioned reference-data contracts for valuation, FX, custodian, issuer, and counterparty facts consumed by policy evaluation.
 3. Define the first workflow-coupled optimizer reservation and consent interface, including substitution-scope and return-release carriage, without collapsing Canton authority.
-4. Extend the reference token adapter path into the return workflow, including explicit release confirmation carriage and blocked-path status evidence equivalent to the substitution path.
+4. Decide how the Quickstart-backed return path should feed `make test-conformance` and `make demo-all` without losing the current portable verification split.
 5. Define replay, retry, failure-recovery, and settlement-window semantics for future production-grade asset adapters without weakening the current control-plane boundary.
 
 ## Blockers

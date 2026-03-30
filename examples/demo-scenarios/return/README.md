@@ -11,3 +11,5 @@ Current contents:
 - `negative-replay-obligation.json` for the replay-protection path
 - `negative-mismatch-obligation.json` for the stale obligation-state mismatch path
 - `demo-config.json` for the manifest consumed by `make demo-return`
+- `quickstart-*-inventory.json` and `quickstart-*-obligation.json` for the Quickstart-backed positive, unauthorized, replay, and stale-coverage return scenarios
+- `quickstart-demo-config.json` for the manifest consumed by `make demo-return-quickstart`

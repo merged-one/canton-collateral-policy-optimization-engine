@@ -1,0 +1,109 @@
+{
+  "decisionReference": "quickstart-return-decision-861",
+  "custodianParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "currentInventoryLots": [{
+    "lotId": "quickstart-ret-current-ust-861",
+    "contractId": "006cbd6df4f5a04f408d19dbb4b8221745cb5f15f28f284a5a45025d449415a9eeca121220557513d149a04ef72c8af18385338ceaebfb570a2a62d1bf2655bca2f9aac801"
+  }, {
+    "lotId": "quickstart-ret-current-fannie-861",
+    "contractId": "008823c080e277cc8f92247ab9af88df611ffcdfd8b06264970e2ca82d1d8f9d92ca121220f3d9c3dae1127820512e1dbb8235161b6ce45beb5cea562902a66a3b1a773d45"
+  }, {
+    "lotId": "quickstart-ret-current-kfw-861",
+    "contractId": "00a4090266be839155b920c02db4f32203a8eb0944e79a25713d9dca4949228c43ca121220596ef2b53c06042745fd53048ef129998027ffa6301156b6dbe4922a042ba59a"
+  }],
+  "obligationId": "quickstart-return-obligation-861",
+  "roleRegistrations": [{
+    "role": "CollateralProviderRole",
+    "label": "provider",
+    "participant": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+    "contractId": "0002a9259b5c8316d4ec14b18b281f0a210ada3214b35fcc1c7c28866e6976b72aca121220dae8f02cfad1dedce2118e74471024ec0709b4ddcabc86f9ec26bdff88a98e92"
+  }, {
+    "role": "SecuredPartyRole",
+    "label": "secured-party",
+    "participant": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "contractId": "00e3bb16ecb2a5036689f03241ce4b4fe4b092509777e69dd6fcc5c9356daf1a66ca121220569ec3f70d34fd742fcf199d91dae9cdedd82052840c7a74198eb9e9a30daedc"
+  }, {
+    "role": "CustodianRole",
+    "label": "custodian",
+    "participant": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+    "contractId": "00dae9af54961684727a642528e41c13f84f8d39ce7a53e428c2e5a742d19f691bca1212202852a0e1b480512c02d26d6b9467bedc262dcdd2a231fee8dc5d7ae022304a48"
+  }],
+  "operatorParty": "controlplane-operator-quickstart-return-861::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "referenceTokenHoldings": [{
+    "lotId": "quickstart-ret-current-ust-861",
+    "holdingId": "quickstart-return-demo-861-baseline-holding-quickstart-ret-current-ust-861",
+    "contractId": "0075cbef54f466c9b6acc1925aa1ac40fbe49edbf4bad253de052c02f6a23daa22ca12122016e4641acf2ee8e33b5b2456bfa81fdfed0e6a8093d85b42c54096c9f3cbf874"
+  }, {
+    "lotId": "quickstart-ret-current-fannie-861",
+    "holdingId": "quickstart-return-demo-861-baseline-holding-quickstart-ret-current-fannie-861",
+    "contractId": "00ef99a2731ed0d5c9e1b4dabc8d2a13cd170b89191a691a4e8dc41b5a1391e232ca121220298d9a0f367d76710443388337b94abe158c90a9a5df51ce87e27953bc282027"
+  }, {
+    "lotId": "quickstart-ret-current-kfw-861",
+    "holdingId": "quickstart-return-demo-861-baseline-holding-quickstart-ret-current-kfw-861",
+    "contractId": "00193f6503e0916fb3bb82a2393f7b519412f6a65087449b6c3a6afa1337a4c8b3ca1212203f5ab11d8da2b38b7b84d8fa4bd4118b074bf404624811299fe8d7532b488204"
+  }],
+  "operatorUserId": "control-plane-operator-return-861",
+  "custodianUserId": "c87743ab-80e0-4b83-935a-4c0582226691",
+  "currentEncumbrances": [{
+    "lotId": "quickstart-ret-current-ust-861",
+    "encumbranceId": "quickstart-return-correlation-861-current-quickstart-ret-current-ust-861",
+    "contractId": "003e6b190ca1426f01b55a2894147e039914b83c5a06567b1d3a6a364f2de4b7b1ca1212206f77984a6a4bc1d31c0eb6c08e4f404eb3c9be1eee9d4aa1c01b6b91c2ba5342"
+  }, {
+    "lotId": "quickstart-ret-current-fannie-861",
+    "encumbranceId": "quickstart-return-correlation-861-current-quickstart-ret-current-fannie-861",
+    "contractId": "008544013408bad78871d6169954a59e0d41c2e32d558af7234f0c26148f626262ca121220b8a04ee764e9eec2041c394c9f8248fc55ac5ae1cff368aef867499479eb7fe1"
+  }, {
+    "lotId": "quickstart-ret-current-kfw-861",
+    "encumbranceId": "quickstart-return-correlation-861-current-quickstart-ret-current-kfw-861",
+    "contractId": "008194c1f004e9634ee0d4c94b614dec81068516521aa7628dbff22085476602a7ca121220d27c2aaf7923fae3d59aaee2105065c2a5dfa4ff0079bfd61fd31afe8502e8ba"
+  }],
+  "scenarioId": "quickstart-return-demo-861",
+  "securedParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "correlationId": "quickstart-return-correlation-861",
+  "providerParty": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+  "currentEncumberedLots": [{
+    "jurisdiction": "US",
+    "quantity": 180000.0000000000,
+    "transferabilityFlags": ["deliverable", "pledgeable"],
+    "sourceAccount": "secured-account-return-861",
+    "issuer": "UST",
+    "assetClass": "SovereignDebt",
+    "destinationAccount": "provider-account-return-861",
+    "currency": "USD",
+    "tokenAdapterReference": "adapter/quickstart/return/us-treasury",
+    "settlementSystem": "Fedwire",
+    "lotId": "quickstart-ret-current-ust-861",
+    "custodyAccount": "secured-account-return-861",
+    "assetId": "quickstart-ret-current-ust-asset-861"
+  }, {
+    "jurisdiction": "US",
+    "quantity": 150000.0000000000,
+    "transferabilityFlags": ["deliverable", "pledgeable"],
+    "sourceAccount": "secured-account-return-861",
+    "issuer": "FANNIE_MAE",
+    "assetClass": "AgencyDebt",
+    "destinationAccount": "provider-account-return-861",
+    "currency": "USD",
+    "tokenAdapterReference": "adapter/quickstart/return/fannie-mae",
+    "settlementSystem": "Fedwire",
+    "lotId": "quickstart-ret-current-fannie-861",
+    "custodyAccount": "secured-account-return-861",
+    "assetId": "quickstart-ret-current-fannie-asset-861"
+  }, {
+    "jurisdiction": "DE",
+    "quantity": 120000.0000000000,
+    "transferabilityFlags": ["deliverable", "pledgeable"],
+    "sourceAccount": "secured-account-return-861",
+    "issuer": "KFW",
+    "assetClass": "AgencyDebt",
+    "destinationAccount": "provider-account-return-861",
+    "currency": "USD",
+    "tokenAdapterReference": "adapter/quickstart/return/kfw",
+    "settlementSystem": "Fedwire",
+    "lotId": "quickstart-ret-current-kfw-861",
+    "custodyAccount": "secured-account-return-861",
+    "assetId": "quickstart-ret-current-kfw-asset-861"
+  }],
+  "policyVersion": "cpl-v0.1-quickstart-return-demo",
+  "snapshotId": "quickstart-return-snapshot-861"
+}

@@ -1,0 +1,61 @@
+{
+  "providerVisibleEncumbrances": [{
+    "quantity": 150000.0000000000,
+    "lotId": "quickstart-ret-current-fannie-831",
+    "status": "EncumbrancePledged",
+    "encumbranceId": "quickstart-return-correlation-831-current-quickstart-ret-current-fannie-831",
+    "correlationId": "quickstart-return-correlation-831-baseline"
+  }, {
+    "quantity": 120000.0000000000,
+    "lotId": "quickstart-ret-current-kfw-831",
+    "status": "EncumbrancePledged",
+    "encumbranceId": "quickstart-return-correlation-831-current-quickstart-ret-current-kfw-831",
+    "correlationId": "quickstart-return-correlation-831-baseline"
+  }, {
+    "quantity": 180000.0000000000,
+    "lotId": "quickstart-ret-current-ust-831",
+    "status": "EncumbranceReleased",
+    "encumbranceId": "quickstart-return-correlation-831-return-quickstart-ret-current-ust-831",
+    "correlationId": "quickstart-return-correlation-831"
+  }],
+  "settlementInstructionState": "Settled",
+  "scenarioId": "quickstart-return-demo-831",
+  "returnState": "Closed",
+  "providerVisibleExecutionReportCount": 1,
+  "providerVisibleCurrentLotHoldings": [{
+    "quantity": 150000.0000000000,
+    "lotId": "quickstart-ret-current-fannie-831",
+    "accountId": "secured-account-return-831",
+    "controlState": "SettledToSecuredAccount",
+    "assetId": "quickstart-ret-current-fannie-asset-831",
+    "holdingId": "quickstart-return-demo-831-baseline-holding-quickstart-ret-current-fannie-831",
+    "sourceReference": "quickstart-return-baseline",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc"
+  }, {
+    "quantity": 120000.0000000000,
+    "lotId": "quickstart-ret-current-kfw-831",
+    "accountId": "secured-account-return-831",
+    "controlState": "SettledToSecuredAccount",
+    "assetId": "quickstart-ret-current-kfw-asset-831",
+    "holdingId": "quickstart-return-demo-831-baseline-holding-quickstart-ret-current-kfw-831",
+    "sourceReference": "quickstart-return-baseline",
+    "beneficialOwner": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc"
+  }, {
+    "quantity": 180000.0000000000,
+    "lotId": "quickstart-ret-current-ust-831",
+    "accountId": "provider-account-return-831",
+    "controlState": "ReturnedToProviderAccount",
+    "assetId": "quickstart-ret-current-ust-asset-831",
+    "holdingId": "quickstart-return-demo-831-baseline-holding-quickstart-ret-current-ust-831-moved-quickstart-return-correlation-831-instruction-return-quickstart-ret-current-ust-831",
+    "sourceReference": "quickstart-return-correlation-831-instruction-return-quickstart-ret-current-ust-831",
+    "beneficialOwner": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a"
+  }],
+  "providerVisibleAdapterReceipts": [{
+    "instructionId": "quickstart-return-correlation-831-instruction",
+    "status": "EXECUTED",
+    "executedAt": "2026-03-30T04:24:57.500166Z",
+    "receiptId": "positive-return-quickstart-reference-token-return-receipt",
+    "settlementAction": "ReturnCollateral",
+    "externalTransactionId": "quickstart-return-correlation-831-instruction-reference-token-return"
+  }]
+}

@@ -1,0 +1,142 @@
+{
+  "inventorySetId": "return-quickstart-negative-replay-inventory",
+  "inventoryVersion": "1.0.0",
+  "evaluationContext": {
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "providerIssuerIds": [
+      "dealer-a"
+    ],
+    "exposureCounterparties": [
+      {
+        "role": "PLEDGOR",
+        "partyId": "dealer-a",
+        "issuerIds": [
+          "dealer-a"
+        ],
+        "groupIds": [
+          "dealer-group"
+        ],
+        "country": "US"
+      },
+      {
+        "role": "OBLIGOR",
+        "partyId": "dealer-a",
+        "issuerIds": [
+          "dealer-a"
+        ],
+        "groupIds": [
+          "dealer-group"
+        ],
+        "country": "US"
+      },
+      {
+        "role": "SECURED_PARTY",
+        "partyId": "new-york-fed",
+        "issuerIds": [
+          "new-york-fed"
+        ],
+        "groupIds": [
+          "central-bank-group"
+        ],
+        "country": "US"
+      }
+    ]
+  },
+  "candidateLots": [
+    {
+      "lotId": "quickstart-ret-current-ust-851",
+      "assetId": "quickstart-ret-current-ust-asset-851",
+      "assetClass": "SOVEREIGN_BOND",
+      "issueType": "SOVEREIGN",
+      "issuerId": "us-treasury",
+      "issuerType": "SOVEREIGN",
+      "issuerGroupIds": [
+        "us-sovereign-group"
+      ],
+      "longTermRating": "AA+",
+      "currency": "USD",
+      "issuanceJurisdiction": "US",
+      "riskJurisdiction": "US",
+      "custodianId": "new-york-fed",
+      "custodyJurisdiction": "US",
+      "accountType": "CENTRAL_BANK_ACCOUNT",
+      "isSegregated": true,
+      "hasControlAgreement": true,
+      "isInternalCustody": false,
+      "isEncumbered": false,
+      "isReuseOfReceivedCollateral": false,
+      "freeAllocationPercent": 1.0,
+      "segregationType": "CENTRAL_BANK_RESTRICTED",
+      "accountDesignation": "pledge-window-account",
+      "thirdPartyAcknowledgementReceived": true,
+      "marketValue": 180000.0,
+      "nominalValue": 180000.0,
+      "outstandingPrincipal": 180000.0,
+      "residualMaturityDays": 180
+    },
+    {
+      "lotId": "quickstart-ret-current-fannie-851",
+      "assetId": "quickstart-ret-current-fannie-asset-851",
+      "assetClass": "AGENCY_BOND",
+      "issueType": "AGENCY",
+      "issuerId": "fannie-mae",
+      "issuerType": "AGENCY",
+      "issuerGroupIds": [
+        "fannie-group"
+      ],
+      "longTermRating": "AA",
+      "currency": "USD",
+      "issuanceJurisdiction": "US",
+      "riskJurisdiction": "US",
+      "custodianId": "new-york-fed",
+      "custodyJurisdiction": "US",
+      "accountType": "CENTRAL_BANK_ACCOUNT",
+      "isSegregated": true,
+      "hasControlAgreement": true,
+      "isInternalCustody": false,
+      "isEncumbered": false,
+      "isReuseOfReceivedCollateral": false,
+      "freeAllocationPercent": 1.0,
+      "segregationType": "CENTRAL_BANK_RESTRICTED",
+      "accountDesignation": "pledge-window-account",
+      "thirdPartyAcknowledgementReceived": true,
+      "marketValue": 150000.0,
+      "nominalValue": 150000.0,
+      "outstandingPrincipal": 150000.0,
+      "residualMaturityDays": 540
+    },
+    {
+      "lotId": "quickstart-ret-current-kfw-851",
+      "assetId": "quickstart-ret-current-kfw-asset-851",
+      "assetClass": "AGENCY_BOND",
+      "issueType": "AGENCY",
+      "issuerId": "kfw",
+      "issuerType": "AGENCY",
+      "issuerGroupIds": [
+        "kfw-group"
+      ],
+      "longTermRating": "AAA",
+      "currency": "USD",
+      "issuanceJurisdiction": "DE",
+      "riskJurisdiction": "DE",
+      "custodianId": "euroclear-bank",
+      "custodyJurisdiction": "BE",
+      "accountType": "THIRD_PARTY_CUSTODY",
+      "isSegregated": true,
+      "hasControlAgreement": true,
+      "isInternalCustody": false,
+      "isEncumbered": false,
+      "isReuseOfReceivedCollateral": false,
+      "freeAllocationPercent": 1.0,
+      "segregationType": "CENTRAL_BANK_RESTRICTED",
+      "accountDesignation": "pledge-window-account",
+      "thirdPartyAcknowledgementReceived": true,
+      "marketValue": 120000.0,
+      "nominalValue": 120000.0,
+      "outstandingPrincipal": 120000.0,
+      "residualMaturityDays": 720
+    }
+  ]
+}

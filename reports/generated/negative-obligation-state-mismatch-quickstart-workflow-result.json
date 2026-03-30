@@ -1,0 +1,58 @@
+{
+  "executionReports": [],
+  "executionReportCount": 0,
+  "workflowGate": "BLOCK_STALE_COVERAGE",
+  "settlementInstructionId": null,
+  "settlementInstructionState": null,
+  "custodianApproval": "ApprovalPending",
+  "currentSecuredAmount": 450000.0000000000,
+  "obligationId": "quickstart-return-obligation-861",
+  "atomicityOutcome": "BLOCKED_ATOMICALLY",
+  "controlChecks": [{
+    "checkId": "OBLIGATION_STATE_MISMATCH_BLOCKED",
+    "status": "PASS",
+    "detail": "the workflow rejected the return request because the requested release did not match the remaining obligation state on Quickstart"
+  }],
+  "returnedLotIds": [],
+  "currentEncumberedLotIds": ["quickstart-ret-current-ust-861", "quickstart-ret-current-fannie-861", "quickstart-ret-current-kfw-861"],
+  "releaseConditionSatisfied": false,
+  "returnRequestId": "quickstart-return-request-861",
+  "scenarioId": "negative-obligation-state-mismatch-quickstart",
+  "requestedReturnQuantity": 180000.0000000000,
+  "remainingRequiredCoverage": 300000.0000000000,
+  "remainingEncumberedLotIds": ["quickstart-ret-current-ust-861", "quickstart-ret-current-fannie-861", "quickstart-ret-current-kfw-861"],
+  "returnState": "UnderEvaluation",
+  "steps": [{
+    "actor": "provider",
+    "step": 1,
+    "state": "Encumbered",
+    "phase": "BASELINE",
+    "detail": "provider started from an already pledged collateral set on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 2,
+    "state": "Draft",
+    "phase": "RETURN",
+    "detail": "provider created the draft return request on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 3,
+    "state": "Submitted",
+    "phase": "RETURN",
+    "detail": "provider submitted the return request on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 4,
+    "state": "UnderEvaluation",
+    "phase": "RETURN",
+    "detail": "provider moved the return request into evaluation on Quickstart"
+  }, {
+    "actor": "provider",
+    "step": 5,
+    "state": "Blocked",
+    "phase": "CONTROL",
+    "detail": "the workflow rejected the return request because the requested release would breach the remaining required coverage"
+  }],
+  "correlationId": "quickstart-return-correlation-861",
+  "securedPartyApproval": "ApprovalPending"
+}

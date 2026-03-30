@@ -95,6 +95,7 @@
       "required": [
         "demoId",
         "demoVersion",
+        "runtimeMode",
         "command",
         "manifestPath",
         "outputDirectory",
@@ -111,8 +112,19 @@
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
         },
+        "runtimeMode": {
+          "type": "string",
+          "enum": [
+            "IDE_LEDGER",
+            "QUICKSTART"
+          ]
+        },
         "command": {
-          "const": "make demo-return"
+          "type": "string",
+          "enum": [
+            "make demo-return",
+            "make demo-return-quickstart"
+          ]
         },
         "manifestPath": {
           "$ref": "#/$defs/pathString"
@@ -172,6 +184,10 @@
         "optimizationReportPath",
         "workflowInputPath",
         "workflowResultPath",
+        "quickstartSeedReceiptPath",
+        "adapterExecutionReportPath",
+        "adapterStatusPath",
+        "workflowRuntime",
         "policyDecision",
         "optimizationStatus",
         "currentPostedLotIds",
@@ -179,6 +195,13 @@
         "returnLotIds",
         "requestedReturnQuantity",
         "remainingRequiredCoverage",
+        "blockedPhase",
+        "adapterOutcome",
+        "requestIdentifier",
+        "approvalState",
+        "releaseAction",
+        "finalPostReturnState",
+        "replayHandlingResult",
         "workflow"
       ],
       "properties": {
@@ -234,6 +257,35 @@
             "null"
           ]
         },
+        "quickstartSeedReceiptPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapterExecutionReportPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapterStatusPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workflowRuntime": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "IDE_LEDGER",
+            "QUICKSTART",
+            null
+          ]
+        },
         "policyDecision": {
           "type": "string",
           "enum": [
@@ -275,6 +327,93 @@
             "null"
           ]
         },
+        "blockedPhase": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "POLICY_EVALUATION",
+            "OPTIMIZATION",
+            "WORKFLOW",
+            "ADAPTER",
+            null
+          ]
+        },
+        "adapterOutcome": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "EXECUTED",
+            "BLOCKED",
+            "NOT_REQUESTED",
+            null
+          ]
+        },
+        "requestIdentifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approvalState": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/approvalState"
+            }
+          ]
+        },
+        "releaseAction": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/releaseAction"
+            }
+          ]
+        },
+        "finalPostReturnState": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/finalPostReturnState"
+            }
+          ]
+        },
+        "replayHandlingResult": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/replayHandlingResult"
+            }
+          ]
+        },
         "workflow": {
           "type": [
             "object",
@@ -288,6 +427,151 @@
               "$ref": "#/$defs/workflowResult"
             }
           ]
+        }
+      }
+    },
+    "approvalState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "securedPartyApproval",
+        "custodianApproval",
+        "workflowGate",
+        "releaseConditionSatisfied"
+      ],
+      "properties": {
+        "securedPartyApproval": {
+          "type": "string",
+          "minLength": 1
+        },
+        "custodianApproval": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowGate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "releaseConditionSatisfied": {
+          "type": "boolean"
+        }
+      }
+    },
+    "releaseAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "settlementInstructionId",
+        "settlementInstructionState",
+        "settlementAction",
+        "adapterReceiptStatus",
+        "adapterMovementLotIds"
+      ],
+      "properties": {
+        "settlementInstructionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "settlementInstructionState": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "settlementAction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapterReceiptStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adapterMovementLotIds": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "finalPostReturnState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "returnState",
+        "settlementInstructionState",
+        "returnedLotIds",
+        "remainingEncumberedLotIds",
+        "returnedHoldingLotIds",
+        "remainingHoldingLotIds",
+        "providerVisibleAdapterReceiptCount"
+      ],
+      "properties": {
+        "returnState": {
+          "type": "string",
+          "minLength": 1
+        },
+        "settlementInstructionState": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "returnedLotIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "remainingEncumberedLotIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "returnedHoldingLotIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "remainingHoldingLotIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "providerVisibleAdapterReceiptCount": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "replayHandlingResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempted",
+        "result",
+        "controlCheckId",
+        "detail"
+      ],
+      "properties": {
+        "attempted": {
+          "type": "boolean"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "NOT_REQUESTED",
+            "BLOCKED_DUPLICATE_RETURN_REQUEST"
+          ]
+        },
+        "controlCheckId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -388,9 +672,13 @@
         "scenarioId",
         "obligationId",
         "returnRequestId",
+        "correlationId",
+        "workflowGate",
         "returnState",
         "securedPartyApproval",
         "custodianApproval",
+        "settlementInstructionId",
+        "settlementInstructionState",
         "currentEncumberedLotIds",
         "returnedLotIds",
         "remainingEncumberedLotIds",
@@ -414,6 +702,15 @@
         "returnRequestId": {
           "$ref": "#/$defs/identifier"
         },
+        "correlationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "workflowGate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "returnState": {
           "type": "string",
           "minLength": 1
@@ -425,6 +722,18 @@
         "custodianApproval": {
           "type": "string",
           "minLength": 1
+        },
+        "settlementInstructionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "settlementInstructionState": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "currentEncumberedLotIds": {
           "$ref": "#/$defs/stringArray"
@@ -451,7 +760,8 @@
           "type": "string",
           "enum": [
             "COMMITTED_ATOMICALLY",
-            "BLOCKED_ATOMICALLY"
+            "BLOCKED_ATOMICALLY",
+            "PENDING_ATOMIC_SETTLEMENT"
           ]
         },
         "executionReportCount": {
@@ -510,13 +820,16 @@
           "enum": [
             "POLICY_EVALUATION",
             "OPTIMIZATION",
-            "WORKFLOW"
+            "QUICKSTART_SEED",
+            "WORKFLOW",
+            "ADAPTER"
           ]
         },
         "status": {
           "type": "string",
           "enum": [
-            "COMPLETED"
+            "COMPLETED",
+            "SKIPPED"
           ]
         },
         "startedAt": {

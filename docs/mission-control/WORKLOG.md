@@ -2,6 +2,116 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-29 - Prompt 18 Wire Return Demo Through Quickstart And Token Adapter - Pre-Change
+
+Intent:
+Upgrade the confidential return demo so the positive path executes end to end through policy evaluation, retained-set determination, Quickstart-backed return workflow execution, the reference token adapter release path, and final return reporting, while negative paths prove replay blocking, unauthorized-release blocking, and no unintended adapter side effects.
+
+Task summary:
+
+- refactor the return orchestration into an explicit Quickstart mode that can prepare scenario-scoped LocalNet state, run the declared positive return path against the deployed Control Plane package, invoke the token-adapter-driven release handoff, and collect subordinate artifacts into one machine-readable return report
+- add or update a reproducible `make demo-return-quickstart` command that ensures the LocalNet and package prerequisites are ready, runs the positive and negative Quickstart return scenarios, and fails nonzero on genuine workflow or adapter failure
+- expand return artifact generation so the report explicitly captures the request identifier, approval state, release action, final post-return state, replay handling result, and blocked-path evidence on the real executed path
+- prove at least one blocked negative path where a replayed return instruction is rejected, at least one blocked unauthorized-release path produces no adapter receipt, and blocked workflow paths leave provider-visible holdings or encumbrances unchanged
+- update tracker, invariants, evidence, runbooks, specs, setup, and ADR surfaces as needed so the new Quickstart return posture and the remaining final-packaging gap are explicit
+
+Expected affected files:
+
+- `Makefile`
+- `app/orchestration/return_demo.py`
+- `app/orchestration/return_cli.py`
+- `app/orchestration/cli.py` if the shared command surface needs updating
+- new or updated Quickstart return helpers under `scripts/`
+- relevant Daml modules under `daml/CantonCollateral/` for Quickstart return seeding, workflow execution, adapter-backed release evidence, and provider-visible status queries
+- return scenario manifests under `examples/demo-scenarios/return/`
+- `reports/schemas/return-report.schema.json` if the report contract must expand for Quickstart workflow and adapter evidence
+- generated return artifacts under `reports/generated/`
+- `docs/runbooks/RETURN_DEMO_RUNBOOK.md`
+- `docs/specs/RETURN_REPORT_SPEC.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-18-execution-report.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/mission-control/WORKLOG.md`
+- the next ADR only if the Quickstart return handoff materially changes the current return or adapter boundary
+
+Risk assessment:
+
+- the return report could overclaim replay safety or release confirmation if it stitches together workflow and adapter artifacts from different Quickstart runs instead of one scenario-scoped execution chain
+- the return adapter path could drift past the current boundary discipline if it starts selecting release scope or approving returns instead of consuming workflow-declared return scope
+- the negative-path evidence could be misleading if a blocked return still leaves adapter receipts, holdings, or encumbrance-state changes visible after failure
+- the Quickstart return path could accidentally depend on hidden seeded state rather than scenario-scoped manifests, explicit workflow input, and reproducible commands
+
+Acceptance criteria:
+
+- `make demo-return-quickstart` exists, is documented, and fails nonzero on real Quickstart, workflow, or adapter failure
+- the positive return path now runs through real Quickstart-backed workflow execution and the reference token adapter rather than stopping at the IDE ledger
+- the generated return report explicitly proves request identifier, approval state, release action, final post-return state, and replay-safe handling on the executed path
+- negative scenarios prove replayed or unauthorized return handling is blocked and no unintended adapter release side effects commit
+- relevant checks, docs, invariants, evidence, and generated artifacts are updated and captured
+
+## 2026-03-29 - Prompt 18 Wire Return Demo Through Quickstart And Token Adapter - Post-Change
+
+Outcome:
+Upgraded the confidential return demo so the Quickstart-backed path now runs end to end through retained-set selection, Quickstart return workflow execution, the reference token adapter release path, and final return reporting, with negative paths that prove replay blocking, unauthorized-release blocking, and no unintended adapter side effects commit.
+
+Completed changes:
+
+- added the Quickstart runtime mode and expanded return report contract in `app/orchestration/return_demo.py`, `app/orchestration/return_cli.py`, and `reports/schemas/return-report.schema.json`
+- added the Quickstart return workflow and status layer with `daml/CantonCollateral/QuickstartReturn.daml`, `scripts/localnet-seed-return-demo.sh`, `scripts/localnet-run-return-workflow.sh`, `scripts/localnet-run-return-token-adapter.sh`, and `scripts/localnet-return-status.sh`
+- added dedicated Quickstart return scenario manifests and LocalNet seed manifests for:
+  - one positive Quickstart-backed approved return path
+  - one workflow-blocked unauthorized-release path with zero adapter side effects
+  - one replay-safe path that settles the original return and blocks a duplicate request identifier
+  - one stale-coverage mismatch path with zero adapter side effects
+- updated `make demo-return-quickstart` so it starts or reuses the LocalNet, verifies or reuses the deployed Control Plane DAR, runs the Quickstart-backed positive and negative return scenarios, validates the generated return report, and fails nonzero on genuine runtime failure
+- expanded the generated artifact surface so the Quickstart return report now records request identifier, approval state, release action, final post-return state, replay handling result, seed artifacts, workflow artifacts, adapter artifacts, and blocked-path status artifacts
+- added ADR 0021 and aligned tracker, runbooks, specs, setup, testing, invariants, evidence, README, and command-surface docs with the new Quickstart-backed return chain and the remaining final-packaging gap
+- bumped the shared Daml package version from `0.1.8` to `0.1.10` while stabilizing the Quickstart return path so the updated DAR could be redeployed without package-version drift
+- added a reuse guard to `scripts/build-quickstart-dar.sh` so repeated Quickstart script invocations can reuse a current DAR when the Daml sources and runtime metadata have not changed
+- rotated the Quickstart return acceptance scenarios to the fresh `831`, `841`, `851`, and `861` ranges after the first debug run proved the old ids collided with stale pledged encumbrances on the running LocalNet
+
+Commands run:
+
+```sh
+make demo-return-quickstart
+make demo-return
+make docs-lint
+sh -n scripts/build-quickstart-dar.sh
+python3 -m py_compile app/orchestration/return_demo.py app/orchestration/return_cli.py
+git diff --check
+```
+
+Results:
+
+- `make demo-return-quickstart` passed and validated `reports/generated/return-quickstart-report.json`, `reports/generated/return-quickstart-summary.md`, and `reports/generated/return-quickstart-timeline.md`
+- the positive Quickstart scenario produced policy, optimization, workflow input, workflow result, seed receipt, adapter execution report, and provider-visible status artifacts and proved:
+  - request `quickstart-return-request-831`
+  - one approved release movement for lot `quickstart-ret-current-ust-831`
+  - final return state `Closed`
+  - settlement instruction state `Settled`
+  - one provider-visible adapter receipt
+- the unauthorized Quickstart scenario produced policy, optimization, workflow input, workflow result, seed receipt, and provider-visible status artifacts but no adapter execution artifact, and proved:
+  - request `quickstart-return-request-841`
+  - control checks `APPROVAL_GATE_BLOCKED` and `UNAUTHORIZED_RETURN_BLOCKED`
+  - provider-visible adapter receipt count `0`
+  - incumbent encumbrances and holdings remained unchanged
+- the replay Quickstart scenario produced policy, optimization, workflow input, workflow result, seed receipt, adapter execution report, and provider-visible status artifacts and proved:
+  - request `quickstart-return-request-851`
+  - replay handling result `BLOCKED_DUPLICATE_RETURN_REQUEST`
+  - replay control check `REPLAY_RETURN_BLOCKED`
+  - only one provider-visible adapter receipt remained visible after the duplicate request attempt
+- the stale-coverage mismatch Quickstart scenario produced policy, optimization, workflow input, workflow result, seed receipt, and provider-visible status artifacts but no adapter execution artifact, and proved:
+  - request `quickstart-return-request-861`
+  - control check `OBLIGATION_STATE_MISMATCH_BLOCKED`
+  - provider-visible adapter receipt count `0`
+  - incumbent encumbrances and holdings remained unchanged
+- `make demo-return` passed and regenerated `reports/generated/return-demo-report.json` for the IDE-ledger comparison path
+- `make docs-lint`, the shell syntax check, Python bytecode check, and `git diff --check` all passed
+
+Next step:
+Fold the Quickstart-backed return artifact set into the final packaging and conformance surfaces so `make demo-all` and the aggregate evidence pack reflect the full runtime-backed return proof alongside the margin-call and substitution chains.
+
 ## 2026-03-29 - Prompt 17 Quickstart Substitution Adapter End-To-End - Pre-Change
 
 Intent:

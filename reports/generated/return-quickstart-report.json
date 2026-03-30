@@ -1,0 +1,1052 @@
+{
+  "$schema": "../../reports/schemas/return-report.schema.json",
+  "reportType": "ReturnReport",
+  "reportVersion": "0.1.0",
+  "returnReportId": "rrr-163cdd5d84a09b71",
+  "generatedAt": "2026-03-30T04:34:33Z",
+  "overallStatus": "PASS",
+  "demo": {
+    "demoId": "return-quickstart",
+    "demoVersion": "0.1.0",
+    "runtimeMode": "QUICKSTART",
+    "command": "make demo-return-quickstart",
+    "manifestPath": "examples/demo-scenarios/return/quickstart-demo-config.json",
+    "outputDirectory": "reports/generated",
+    "primaryOptimizationArtifact": "reports/generated/positive-return-quickstart-optimization-report.json",
+    "scenarioCount": 4,
+    "positiveScenarioCount": 1,
+    "negativeScenarioCount": 3
+  },
+  "artifacts": {
+    "returnReportPath": "reports/generated/return-quickstart-report.json",
+    "markdownSummaryPath": "reports/generated/return-quickstart-summary.md",
+    "timelinePath": "reports/generated/return-quickstart-timeline.md"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "positive-return-quickstart",
+      "mode": "POSITIVE",
+      "description": "The Control Plane evaluates the currently encumbered set, retains the minimum pledged coverage, prepares the Quickstart return workflow, executes the reference-token release path, and proves the final post-return state.",
+      "result": "SUCCESS",
+      "summary": "Quickstart prepared return request quickstart-return-request-831, the adapter released quickstart-ret-current-ust-831, and Canton closed the return with replay handling NOT_REQUESTED.",
+      "observedReasonCodes": [],
+      "expectedReasonCodes": [],
+      "policyEvaluationReportPath": "reports/generated/positive-return-quickstart-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/positive-return-quickstart-optimization-report.json",
+      "workflowInputPath": "reports/generated/positive-return-quickstart-workflow-input.json",
+      "workflowResultPath": "reports/generated/positive-return-quickstart-workflow-result.json",
+      "quickstartSeedReceiptPath": "reports/generated/positive-return-quickstart/localnet-control-plane-seed-receipt.json",
+      "adapterExecutionReportPath": "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+      "adapterStatusPath": "reports/generated/positive-return-quickstart/localnet-return-status.json",
+      "workflowRuntime": "QUICKSTART",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831",
+        "quickstart-ret-current-ust-831"
+      ],
+      "retainedLotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831"
+      ],
+      "returnLotIds": [
+        "quickstart-ret-current-ust-831"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": null,
+      "adapterOutcome": "EXECUTED",
+      "requestIdentifier": "quickstart-return-request-831",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": "quickstart-return-correlation-831-instruction",
+        "settlementInstructionState": "Settled",
+        "settlementAction": "ReturnCollateral",
+        "adapterReceiptStatus": "EXECUTED",
+        "adapterMovementLotIds": [
+          "quickstart-ret-current-ust-831"
+        ]
+      },
+      "finalPostReturnState": {
+        "returnState": "Closed",
+        "settlementInstructionState": "Settled",
+        "returnedLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "returnedHoldingLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "remainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "providerVisibleAdapterReceiptCount": 1
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this Quickstart return path"
+      },
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "settlementInstructionId": "quickstart-return-correlation-831-instruction",
+        "settlementInstructionState": "PendingSettlement",
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "quickstart-return-obligation-831",
+        "atomicityOutcome": "PENDING_ATOMIC_SETTLEMENT",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded on Quickstart"
+          }
+        ],
+        "returnedLotIds": [],
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-831",
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "quickstart-return-request-831",
+        "scenarioId": "positive-return-quickstart",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-831",
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ],
+        "returnState": "PendingSettlement",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after checking the retained-set coverage condition on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the return settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request on Quickstart"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent and exposed the release instruction to the adapter"
+          }
+        ],
+        "correlationId": "quickstart-return-correlation-831",
+        "securedPartyApproval": "ApprovalGranted"
+      }
+    },
+    {
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "mode": "NEGATIVE",
+      "description": "Quickstart reaches pending settlement for the approved return, but the provider cannot confirm release and the adapter path remains untouched.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "Quickstart blocked the return at workflow state PendingSettlement with control checks APPROVAL_GATE_BLOCKED, UNAUTHORIZED_RETURN_BLOCKED and provider-visible adapter receipts 0.",
+      "observedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "UNAUTHORIZED_RETURN_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "UNAUTHORIZED_RETURN_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-unauthorized-return-quickstart-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-unauthorized-return-quickstart-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-unauthorized-return-quickstart-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+      "quickstartSeedReceiptPath": "reports/generated/negative-unauthorized-return-quickstart/localnet-control-plane-seed-receipt.json",
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+      "workflowRuntime": "QUICKSTART",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "quickstart-ret-current-fannie-841",
+        "quickstart-ret-current-kfw-841",
+        "quickstart-ret-current-ust-841"
+      ],
+      "retainedLotIds": [
+        "quickstart-ret-current-fannie-841",
+        "quickstart-ret-current-kfw-841"
+      ],
+      "returnLotIds": [
+        "quickstart-ret-current-ust-841"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": "WORKFLOW",
+      "adapterOutcome": "BLOCKED",
+      "requestIdentifier": "quickstart-return-request-841",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": "ATTEMPT_UNAUTHORIZED_RELEASE",
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": "quickstart-return-correlation-841-instruction",
+        "settlementInstructionState": "PendingSettlement",
+        "settlementAction": "ReturnCollateral",
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "PendingSettlement",
+        "settlementInstructionState": "PendingSettlement",
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841",
+          "quickstart-ret-current-ust-841"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841",
+          "quickstart-ret-current-ust-841"
+        ],
+        "providerVisibleAdapterReceiptCount": 0
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this return path"
+      },
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "workflowGate": "ATTEMPT_UNAUTHORIZED_RELEASE",
+        "settlementInstructionId": "quickstart-return-correlation-841-instruction",
+        "settlementInstructionState": "PendingSettlement",
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "quickstart-return-obligation-841",
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded on Quickstart"
+          },
+          {
+            "checkId": "UNAUTHORIZED_RETURN_BLOCKED",
+            "status": "PASS",
+            "detail": "the workflow blocked the provider from confirming release without custodian authority on Quickstart"
+          }
+        ],
+        "returnedLotIds": [],
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "quickstart-return-request-841",
+        "scenarioId": "negative-unauthorized-return-quickstart",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-841",
+          "quickstart-ret-current-fannie-841",
+          "quickstart-ret-current-kfw-841"
+        ],
+        "returnState": "PendingSettlement",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after checking the retained-set coverage condition on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the return settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request on Quickstart"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent for the selected release lots"
+          },
+          {
+            "actor": "provider",
+            "step": 10,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider attempted to confirm release without custodian authority and the workflow preserved the incumbent encumbrance state"
+          }
+        ],
+        "correlationId": "quickstart-return-correlation-841",
+        "securedPartyApproval": "ApprovalGranted"
+      }
+    },
+    {
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "mode": "NEGATIVE",
+      "description": "The original Quickstart return settles through the adapter, and a replayed return instruction using the same request identifier is then rejected without a second release side effect.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "Quickstart settled the original return for request quickstart-return-request-851, then blocked the duplicate replay attempt with result BLOCKED_DUPLICATE_RETURN_REQUEST while keeping provider-visible adapter receipts at 1.",
+      "observedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "REPLAY_RETURN_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "APPROVAL_GATE_BLOCKED",
+        "REPLAY_RETURN_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-replayed-return-instruction-quickstart-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-replayed-return-instruction-quickstart-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-replayed-return-instruction-quickstart-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+      "quickstartSeedReceiptPath": "reports/generated/negative-replayed-return-instruction-quickstart/localnet-control-plane-seed-receipt.json",
+      "adapterExecutionReportPath": "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+      "adapterStatusPath": "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-status.json",
+      "workflowRuntime": "QUICKSTART",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "quickstart-ret-current-fannie-851",
+        "quickstart-ret-current-kfw-851",
+        "quickstart-ret-current-ust-851"
+      ],
+      "retainedLotIds": [
+        "quickstart-ret-current-fannie-851",
+        "quickstart-ret-current-kfw-851"
+      ],
+      "returnLotIds": [
+        "quickstart-ret-current-ust-851"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": "ADAPTER",
+      "adapterOutcome": "EXECUTED",
+      "requestIdentifier": "quickstart-return-request-851",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": "quickstart-return-correlation-851-instruction",
+        "settlementInstructionState": "Settled",
+        "settlementAction": "ReturnCollateral",
+        "adapterReceiptStatus": "EXECUTED",
+        "adapterMovementLotIds": [
+          "quickstart-ret-current-ust-851"
+        ]
+      },
+      "finalPostReturnState": {
+        "returnState": "Closed",
+        "settlementInstructionState": "Settled",
+        "returnedLotIds": [
+          "quickstart-ret-current-ust-851"
+        ],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "returnedHoldingLotIds": [
+          "quickstart-ret-current-ust-851"
+        ],
+        "remainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "providerVisibleAdapterReceiptCount": 1
+      },
+      "replayHandlingResult": {
+        "attempted": true,
+        "result": "BLOCKED_DUPLICATE_RETURN_REQUEST",
+        "controlCheckId": "REPLAY_RETURN_BLOCKED",
+        "detail": "the workflow rejected the replayed return instruction by preserving the active request identifier after the original Quickstart release settled"
+      },
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "workflowGate": "PREPARE_FOR_ADAPTER",
+        "settlementInstructionId": "quickstart-return-correlation-851-instruction",
+        "settlementInstructionState": "PendingSettlement",
+        "custodianApproval": "ApprovalGranted",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "quickstart-return-obligation-851",
+        "atomicityOutcome": "PENDING_ATOMIC_SETTLEMENT",
+        "controlChecks": [
+          {
+            "checkId": "APPROVAL_GATE_BLOCKED",
+            "status": "PASS",
+            "detail": "provider could not create a return settlement intent until the required approvals were recorded on Quickstart"
+          }
+        ],
+        "returnedLotIds": [],
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-851",
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "releaseConditionSatisfied": true,
+        "returnRequestId": "quickstart-return-request-851",
+        "scenarioId": "negative-replayed-return-instruction-quickstart",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 250000.0,
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-851",
+          "quickstart-ret-current-fannie-851",
+          "quickstart-ret-current-kfw-851"
+        ],
+        "returnState": "PendingSettlement",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "provider recorded a feasible return after checking the retained-set coverage condition on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 6,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "provider could not create the return settlement intent before the required approvals were recorded"
+          },
+          {
+            "actor": "secured-party",
+            "step": 7,
+            "state": "PendingApproval",
+            "phase": "RETURN",
+            "detail": "secured party approved the return request on Quickstart"
+          },
+          {
+            "actor": "custodian",
+            "step": 8,
+            "state": "Approved",
+            "phase": "RETURN",
+            "detail": "custodian approved the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 9,
+            "state": "PendingSettlement",
+            "phase": "SETTLEMENT",
+            "detail": "provider submitted the approved return settlement intent and exposed the release instruction to the adapter"
+          }
+        ],
+        "correlationId": "quickstart-return-correlation-851",
+        "securedPartyApproval": "ApprovalGranted"
+      }
+    },
+    {
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "mode": "NEGATIVE",
+      "description": "The retained-set recommendation was built from a stale obligation amount, so Quickstart blocks the return before adapter release can start.",
+      "result": "EXPECTED_FAILURE",
+      "summary": "Quickstart blocked the return at workflow state UnderEvaluation with control checks OBLIGATION_STATE_MISMATCH_BLOCKED and provider-visible adapter receipts 0.",
+      "observedReasonCodes": [
+        "OBLIGATION_STATE_MISMATCH_BLOCKED"
+      ],
+      "expectedReasonCodes": [
+        "OBLIGATION_STATE_MISMATCH_BLOCKED"
+      ],
+      "policyEvaluationReportPath": "reports/generated/negative-obligation-state-mismatch-quickstart-policy-evaluation-report.json",
+      "optimizationReportPath": "reports/generated/negative-obligation-state-mismatch-quickstart-optimization-report.json",
+      "workflowInputPath": "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-input.json",
+      "workflowResultPath": "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-result.json",
+      "quickstartSeedReceiptPath": "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-control-plane-seed-receipt.json",
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json",
+      "workflowRuntime": "QUICKSTART",
+      "policyDecision": "ACCEPT",
+      "optimizationStatus": "OPTIMAL",
+      "currentPostedLotIds": [
+        "quickstart-ret-current-fannie-861",
+        "quickstart-ret-current-kfw-861",
+        "quickstart-ret-current-ust-861"
+      ],
+      "retainedLotIds": [
+        "quickstart-ret-current-fannie-861",
+        "quickstart-ret-current-kfw-861"
+      ],
+      "returnLotIds": [
+        "quickstart-ret-current-ust-861"
+      ],
+      "requestedReturnQuantity": 180000.0,
+      "remainingRequiredCoverage": 300000.0,
+      "blockedPhase": "WORKFLOW",
+      "adapterOutcome": "BLOCKED",
+      "requestIdentifier": "quickstart-return-request-861",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalPending",
+        "custodianApproval": "ApprovalPending",
+        "workflowGate": "BLOCK_STALE_COVERAGE",
+        "releaseConditionSatisfied": false
+      },
+      "releaseAction": {
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "settlementAction": null,
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "UnderEvaluation",
+        "settlementInstructionState": null,
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861",
+          "quickstart-ret-current-ust-861"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861",
+          "quickstart-ret-current-ust-861"
+        ],
+        "providerVisibleAdapterReceiptCount": 0
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this return path"
+      },
+      "workflow": {
+        "executionReports": [],
+        "executionReportCount": 0,
+        "workflowGate": "BLOCK_STALE_COVERAGE",
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "custodianApproval": "ApprovalPending",
+        "currentSecuredAmount": 450000.0,
+        "obligationId": "quickstart-return-obligation-861",
+        "atomicityOutcome": "BLOCKED_ATOMICALLY",
+        "controlChecks": [
+          {
+            "checkId": "OBLIGATION_STATE_MISMATCH_BLOCKED",
+            "status": "PASS",
+            "detail": "the workflow rejected the return request because the requested release did not match the remaining obligation state on Quickstart"
+          }
+        ],
+        "returnedLotIds": [],
+        "currentEncumberedLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "releaseConditionSatisfied": false,
+        "returnRequestId": "quickstart-return-request-861",
+        "scenarioId": "negative-obligation-state-mismatch-quickstart",
+        "requestedReturnQuantity": 180000.0,
+        "remainingRequiredCoverage": 300000.0,
+        "remainingEncumberedLotIds": [
+          "quickstart-ret-current-ust-861",
+          "quickstart-ret-current-fannie-861",
+          "quickstart-ret-current-kfw-861"
+        ],
+        "returnState": "UnderEvaluation",
+        "steps": [
+          {
+            "actor": "provider",
+            "step": 1,
+            "state": "Encumbered",
+            "phase": "BASELINE",
+            "detail": "provider started from an already pledged collateral set on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 2,
+            "state": "Draft",
+            "phase": "RETURN",
+            "detail": "provider created the draft return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 3,
+            "state": "Submitted",
+            "phase": "RETURN",
+            "detail": "provider submitted the return request on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 4,
+            "state": "UnderEvaluation",
+            "phase": "RETURN",
+            "detail": "provider moved the return request into evaluation on Quickstart"
+          },
+          {
+            "actor": "provider",
+            "step": 5,
+            "state": "Blocked",
+            "phase": "CONTROL",
+            "detail": "the workflow rejected the return request because the requested release would breach the remaining required coverage"
+          }
+        ],
+        "correlationId": "quickstart-return-correlation-861",
+        "securedPartyApproval": "ApprovalPending"
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "sequence": 1,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return-quickstart",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:22:07Z",
+      "finishedAt": "2026-03-30T04:22:07Z",
+      "artifactPath": "reports/generated/positive-return-quickstart-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for positive scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 2,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return-quickstart",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:22:07Z",
+      "finishedAt": "2026-03-30T04:22:08Z",
+      "artifactPath": "reports/generated/positive-return-quickstart-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario positive-return-quickstart with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 3,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return-quickstart",
+      "phase": "QUICKSTART_SEED",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:22:08Z",
+      "finishedAt": "2026-03-30T04:23:12Z",
+      "artifactPath": "reports/generated/positive-return-quickstart/localnet-control-plane-seed-receipt.json",
+      "detail": "Seeded or reused the declared Quickstart return scenario for positive-return-quickstart before workflow execution."
+    },
+    {
+      "sequence": 4,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return-quickstart",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:23:12Z",
+      "finishedAt": "2026-03-30T04:24:03Z",
+      "artifactPath": "reports/generated/positive-return-quickstart-workflow-result.json",
+      "detail": "Prepared the Quickstart return workflow for scenario positive-return-quickstart and exposed the approved release instruction to the adapter."
+    },
+    {
+      "sequence": 5,
+      "scenarioSequence": 1,
+      "scenarioId": "positive-return-quickstart",
+      "phase": "ADAPTER",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:24:03Z",
+      "finishedAt": "2026-03-30T04:25:00Z",
+      "artifactPath": "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+      "detail": "Executed the Quickstart return adapter for scenario positive-return-quickstart, released the approved holdings, and confirmed the final post-return state."
+    },
+    {
+      "sequence": 6,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:25:49Z",
+      "finishedAt": "2026-03-30T04:25:49Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-quickstart-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 7,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:25:49Z",
+      "finishedAt": "2026-03-30T04:25:50Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-quickstart-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-unauthorized-return-quickstart with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 8,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "phase": "QUICKSTART_SEED",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:25:50Z",
+      "finishedAt": "2026-03-30T04:26:41Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-quickstart/localnet-control-plane-seed-receipt.json",
+      "detail": "Seeded or reused the declared Quickstart return scenario for negative-unauthorized-return-quickstart before workflow execution."
+    },
+    {
+      "sequence": 9,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:26:41Z",
+      "finishedAt": "2026-03-30T04:27:27Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+      "detail": "Recorded the Quickstart return control failure for scenario negative-unauthorized-return-quickstart with workflow state PendingSettlement."
+    },
+    {
+      "sequence": 10,
+      "scenarioSequence": 2,
+      "scenarioId": "negative-unauthorized-return-quickstart",
+      "phase": "ADAPTER",
+      "status": "SKIPPED",
+      "startedAt": "2026-03-30T04:27:27Z",
+      "finishedAt": "2026-03-30T04:28:07Z",
+      "artifactPath": "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+      "detail": "Did not invoke the adapter for scenario negative-unauthorized-return-quickstart because the Quickstart return flow blocked before a trusted release handoff."
+    },
+    {
+      "sequence": 11,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:28:07Z",
+      "finishedAt": "2026-03-30T04:28:08Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-quickstart-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 12,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:28:08Z",
+      "finishedAt": "2026-03-30T04:28:08Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-quickstart-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-replayed-return-instruction-quickstart with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 13,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "phase": "QUICKSTART_SEED",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:28:08Z",
+      "finishedAt": "2026-03-30T04:29:01Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-quickstart/localnet-control-plane-seed-receipt.json",
+      "detail": "Seeded or reused the declared Quickstart return scenario for negative-replayed-return-instruction-quickstart before workflow execution."
+    },
+    {
+      "sequence": 14,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:29:01Z",
+      "finishedAt": "2026-03-30T04:29:46Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+      "detail": "Prepared the Quickstart return workflow for scenario negative-replayed-return-instruction-quickstart and exposed the approved release instruction to the adapter."
+    },
+    {
+      "sequence": 15,
+      "scenarioSequence": 3,
+      "scenarioId": "negative-replayed-return-instruction-quickstart",
+      "phase": "ADAPTER",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:29:46Z",
+      "finishedAt": "2026-03-30T04:30:32Z",
+      "artifactPath": "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+      "detail": "Executed the Quickstart return adapter for scenario negative-replayed-return-instruction-quickstart, settled the original release, and blocked a replayed return instruction without a second adapter side effect."
+    },
+    {
+      "sequence": 16,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "phase": "POLICY_EVALUATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:31:28Z",
+      "finishedAt": "2026-03-30T04:31:28Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-quickstart-policy-evaluation-report.json",
+      "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
+    },
+    {
+      "sequence": 17,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "phase": "OPTIMIZATION",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:31:28Z",
+      "finishedAt": "2026-03-30T04:31:29Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-quickstart-optimization-report.json",
+      "detail": "Optimized the retained encumbered set for scenario negative-obligation-state-mismatch-quickstart with optimizer action SUBSTITUTE."
+    },
+    {
+      "sequence": 18,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "phase": "QUICKSTART_SEED",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:31:29Z",
+      "finishedAt": "2026-03-30T04:32:20Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-control-plane-seed-receipt.json",
+      "detail": "Seeded or reused the declared Quickstart return scenario for negative-obligation-state-mismatch-quickstart before workflow execution."
+    },
+    {
+      "sequence": 19,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "phase": "WORKFLOW",
+      "status": "COMPLETED",
+      "startedAt": "2026-03-30T04:32:20Z",
+      "finishedAt": "2026-03-30T04:33:03Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-result.json",
+      "detail": "Recorded the Quickstart return control failure for scenario negative-obligation-state-mismatch-quickstart with workflow state UnderEvaluation."
+    },
+    {
+      "sequence": 20,
+      "scenarioSequence": 4,
+      "scenarioId": "negative-obligation-state-mismatch-quickstart",
+      "phase": "ADAPTER",
+      "status": "SKIPPED",
+      "startedAt": "2026-03-30T04:33:03Z",
+      "finishedAt": "2026-03-30T04:34:33Z",
+      "artifactPath": "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json",
+      "detail": "Did not invoke the adapter for scenario negative-obligation-state-mismatch-quickstart because the Quickstart return flow blocked before a trusted release handoff."
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariantId": "PDR-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart-policy-evaluation-report.json"
+      ],
+      "note": "The positive Quickstart return path used a generated policy-evaluation report derived from declared inputs."
+    },
+    {
+      "invariantId": "ALLOC-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart-optimization-report.json"
+      ],
+      "note": "The optimizer selected the retained set deterministically and the Quickstart return release scope matched that recommendation."
+    },
+    {
+      "invariantId": "WF-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart/localnet-control-plane-seed-receipt.json",
+        "reports/generated/positive-return-quickstart-workflow-result.json"
+      ],
+      "note": "The Quickstart return workflow remained authoritative for request identity, approvals, settlement intent, and final workflow closure."
+    },
+    {
+      "invariantId": "CTRL-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-result.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json"
+      ],
+      "note": "Quickstart blocked unauthorized release confirmation and stale obligation-state return attempts before any unintended adapter mutation could commit."
+    },
+    {
+      "invariantId": "ADAPT-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart-workflow-result.json",
+        "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+        "reports/generated/positive-return-quickstart/localnet-return-status.json"
+      ],
+      "note": "The reference token adapter consumed the Quickstart return handoff artifact, executed the approved release movement, and emitted an auditable receipt without bypassing workflow authority."
+    },
+    {
+      "invariantId": "ATOM-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+        "reports/generated/positive-return-quickstart/localnet-return-status.json",
+        "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json"
+      ],
+      "note": "The positive Quickstart path released only the approved return scope, and the blocked negative paths preserved the incumbent encumbrance and holding state with zero adapter receipts."
+    },
+    {
+      "invariantId": "REPL-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-status.json"
+      ],
+      "note": "The replay scenario settled the original return once, then blocked a duplicate request identifier without a second adapter release side effect."
+    },
+    {
+      "invariantId": "REPT-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/positive-return-quickstart-policy-evaluation-report.json",
+        "reports/generated/positive-return-quickstart-optimization-report.json",
+        "reports/generated/positive-return-quickstart-workflow-result.json",
+        "reports/generated/positive-return-quickstart/localnet-return-adapter-execution-report.json",
+        "reports/generated/positive-return-quickstart/localnet-return-status.json"
+      ],
+      "note": "The Quickstart return report references real policy, optimization, workflow, adapter, and provider-visible status artifacts rather than operator-authored summaries."
+    },
+    {
+      "invariantId": "EXCP-001",
+      "status": "PASS",
+      "evidence": [
+        "reports/generated/negative-unauthorized-return-quickstart-policy-evaluation-report.json",
+        "reports/generated/negative-unauthorized-return-quickstart-workflow-result.json",
+        "reports/generated/negative-unauthorized-return-quickstart/localnet-return-status.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart-policy-evaluation-report.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-adapter-execution-report.json",
+        "reports/generated/negative-replayed-return-instruction-quickstart/localnet-return-status.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart-policy-evaluation-report.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart-workflow-result.json",
+        "reports/generated/negative-obligation-state-mismatch-quickstart/localnet-return-status.json"
+      ],
+      "note": "The negative Quickstart return scenarios failed deterministically for unauthorized release, replay, and stale obligation-state mismatch without fabricating downstream success."
+    }
+  ]
+}

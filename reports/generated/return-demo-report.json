@@ -2,12 +2,13 @@
   "$schema": "../../reports/schemas/return-report.schema.json",
   "reportType": "ReturnReport",
   "reportVersion": "0.1.0",
-  "returnReportId": "rrr-2bda2f50119b1ea2",
-  "generatedAt": "2026-03-29T17:07:19Z",
+  "returnReportId": "rrr-5acf1d3fa870d789",
+  "generatedAt": "2026-03-30T04:35:10Z",
   "overallStatus": "PASS",
   "demo": {
     "demoId": "return-prototype",
     "demoVersion": "0.1.0",
+    "runtimeMode": "IDE_LEDGER",
     "command": "make demo-return",
     "manifestPath": "examples/demo-scenarios/return/demo-config.json",
     "outputDirectory": "reports/generated",
@@ -27,19 +28,23 @@
       "mode": "POSITIVE",
       "description": "Excess collateral is identified from the currently encumbered set, approvals are enforced, and the selected lot is returned while the retained lots remain pledged.",
       "result": "SUCCESS",
-      "summary": "The optimizer retained ret-current-fannie, ret-current-kfw, selected ret-current-ust for release, and the Daml workflow closed with the returned encumbrances moved to released state.",
+      "summary": "The optimizer retained ret-current-fannie, ret-current-kfw and the Daml workflow closed the return for ret-current-ust.",
       "observedReasonCodes": [],
       "expectedReasonCodes": [],
       "policyEvaluationReportPath": "reports/generated/positive-return-policy-evaluation-report.json",
       "optimizationReportPath": "reports/generated/positive-return-optimization-report.json",
       "workflowInputPath": "reports/generated/positive-return-workflow-input.json",
       "workflowResultPath": "reports/generated/positive-return-workflow-result.json",
+      "quickstartSeedReceiptPath": null,
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": null,
+      "workflowRuntime": "IDE_LEDGER",
       "policyDecision": "ACCEPT",
       "optimizationStatus": "OPTIMAL",
       "currentPostedLotIds": [
-        "ret-current-ust",
         "ret-current-fannie",
-        "ret-current-kfw"
+        "ret-current-kfw",
+        "ret-current-ust"
       ],
       "retainedLotIds": [
         "ret-current-fannie",
@@ -50,7 +55,47 @@
       ],
       "requestedReturnQuantity": 180000.0,
       "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": null,
+      "adapterOutcome": "NOT_REQUESTED",
+      "requestIdentifier": "ret-request-positive",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": null,
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "settlementAction": null,
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "Closed",
+        "settlementInstructionState": null,
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [],
+        "providerVisibleAdapterReceiptCount": null
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this return path"
+      },
       "workflow": {
+        "correlationId": "corr-return-demo-001",
+        "workflowGate": null,
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
         "executionReports": [
           {
             "eventStates": [
@@ -175,7 +220,7 @@
       "mode": "NEGATIVE",
       "description": "The return request reaches pending settlement, but the provider cannot confirm the release or mutate encumbrance state without custodian authority.",
       "result": "EXPECTED_FAILURE",
-      "summary": "The workflow stayed in state PendingSettlement and blocked the control path with checks APPROVAL_GATE_BLOCKED, UNAUTHORIZED_RETURN_BLOCKED.",
+      "summary": "The workflow ended in state PendingSettlement with control checks APPROVAL_GATE_BLOCKED, UNAUTHORIZED_RETURN_BLOCKED.",
       "observedReasonCodes": [
         "APPROVAL_GATE_BLOCKED",
         "UNAUTHORIZED_RETURN_BLOCKED"
@@ -188,12 +233,16 @@
       "optimizationReportPath": "reports/generated/negative-unauthorized-return-optimization-report.json",
       "workflowInputPath": "reports/generated/negative-unauthorized-return-workflow-input.json",
       "workflowResultPath": "reports/generated/negative-unauthorized-return-workflow-result.json",
+      "quickstartSeedReceiptPath": null,
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": null,
+      "workflowRuntime": "IDE_LEDGER",
       "policyDecision": "ACCEPT",
       "optimizationStatus": "OPTIMAL",
       "currentPostedLotIds": [
-        "ret-current-ust",
         "ret-current-fannie",
-        "ret-current-kfw"
+        "ret-current-kfw",
+        "ret-current-ust"
       ],
       "retainedLotIds": [
         "ret-current-fannie",
@@ -204,7 +253,46 @@
       ],
       "requestedReturnQuantity": 180000.0,
       "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": "WORKFLOW",
+      "adapterOutcome": "NOT_REQUESTED",
+      "requestIdentifier": "ret-request-unauthorized",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": null,
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "settlementAction": null,
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "PendingSettlement",
+        "settlementInstructionState": null,
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw",
+          "ret-current-ust"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [],
+        "providerVisibleAdapterReceiptCount": null
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this return path"
+      },
       "workflow": {
+        "correlationId": "corr-return-demo-unauthorized-001",
+        "workflowGate": null,
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
         "executionReports": [],
         "executionReportCount": 0,
         "custodianApproval": "ApprovalGranted",
@@ -320,7 +408,7 @@
       "mode": "NEGATIVE",
       "description": "The original return settles successfully, but a replayed return instruction using the same request identifier is rejected deterministically.",
       "result": "EXPECTED_FAILURE",
-      "summary": "The original return settled for ret-current-ust, and the workflow then blocked the replay path with control checks APPROVAL_GATE_BLOCKED, REPLAY_RETURN_BLOCKED.",
+      "summary": "The workflow ended in state Closed with control checks APPROVAL_GATE_BLOCKED, REPLAY_RETURN_BLOCKED.",
       "observedReasonCodes": [
         "APPROVAL_GATE_BLOCKED",
         "REPLAY_RETURN_BLOCKED"
@@ -333,12 +421,16 @@
       "optimizationReportPath": "reports/generated/negative-replayed-return-instruction-optimization-report.json",
       "workflowInputPath": "reports/generated/negative-replayed-return-instruction-workflow-input.json",
       "workflowResultPath": "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+      "quickstartSeedReceiptPath": null,
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": null,
+      "workflowRuntime": "IDE_LEDGER",
       "policyDecision": "ACCEPT",
       "optimizationStatus": "OPTIMAL",
       "currentPostedLotIds": [
-        "ret-current-ust",
         "ret-current-fannie",
-        "ret-current-kfw"
+        "ret-current-kfw",
+        "ret-current-ust"
       ],
       "retainedLotIds": [
         "ret-current-fannie",
@@ -349,7 +441,47 @@
       ],
       "requestedReturnQuantity": 180000.0,
       "remainingRequiredCoverage": 250000.0,
+      "blockedPhase": "WORKFLOW",
+      "adapterOutcome": "NOT_REQUESTED",
+      "requestIdentifier": "ret-request-replay",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalGranted",
+        "custodianApproval": "ApprovalGranted",
+        "workflowGate": null,
+        "releaseConditionSatisfied": true
+      },
+      "releaseAction": {
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "settlementAction": null,
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "Closed",
+        "settlementInstructionState": null,
+        "returnedLotIds": [
+          "ret-current-ust"
+        ],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [],
+        "providerVisibleAdapterReceiptCount": null
+      },
+      "replayHandlingResult": {
+        "attempted": true,
+        "result": "BLOCKED_DUPLICATE_RETURN_REQUEST",
+        "controlCheckId": "REPLAY_RETURN_BLOCKED",
+        "detail": "the workflow rejected the replayed return instruction by preserving the active request identifier after the committed release"
+      },
       "workflow": {
+        "correlationId": "corr-return-demo-replay-001",
+        "workflowGate": null,
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
         "executionReports": [
           {
             "eventStates": [
@@ -486,7 +618,7 @@
       "mode": "NEGATIVE",
       "description": "The retained-set recommendation was built from a stale obligation amount, so the workflow blocks the return when the actual remaining coverage requirement is higher.",
       "result": "EXPECTED_FAILURE",
-      "summary": "The workflow stayed in state UnderEvaluation and blocked the control path with checks OBLIGATION_STATE_MISMATCH_BLOCKED.",
+      "summary": "The workflow ended in state UnderEvaluation with control checks OBLIGATION_STATE_MISMATCH_BLOCKED.",
       "observedReasonCodes": [
         "OBLIGATION_STATE_MISMATCH_BLOCKED"
       ],
@@ -497,12 +629,16 @@
       "optimizationReportPath": "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
       "workflowInputPath": "reports/generated/negative-obligation-state-mismatch-workflow-input.json",
       "workflowResultPath": "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
+      "quickstartSeedReceiptPath": null,
+      "adapterExecutionReportPath": null,
+      "adapterStatusPath": null,
+      "workflowRuntime": "IDE_LEDGER",
       "policyDecision": "ACCEPT",
       "optimizationStatus": "OPTIMAL",
       "currentPostedLotIds": [
-        "ret-current-ust",
         "ret-current-fannie",
-        "ret-current-kfw"
+        "ret-current-kfw",
+        "ret-current-ust"
       ],
       "retainedLotIds": [
         "ret-current-fannie",
@@ -513,7 +649,46 @@
       ],
       "requestedReturnQuantity": 180000.0,
       "remainingRequiredCoverage": 300000.0,
+      "blockedPhase": "WORKFLOW",
+      "adapterOutcome": "NOT_REQUESTED",
+      "requestIdentifier": "ret-request-mismatch",
+      "approvalState": {
+        "securedPartyApproval": "ApprovalPending",
+        "custodianApproval": "ApprovalPending",
+        "workflowGate": null,
+        "releaseConditionSatisfied": false
+      },
+      "releaseAction": {
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
+        "settlementAction": null,
+        "adapterReceiptStatus": null,
+        "adapterMovementLotIds": []
+      },
+      "finalPostReturnState": {
+        "returnState": "UnderEvaluation",
+        "settlementInstructionState": null,
+        "returnedLotIds": [],
+        "remainingEncumberedLotIds": [
+          "ret-current-fannie",
+          "ret-current-kfw",
+          "ret-current-ust"
+        ],
+        "returnedHoldingLotIds": [],
+        "remainingHoldingLotIds": [],
+        "providerVisibleAdapterReceiptCount": null
+      },
+      "replayHandlingResult": {
+        "attempted": false,
+        "result": "NOT_REQUESTED",
+        "controlCheckId": null,
+        "detail": "no replay attempt was requested for this return path"
+      },
       "workflow": {
+        "correlationId": "corr-return-demo-mismatch-001",
+        "workflowGate": null,
+        "settlementInstructionId": null,
+        "settlementInstructionState": null,
         "executionReports": [],
         "executionReportCount": 0,
         "custodianApproval": "ApprovalPending",
@@ -592,8 +767,8 @@
       "scenarioId": "positive-return",
       "phase": "POLICY_EVALUATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:10Z",
-      "finishedAt": "2026-03-29T17:07:10Z",
+      "startedAt": "2026-03-30T04:34:58Z",
+      "finishedAt": "2026-03-30T04:34:58Z",
       "artifactPath": "reports/generated/positive-return-policy-evaluation-report.json",
       "detail": "Evaluated currently encumbered collateral for positive scenario with overall decision ACCEPT."
     },
@@ -603,8 +778,8 @@
       "scenarioId": "positive-return",
       "phase": "OPTIMIZATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:10Z",
-      "finishedAt": "2026-03-29T17:07:10Z",
+      "startedAt": "2026-03-30T04:34:58Z",
+      "finishedAt": "2026-03-30T04:34:58Z",
       "artifactPath": "reports/generated/positive-return-optimization-report.json",
       "detail": "Optimized the retained encumbered set for scenario positive-return with optimizer action SUBSTITUTE."
     },
@@ -614,8 +789,8 @@
       "scenarioId": "positive-return",
       "phase": "WORKFLOW",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:10Z",
-      "finishedAt": "2026-03-29T17:07:12Z",
+      "startedAt": "2026-03-30T04:34:58Z",
+      "finishedAt": "2026-03-30T04:35:01Z",
       "artifactPath": "reports/generated/positive-return-workflow-result.json",
       "detail": "Recorded the Daml return workflow for scenario positive-return and confirmed settlement-driven encumbrance release."
     },
@@ -625,8 +800,8 @@
       "scenarioId": "negative-unauthorized-return",
       "phase": "POLICY_EVALUATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:12Z",
-      "finishedAt": "2026-03-29T17:07:12Z",
+      "startedAt": "2026-03-30T04:35:01Z",
+      "finishedAt": "2026-03-30T04:35:01Z",
       "artifactPath": "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
       "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
     },
@@ -636,8 +811,8 @@
       "scenarioId": "negative-unauthorized-return",
       "phase": "OPTIMIZATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:12Z",
-      "finishedAt": "2026-03-29T17:07:13Z",
+      "startedAt": "2026-03-30T04:35:01Z",
+      "finishedAt": "2026-03-30T04:35:01Z",
       "artifactPath": "reports/generated/negative-unauthorized-return-optimization-report.json",
       "detail": "Optimized the retained encumbered set for scenario negative-unauthorized-return with optimizer action SUBSTITUTE."
     },
@@ -647,8 +822,8 @@
       "scenarioId": "negative-unauthorized-return",
       "phase": "WORKFLOW",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:13Z",
-      "finishedAt": "2026-03-29T17:07:15Z",
+      "startedAt": "2026-03-30T04:35:01Z",
+      "finishedAt": "2026-03-30T04:35:03Z",
       "artifactPath": "reports/generated/negative-unauthorized-return-workflow-result.json",
       "detail": "Recorded the Daml return control failure for scenario negative-unauthorized-return with workflow state PendingSettlement."
     },
@@ -658,8 +833,8 @@
       "scenarioId": "negative-replayed-return-instruction",
       "phase": "POLICY_EVALUATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:15Z",
-      "finishedAt": "2026-03-29T17:07:15Z",
+      "startedAt": "2026-03-30T04:35:03Z",
+      "finishedAt": "2026-03-30T04:35:04Z",
       "artifactPath": "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
       "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
     },
@@ -669,8 +844,8 @@
       "scenarioId": "negative-replayed-return-instruction",
       "phase": "OPTIMIZATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:15Z",
-      "finishedAt": "2026-03-29T17:07:15Z",
+      "startedAt": "2026-03-30T04:35:04Z",
+      "finishedAt": "2026-03-30T04:35:04Z",
       "artifactPath": "reports/generated/negative-replayed-return-instruction-optimization-report.json",
       "detail": "Optimized the retained encumbered set for scenario negative-replayed-return-instruction with optimizer action SUBSTITUTE."
     },
@@ -680,8 +855,8 @@
       "scenarioId": "negative-replayed-return-instruction",
       "phase": "WORKFLOW",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:15Z",
-      "finishedAt": "2026-03-29T17:07:17Z",
+      "startedAt": "2026-03-30T04:35:04Z",
+      "finishedAt": "2026-03-30T04:35:07Z",
       "artifactPath": "reports/generated/negative-replayed-return-instruction-workflow-result.json",
       "detail": "Recorded the Daml return workflow for scenario negative-replayed-return-instruction, settled the original return, and blocked a replayed instruction."
     },
@@ -691,8 +866,8 @@
       "scenarioId": "negative-obligation-state-mismatch",
       "phase": "POLICY_EVALUATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:17Z",
-      "finishedAt": "2026-03-29T17:07:17Z",
+      "startedAt": "2026-03-30T04:35:07Z",
+      "finishedAt": "2026-03-30T04:35:07Z",
       "artifactPath": "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
       "detail": "Evaluated currently encumbered collateral for negative scenario with overall decision ACCEPT."
     },
@@ -702,8 +877,8 @@
       "scenarioId": "negative-obligation-state-mismatch",
       "phase": "OPTIMIZATION",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:17Z",
-      "finishedAt": "2026-03-29T17:07:17Z",
+      "startedAt": "2026-03-30T04:35:07Z",
+      "finishedAt": "2026-03-30T04:35:07Z",
       "artifactPath": "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
       "detail": "Optimized the retained encumbered set for scenario negative-obligation-state-mismatch with optimizer action SUBSTITUTE."
     },
@@ -713,8 +888,8 @@
       "scenarioId": "negative-obligation-state-mismatch",
       "phase": "WORKFLOW",
       "status": "COMPLETED",
-      "startedAt": "2026-03-29T17:07:17Z",
-      "finishedAt": "2026-03-29T17:07:19Z",
+      "startedAt": "2026-03-30T04:35:07Z",
+      "finishedAt": "2026-03-30T04:35:10Z",
       "artifactPath": "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
       "detail": "Recorded the Daml return control failure for scenario negative-obligation-state-mismatch with workflow state UnderEvaluation."
     }
@@ -779,15 +954,15 @@
       "invariantId": "EXCP-001",
       "status": "PASS",
       "evidence": [
-        "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
-        "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
-        "reports/generated/negative-obligation-state-mismatch-workflow-result.json",
-        "reports/generated/negative-replayed-return-instruction-optimization-report.json",
-        "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
-        "reports/generated/negative-replayed-return-instruction-workflow-result.json",
-        "reports/generated/negative-unauthorized-return-optimization-report.json",
         "reports/generated/negative-unauthorized-return-policy-evaluation-report.json",
-        "reports/generated/negative-unauthorized-return-workflow-result.json"
+        "reports/generated/negative-unauthorized-return-optimization-report.json",
+        "reports/generated/negative-unauthorized-return-workflow-result.json",
+        "reports/generated/negative-replayed-return-instruction-policy-evaluation-report.json",
+        "reports/generated/negative-replayed-return-instruction-optimization-report.json",
+        "reports/generated/negative-replayed-return-instruction-workflow-result.json",
+        "reports/generated/negative-obligation-state-mismatch-policy-evaluation-report.json",
+        "reports/generated/negative-obligation-state-mismatch-optimization-report.json",
+        "reports/generated/negative-obligation-state-mismatch-workflow-result.json"
       ],
       "note": "The negative return scenarios failed deterministically for unauthorized release, replayed return instruction, and obligation-state mismatch conditions."
     }

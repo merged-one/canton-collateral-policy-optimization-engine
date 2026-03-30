@@ -1,0 +1,553 @@
+{
+  "$schema": "../../reports/schemas/optimization-report.schema.json",
+  "reportType": "OptimizationReport",
+  "reportVersion": "0.1.0",
+  "optimizationId": "opr-c69fae0c9d807e63",
+  "status": "OPTIMAL",
+  "recommendedAction": "SUBSTITUTE",
+  "objective": {
+    "objectiveId": "MINIMIZE_MARKET_VALUE_THEN_HAIRCUT_COST_THEN_EXCESS",
+    "sequence": [
+      "market_value_amount",
+      "haircut_cost_amount",
+      "excess_amount",
+      "lot_count",
+      "lot_ids_lexical_tie_break"
+    ]
+  },
+  "policy": {
+    "policyId": "return-release-control-policy",
+    "policyVersion": "1.0.0",
+    "cplVersion": "0.1.0",
+    "profile": "central_bank"
+  },
+  "inventory": {
+    "inventorySetId": "return-quickstart-positive-inventory",
+    "inventoryVersion": "1.0.0",
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "candidateLotCount": 3
+  },
+  "obligation": {
+    "obligationId": "quickstart-return-obligation-831",
+    "obligationVersion": "1.0.0",
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "coverageMetric": "LENDABLE_VALUE",
+    "obligationAmount": 250000.0,
+    "currentPostedLotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831",
+      "quickstart-ret-current-ust-831"
+    ],
+    "substitutionRequest": null
+  },
+  "candidateUniverse": {
+    "candidateLotCount": 3,
+    "admissibleLotCount": 3,
+    "blockedLotCount": 0,
+    "consideredCombinationCount": 7,
+    "feasibleCombinationCount": 4,
+    "screeningResults": [
+      {
+        "lotId": "quickstart-ret-current-fannie-831",
+        "assetId": "quickstart-ret-current-fannie-asset-831",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "fannie-mae",
+        "marketValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "quickstart-ret-current-kfw-831",
+        "assetId": "quickstart-ret-current-kfw-asset-831",
+        "assetClass": "AGENCY_BOND",
+        "issuerId": "kfw",
+        "marketValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700,
+        "admissible": true,
+        "reasonCodes": []
+      },
+      {
+        "lotId": "quickstart-ret-current-ust-831",
+        "assetId": "quickstart-ret-current-ust-asset-831",
+        "assetClass": "SOVEREIGN_BOND",
+        "issuerId": "us-treasury",
+        "marketValue": 180000.0,
+        "lendableValue": 176400.0,
+        "totalHaircutBps": 200,
+        "admissible": true,
+        "reasonCodes": []
+      }
+    ]
+  },
+  "currentPortfolio": {
+    "lotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831",
+      "quickstart-ret-current-ust-831"
+    ],
+    "policyEvaluationId": "per-67c93e966b0f3e95",
+    "policyDecision": "ACCEPT",
+    "isFeasible": true,
+    "requiredAmount": 250000.0,
+    "allocatedMarketValue": 450000.0,
+    "allocatedLendableValue": 427500.0,
+    "shortfallAmount": 0.0,
+    "excessAmount": 177500.0,
+    "haircutCostAmount": 22500.0,
+    "lotCount": 3,
+    "objectiveVector": {
+      "marketValueAmount": 450000.0,
+      "haircutCostAmount": 22500.0,
+      "excessAmount": 177500.0,
+      "lotCount": 3,
+      "tieBreakLotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831",
+        "quickstart-ret-current-ust-831"
+      ]
+    },
+    "blockingReasonCodes": [],
+    "selectedLots": [
+      {
+        "lotId": "quickstart-ret-current-fannie-831",
+        "assetId": "quickstart-ret-current-fannie-asset-831",
+        "issuerId": "fannie-mae",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 150000.0,
+        "valuationBasisValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "quickstart-ret-current-kfw-831",
+        "assetId": "quickstart-ret-current-kfw-asset-831",
+        "issuerId": "kfw",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 120000.0,
+        "valuationBasisValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "quickstart-ret-current-ust-831",
+        "assetId": "quickstart-ret-current-ust-asset-831",
+        "issuerId": "us-treasury",
+        "assetClass": "SOVEREIGN_BOND",
+        "marketValue": 180000.0,
+        "valuationBasisValue": 180000.0,
+        "lendableValue": 176400.0,
+        "totalHaircutBps": 200
+      }
+    ],
+    "concentrationResults": [
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "fannie-mae",
+        "bucketValue": 150000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.333333,
+        "relatedLotIds": [
+          "quickstart-ret-current-fannie-831"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "kfw",
+        "bucketValue": 120000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.266667,
+        "relatedLotIds": [
+          "quickstart-ret-current-kfw-831"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "us-treasury",
+        "bucketValue": 180000.0,
+        "denominatorValue": 450000.0,
+        "observedRatio": 0.4,
+        "relatedLotIds": [
+          "quickstart-ret-current-ust-831"
+        ],
+        "reason": null
+      }
+    ]
+  },
+  "recommendedPortfolio": {
+    "lotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831"
+    ],
+    "policyEvaluationId": "per-9bbefa7aa8f5a0ba",
+    "policyDecision": "ACCEPT",
+    "isFeasible": true,
+    "requiredAmount": 250000.0,
+    "allocatedMarketValue": 270000.0,
+    "allocatedLendableValue": 251100.0,
+    "shortfallAmount": 0.0,
+    "excessAmount": 1100.0,
+    "haircutCostAmount": 18900.0,
+    "lotCount": 2,
+    "objectiveVector": {
+      "marketValueAmount": 270000.0,
+      "haircutCostAmount": 18900.0,
+      "excessAmount": 1100.0,
+      "lotCount": 2,
+      "tieBreakLotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831"
+      ]
+    },
+    "blockingReasonCodes": [],
+    "selectedLots": [
+      {
+        "lotId": "quickstart-ret-current-fannie-831",
+        "assetId": "quickstart-ret-current-fannie-asset-831",
+        "issuerId": "fannie-mae",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 150000.0,
+        "valuationBasisValue": 150000.0,
+        "lendableValue": 139500.0,
+        "totalHaircutBps": 700
+      },
+      {
+        "lotId": "quickstart-ret-current-kfw-831",
+        "assetId": "quickstart-ret-current-kfw-asset-831",
+        "issuerId": "kfw",
+        "assetClass": "AGENCY_BOND",
+        "marketValue": 120000.0,
+        "valuationBasisValue": 120000.0,
+        "lendableValue": 111600.0,
+        "totalHaircutBps": 700
+      }
+    ],
+    "concentrationResults": [
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "fannie-mae",
+        "bucketValue": 150000.0,
+        "denominatorValue": 270000.0,
+        "observedRatio": 0.555556,
+        "relatedLotIds": [
+          "quickstart-ret-current-fannie-831"
+        ],
+        "reason": null
+      },
+      {
+        "limitId": "issuer-cap",
+        "dimension": "ISSUER",
+        "scope": "POLICY_PORTFOLIO",
+        "metric": "PERCENT_OF_COLLATERAL_VALUE",
+        "decision": "PASS",
+        "thresholdValue": 0.6,
+        "thresholdCurrency": null,
+        "bucket": "kfw",
+        "bucketValue": 120000.0,
+        "denominatorValue": 270000.0,
+        "observedRatio": 0.444444,
+        "relatedLotIds": [
+          "quickstart-ret-current-kfw-831"
+        ],
+        "reason": null
+      }
+    ]
+  },
+  "substitutionRecommendation": {
+    "requestId": null,
+    "atomicityRequired": false,
+    "mustReplaceLotIds": [],
+    "currentPostedLotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831",
+      "quickstart-ret-current-ust-831"
+    ],
+    "recommendedLotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831"
+    ],
+    "retainedLotIds": [
+      "quickstart-ret-current-fannie-831",
+      "quickstart-ret-current-kfw-831"
+    ],
+    "removeLotIds": [
+      "quickstart-ret-current-ust-831"
+    ],
+    "addLotIds": [],
+    "improvesObjective": true
+  },
+  "explanationTrace": [
+    {
+      "step": 1,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot quickstart-ret-current-fannie-831 for non-concentration policy feasibility.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 2,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot quickstart-ret-current-kfw-831 for non-concentration policy feasibility.",
+      "lotIds": [
+        "quickstart-ret-current-kfw-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 3,
+      "stage": "SCREENING",
+      "outcome": "ADMISSIBLE",
+      "message": "Screened lot quickstart-ret-current-ust-831 for non-concentration policy feasibility.",
+      "lotIds": [
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": null,
+      "objectiveSnapshot": null
+    },
+    {
+      "step": 4,
+      "stage": "CURRENT_PORTFOLIO",
+      "outcome": "FEASIBLE",
+      "message": "Evaluated the currently posted lot set against coverage and portfolio-level policy constraints.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831",
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 427500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 450000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 177500.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831",
+          "quickstart-ret-current-ust-831"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset quickstart-ret-current-fannie-831.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 139500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 150000.0,
+        "haircutCostAmount": 10500.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831"
+        ]
+      }
+    },
+    {
+      "step": 6,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset quickstart-ret-current-kfw-831.",
+      "lotIds": [
+        "quickstart-ret-current-kfw-831"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 111600.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 120000.0,
+        "haircutCostAmount": 8400.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-kfw-831"
+        ]
+      }
+    },
+    {
+      "step": 7,
+      "stage": "SEARCH",
+      "outcome": "BLOCKED",
+      "message": "Evaluated subset quickstart-ret-current-ust-831.",
+      "lotIds": [
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [
+        "CONCENTRATION_LIMIT_BREACH",
+        "INSUFFICIENT_LENDABLE_VALUE"
+      ],
+      "coverageAmount": 176400.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 180000.0,
+        "haircutCostAmount": 3600.0,
+        "excessAmount": 0.0,
+        "lotCount": 1,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-ust-831"
+        ]
+      }
+    },
+    {
+      "step": 8,
+      "stage": "SEARCH",
+      "outcome": "NEW_INCUMBENT",
+      "message": "Evaluated subset quickstart-ret-current-fannie-831,quickstart-ret-current-kfw-831.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 251100.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 270000.0,
+        "haircutCostAmount": 18900.0,
+        "excessAmount": 1100.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ]
+      }
+    },
+    {
+      "step": 9,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset quickstart-ret-current-fannie-831,quickstart-ret-current-ust-831.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 315900.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 330000.0,
+        "haircutCostAmount": 14100.0,
+        "excessAmount": 65900.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-ust-831"
+        ]
+      }
+    },
+    {
+      "step": 10,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset quickstart-ret-current-kfw-831,quickstart-ret-current-ust-831.",
+      "lotIds": [
+        "quickstart-ret-current-kfw-831",
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 288000.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 300000.0,
+        "haircutCostAmount": 12000.0,
+        "excessAmount": 38000.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-kfw-831",
+          "quickstart-ret-current-ust-831"
+        ]
+      }
+    },
+    {
+      "step": 11,
+      "stage": "SEARCH",
+      "outcome": "FEASIBLE_BUT_INFERIOR",
+      "message": "Evaluated subset quickstart-ret-current-fannie-831,quickstart-ret-current-kfw-831,quickstart-ret-current-ust-831.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831",
+        "quickstart-ret-current-ust-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 427500.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 450000.0,
+        "haircutCostAmount": 22500.0,
+        "excessAmount": 177500.0,
+        "lotCount": 3,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831",
+          "quickstart-ret-current-ust-831"
+        ]
+      }
+    },
+    {
+      "step": 12,
+      "stage": "DECISION",
+      "outcome": "SUBSTITUTE",
+      "message": "Selected the final optimizer recommendation.",
+      "lotIds": [
+        "quickstart-ret-current-fannie-831",
+        "quickstart-ret-current-kfw-831"
+      ],
+      "reasonCodes": [],
+      "coverageAmount": 251100.0,
+      "objectiveSnapshot": {
+        "marketValueAmount": 270000.0,
+        "haircutCostAmount": 18900.0,
+        "excessAmount": 1100.0,
+        "lotCount": 2,
+        "tieBreakLotIds": [
+          "quickstart-ret-current-fannie-831",
+          "quickstart-ret-current-kfw-831"
+        ]
+      }
+    }
+  ]
+}

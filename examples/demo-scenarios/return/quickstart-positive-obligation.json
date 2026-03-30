@@ -1,0 +1,13 @@
+{
+  "obligationId": "quickstart-return-obligation-831",
+  "obligationVersion": "1.0.0",
+  "asOf": "2026-04-16T14:00:00Z",
+  "settlementCurrency": "USD",
+  "coverageMetric": "LENDABLE_VALUE",
+  "obligationAmount": 250000.0,
+  "currentPostedLotIds": [
+    "quickstart-ret-current-ust-831",
+    "quickstart-ret-current-fannie-831",
+    "quickstart-ret-current-kfw-831"
+  ]
+}

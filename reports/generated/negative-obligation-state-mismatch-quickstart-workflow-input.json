@@ -1,0 +1,42 @@
+{
+  "scenarioId": "negative-obligation-state-mismatch-quickstart",
+  "obligationId": "quickstart-return-obligation-861",
+  "returnRequestId": "quickstart-return-request-861",
+  "correlationId": "quickstart-return-correlation-861",
+  "policyVersion": "cpl-v0.1-quickstart-return-demo",
+  "snapshotId": "quickstart-return-snapshot-861",
+  "decisionReference": "quickstart-return-decision-861",
+  "providerParty": "app_user_canton-collateral-1::122029d17b90ca982c572b237f30895dd12b8db8582d623e473ed8059ce3e4185d0a",
+  "securedParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "custodianParty": "app_provider_canton-collateral-1::12208903631325bcb3f6a87594729003aa53482189f278200572cb23b01e795a5afc",
+  "currentEncumberedLotIds": [
+    "quickstart-ret-current-ust-861",
+    "quickstart-ret-current-fannie-861",
+    "quickstart-ret-current-kfw-861"
+  ],
+  "returnLots": [
+    {
+      "jurisdiction": "US",
+      "quantity": 180000.0,
+      "transferabilityFlags": [
+        "deliverable",
+        "pledgeable"
+      ],
+      "sourceAccount": "secured-account-return-861",
+      "issuer": "UST",
+      "assetClass": "SovereignDebt",
+      "destinationAccount": "provider-account-return-861",
+      "currency": "USD",
+      "tokenAdapterReference": "adapter/quickstart/return/us-treasury",
+      "settlementSystem": "Fedwire",
+      "lotId": "quickstart-ret-current-ust-861",
+      "custodyAccount": "secured-account-return-861",
+      "assetId": "quickstart-ret-current-ust-asset-861"
+    }
+  ],
+  "currentSecuredAmount": 450000.0,
+  "remainingRequiredCoverage": 300000.0,
+  "requiresSecuredPartyApproval": true,
+  "requiresCustodianApproval": true,
+  "workflowGate": "BLOCK_STALE_COVERAGE"
+}

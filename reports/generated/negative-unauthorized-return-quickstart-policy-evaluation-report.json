@@ -1,0 +1,188 @@
+{
+  "$schema": "../../reports/schemas/policy-evaluation-report.schema.json",
+  "reportType": "PolicyEvaluationReport",
+  "reportVersion": "0.1.0",
+  "evaluationId": "per-a6398349be106a7e",
+  "overallDecision": "ACCEPT",
+  "policy": {
+    "policyId": "return-release-control-policy",
+    "policyVersion": "1.0.0",
+    "cplVersion": "0.1.0",
+    "profile": "central_bank"
+  },
+  "inventory": {
+    "inventorySetId": "return-quickstart-negative-unauthorized-inventory",
+    "inventoryVersion": "1.0.0",
+    "asOf": "2026-04-16T14:00:00Z",
+    "settlementCurrency": "USD",
+    "valuationCurrency": "USD",
+    "candidateLotCount": 3
+  },
+  "summary": {
+    "candidateLotCount": 3,
+    "decisionCounts": {
+      "eligible": 3,
+      "ineligible": 0,
+      "escalate": 0,
+      "review": 0
+    },
+    "totalMarketValue": 450000.0,
+    "totalLendableValue": 427500.0,
+    "concentrationIssueCount": 0
+  },
+  "portfolioReasons": [],
+  "assetResults": [
+    {
+      "lotId": "quickstart-ret-current-fannie-841",
+      "assetId": "quickstart-ret-current-fannie-asset-841",
+      "decision": "ELIGIBLE",
+      "assetClass": "AGENCY_BOND",
+      "issueType": "AGENCY",
+      "issuerId": "fannie-mae",
+      "issuerType": "AGENCY",
+      "issuerGroupIds": [
+        "fannie-group"
+      ],
+      "longTermRating": "AA",
+      "collateralCurrency": "USD",
+      "issuanceJurisdiction": "US",
+      "riskJurisdiction": "US",
+      "custodianId": "new-york-fed",
+      "custodyJurisdiction": "US",
+      "accountType": "CENTRAL_BANK_ACCOUNT",
+      "residualMaturityDays": 540,
+      "marketValue": 150000.0,
+      "valuationBasisValue": 150000.0,
+      "baseHaircutBps": 700,
+      "currencyMismatchHaircutBps": 0,
+      "totalHaircutBps": 700,
+      "matchedHaircutRuleIds": [
+        "agency-and-supranational"
+      ],
+      "appliedHaircutRuleIds": [
+        "agency-and-supranational"
+      ],
+      "lendableValue": 139500.0,
+      "reasons": []
+    },
+    {
+      "lotId": "quickstart-ret-current-kfw-841",
+      "assetId": "quickstart-ret-current-kfw-asset-841",
+      "decision": "ELIGIBLE",
+      "assetClass": "AGENCY_BOND",
+      "issueType": "AGENCY",
+      "issuerId": "kfw",
+      "issuerType": "AGENCY",
+      "issuerGroupIds": [
+        "kfw-group"
+      ],
+      "longTermRating": "AAA",
+      "collateralCurrency": "USD",
+      "issuanceJurisdiction": "DE",
+      "riskJurisdiction": "DE",
+      "custodianId": "euroclear-bank",
+      "custodyJurisdiction": "BE",
+      "accountType": "THIRD_PARTY_CUSTODY",
+      "residualMaturityDays": 720,
+      "marketValue": 120000.0,
+      "valuationBasisValue": 120000.0,
+      "baseHaircutBps": 700,
+      "currencyMismatchHaircutBps": 0,
+      "totalHaircutBps": 700,
+      "matchedHaircutRuleIds": [
+        "agency-and-supranational"
+      ],
+      "appliedHaircutRuleIds": [
+        "agency-and-supranational"
+      ],
+      "lendableValue": 111600.0,
+      "reasons": []
+    },
+    {
+      "lotId": "quickstart-ret-current-ust-841",
+      "assetId": "quickstart-ret-current-ust-asset-841",
+      "decision": "ELIGIBLE",
+      "assetClass": "SOVEREIGN_BOND",
+      "issueType": "SOVEREIGN",
+      "issuerId": "us-treasury",
+      "issuerType": "SOVEREIGN",
+      "issuerGroupIds": [
+        "us-sovereign-group"
+      ],
+      "longTermRating": "AA+",
+      "collateralCurrency": "USD",
+      "issuanceJurisdiction": "US",
+      "riskJurisdiction": "US",
+      "custodianId": "new-york-fed",
+      "custodyJurisdiction": "US",
+      "accountType": "CENTRAL_BANK_ACCOUNT",
+      "residualMaturityDays": 180,
+      "marketValue": 180000.0,
+      "valuationBasisValue": 180000.0,
+      "baseHaircutBps": 200,
+      "currencyMismatchHaircutBps": 0,
+      "totalHaircutBps": 200,
+      "matchedHaircutRuleIds": [
+        "domestic-sovereign-short"
+      ],
+      "appliedHaircutRuleIds": [
+        "domestic-sovereign-short"
+      ],
+      "lendableValue": 176400.0,
+      "reasons": []
+    }
+  ],
+  "concentrationResults": [
+    {
+      "limitId": "issuer-cap",
+      "dimension": "ISSUER",
+      "scope": "POLICY_PORTFOLIO",
+      "metric": "PERCENT_OF_COLLATERAL_VALUE",
+      "decision": "PASS",
+      "thresholdValue": 0.6,
+      "thresholdCurrency": null,
+      "bucket": "fannie-mae",
+      "bucketValue": 150000.0,
+      "denominatorValue": 450000.0,
+      "observedRatio": 0.333333,
+      "relatedLotIds": [
+        "quickstart-ret-current-fannie-841"
+      ],
+      "reason": null
+    },
+    {
+      "limitId": "issuer-cap",
+      "dimension": "ISSUER",
+      "scope": "POLICY_PORTFOLIO",
+      "metric": "PERCENT_OF_COLLATERAL_VALUE",
+      "decision": "PASS",
+      "thresholdValue": 0.6,
+      "thresholdCurrency": null,
+      "bucket": "kfw",
+      "bucketValue": 120000.0,
+      "denominatorValue": 450000.0,
+      "observedRatio": 0.266667,
+      "relatedLotIds": [
+        "quickstart-ret-current-kfw-841"
+      ],
+      "reason": null
+    },
+    {
+      "limitId": "issuer-cap",
+      "dimension": "ISSUER",
+      "scope": "POLICY_PORTFOLIO",
+      "metric": "PERCENT_OF_COLLATERAL_VALUE",
+      "decision": "PASS",
+      "thresholdValue": 0.6,
+      "thresholdCurrency": null,
+      "bucket": "us-treasury",
+      "bucketValue": 180000.0,
+      "denominatorValue": 450000.0,
+      "observedRatio": 0.4,
+      "relatedLotIds": [
+        "quickstart-ret-current-ust-841"
+      ],
+      "reason": null
+    }
+  ]
+}

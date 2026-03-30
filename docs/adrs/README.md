@@ -27,3 +27,7 @@ Architecture Decision Records capture durable technical and operating choices th
 - [0015-quickstart-demo-foundation.md](./0015-quickstart-demo-foundation.md)
 - [0016-quickstart-runtime-bridge.md](./0016-quickstart-runtime-bridge.md)
 - [0017-quickstart-confidential-seed.md](./0017-quickstart-confidential-seed.md)
+- [0018-reference-token-adapter-path.md](./0018-reference-token-adapter-path.md)
+- [0019-quickstart-margin-call-demo-orchestration.md](./0019-quickstart-margin-call-demo-orchestration.md)
+- [0020-quickstart-substitution-demo-orchestration.md](./0020-quickstart-substitution-demo-orchestration.md)
+- [0021-quickstart-return-demo-orchestration.md](./0021-quickstart-return-demo-orchestration.md)

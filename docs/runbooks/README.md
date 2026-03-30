@@ -37,6 +37,7 @@ The repository now includes:
 - `make demo-run` for a Daml runtime-foundation smoke scenario
 - `make demo-margin-call` for the first end-to-end margin-call operator demo
 - `make demo-return` for the first end-to-end return operator demo
+- `make demo-return-quickstart` for the Quickstart-backed end-to-end return operator demo
 - `make demo-substitution` for the first end-to-end substitution operator demo
 - `make test-conformance` for the aggregate invariant-verification package
 - `make demo-all` for the final packaged prototype demonstration

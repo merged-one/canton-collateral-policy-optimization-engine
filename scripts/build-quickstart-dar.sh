@@ -21,7 +21,37 @@ metadata_file="$output_dir/quickstart-dar-metadata.env"
 container_output_dir="/workspace${output_dir#"$repo_root"}"
 container_metadata_file="$container_output_dir/quickstart-dar-metadata.env"
 
+metadata_value() {
+	key=$1
+	sed -n "s/^${key}=//p" "$metadata_file" | head -n 1
+}
+
 mkdir -p "$output_dir"
+
+if [ -f "$metadata_file" ]; then
+	existing_dar_file=$(metadata_value DAR_FILE)
+	existing_package_id=$(metadata_value PACKAGE_ID)
+	existing_sdk_version=$(metadata_value DAML_SDK_VERSION)
+	existing_java_version=$(metadata_value JAVA_VERSION)
+	existing_build_container_image=$(metadata_value BUILD_CONTAINER_IMAGE)
+	if [ -n "$existing_dar_file" ] \
+		&& [ -n "$existing_package_id" ] \
+		&& [ -f "$existing_dar_file" ] \
+		&& [ "$existing_sdk_version" = "$QUICKSTART_DAML_SDK_VERSION" ] \
+		&& [ "$existing_java_version" = "$QUICKSTART_JAVA_VERSION" ] \
+		&& [ "$existing_build_container_image" = "$QUICKSTART_BUILD_CONTAINER_IMAGE" ] \
+		&& [ ! "$repo_root/daml.yaml" -nt "$existing_dar_file" ]
+	then
+		newer_daml_source=$(find "$repo_root/daml" -type f -newer "$existing_dar_file" -print -quit)
+		if [ -z "$newer_daml_source" ]; then
+			echo "localnet-build-dar: reusing $existing_dar_file"
+			echo "localnet-build-dar: main package id $existing_package_id"
+			echo "localnet-build-dar: runtime line Daml SDK $existing_sdk_version via $existing_build_container_image"
+			exit 0
+		fi
+	fi
+fi
+
 rm -f "$output_dir"/*.dar "$metadata_file"
 
 docker run --rm -i \

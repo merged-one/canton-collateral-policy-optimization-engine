@@ -1,0 +1,929 @@
+module CantonCollateral.QuickstartReturn where
+
+import Daml.Script
+
+import CantonCollateral.Encumbrance
+import CantonCollateral.Inventory
+import CantonCollateral.QuickstartAdapter
+import CantonCollateral.QuickstartSeed
+import CantonCollateral.ReferenceToken
+import CantonCollateral.Report
+import CantonCollateral.Return
+import CantonCollateral.Roles
+import CantonCollateral.Settlement
+import CantonCollateral.Types
+
+data SeededReturnEncumbrance = SeededReturnEncumbrance
+  with
+    lotId : Text
+    encumbranceId : Text
+    contractId : ContractId EncumbranceState
+  deriving (Eq, Show)
+
+data QuickstartReturnSeedInput = QuickstartReturnSeedInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    correlationId : Text
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    providerParty : Party
+    providerUserId : Text
+    securedParty : Party
+    securedPartyUserId : Text
+    operatorPartyHint : Text
+    operatorDisplayName : Text
+    operatorUserId : Text
+    custodianPartyHint : Text
+    custodianDisplayName : Text
+    custodianUserId : Text
+    currentEncumberedLots : [QuickstartSeedLotInput]
+  deriving (Eq, Show)
+
+data QuickstartReturnSeedResult = QuickstartReturnSeedResult
+  with
+    scenarioId : Text
+    obligationId : Text
+    correlationId : Text
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    providerParty : Party
+    securedParty : Party
+    operatorParty : Party
+    custodianParty : Party
+    operatorUserId : Text
+    custodianUserId : Text
+    roleRegistrations : [SeededRoleRegistration]
+    currentInventoryLots : [SeededInventoryLot]
+    currentEncumbrances : [SeededReturnEncumbrance]
+    referenceTokenHoldings : [SeededReferenceTokenHolding]
+    currentEncumberedLots : [QuickstartSeedLotInput]
+  deriving (Eq, Show)
+
+data QuickstartReturnWorkflowInput = QuickstartReturnWorkflowInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    returnRequestId : Text
+    correlationId : Text
+    policyVersion : Text
+    snapshotId : Text
+    decisionReference : Text
+    providerParty : Party
+    securedParty : Party
+    custodianParty : Party
+    currentEncumberedLotIds : [Text]
+    returnLots : [QuickstartSeedLotInput]
+    currentSecuredAmount : Decimal
+    remainingRequiredCoverage : Decimal
+    requiresSecuredPartyApproval : Bool
+    requiresCustodianApproval : Bool
+    workflowGate : Text
+  deriving (Eq, Show)
+
+data QuickstartReturnWorkflowStep = QuickstartReturnWorkflowStep
+  with
+    step : Int
+    phase : Text
+    actor : Text
+    state : Text
+    detail : Text
+  deriving (Eq, Show)
+
+data QuickstartReturnExecutionReport = QuickstartReturnExecutionReport
+  with
+    reportId : Text
+    workflowType : Text
+    outcome : Text
+    summary : Text
+    eventIds : [Text]
+    eventStates : [Text]
+  deriving (Eq, Show)
+
+data QuickstartReturnControlCheck = QuickstartReturnControlCheck
+  with
+    checkId : Text
+    status : Text
+    detail : Text
+  deriving (Eq, Show)
+
+data QuickstartReturnWorkflowResult = QuickstartReturnWorkflowResult
+  with
+    scenarioId : Text
+    obligationId : Text
+    returnRequestId : Text
+    correlationId : Text
+    workflowGate : Text
+    returnState : Text
+    securedPartyApproval : Text
+    custodianApproval : Text
+    settlementInstructionId : Optional Text
+    settlementInstructionState : Optional Text
+    currentEncumberedLotIds : [Text]
+    returnedLotIds : [Text]
+    remainingEncumberedLotIds : [Text]
+    requestedReturnQuantity : Decimal
+    currentSecuredAmount : Decimal
+    remainingRequiredCoverage : Decimal
+    releaseConditionSatisfied : Bool
+    atomicityOutcome : Text
+    executionReportCount : Int
+    executionReports : [QuickstartReturnExecutionReport]
+    controlChecks : [QuickstartReturnControlCheck]
+    steps : [QuickstartReturnWorkflowStep]
+  deriving (Eq, Show)
+
+data QuickstartReturnReplayHandlingView = QuickstartReturnReplayHandlingView
+  with
+    attempted : Bool
+    result : Text
+    controlCheckId : Optional Text
+    detail : Text
+  deriving (Eq, Show)
+
+data QuickstartReturnAdapterInput = QuickstartReturnAdapterInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    returnRequestId : Text
+    providerParty : Party
+    securedParty : Party
+    custodianParty : Party
+    settlementInstructionId : Text
+    currentEncumberedLots : [QuickstartSeedLotInput]
+    returnLots : [QuickstartSeedLotInput]
+    simulateReplayAttempt : Bool
+  deriving (Eq, Show)
+
+data QuickstartReturnWorkflowConfirmationView = QuickstartReturnWorkflowConfirmationView
+  with
+    returnStateBefore : Text
+    returnStateAfterConfirmation : Text
+    settledInstructionState : Text
+    providerVisibleExecutionReportCount : Int
+    providerVisibleEncumbranceCount : Int
+    returnedLotIds : [Text]
+    remainingEncumberedLotIds : [Text]
+  deriving (Eq, Show)
+
+data QuickstartReturnAdapterReport = QuickstartReturnAdapterReport
+  with
+    reportVersion : Text
+    adapterName : Text
+    adapterVersion : Text
+    scenarioId : Text
+    startedAt : Time
+    finishedAt : Time
+    settlementInstruction : AdapterSettlementInstructionView
+    approvedReturnLotIds : [Text]
+    encumbranceContextBefore : [AdapterEncumbranceView]
+    referenceTokenHoldingsBefore : [AdapterHoldingView]
+    adapterReceipt : AdapterReceiptView
+    referenceTokenHoldingsAfter : [AdapterHoldingView]
+    workflowConfirmation : QuickstartReturnWorkflowConfirmationView
+    encumbranceContextAfter : [AdapterEncumbranceView]
+    replayHandling : QuickstartReturnReplayHandlingView
+  deriving (Eq, Show)
+
+data QuickstartReturnStatusInput = QuickstartReturnStatusInput
+  with
+    scenarioId : Text
+    obligationId : Text
+    providerParty : Party
+    currentEncumberedLotIds : [Text]
+  deriving (Eq, Show)
+
+data QuickstartReturnStatusResult = QuickstartReturnStatusResult
+  with
+    scenarioId : Text
+    returnState : Optional Text
+    settlementInstructionState : Optional Text
+    providerVisibleExecutionReportCount : Int
+    providerVisibleEncumbrances : [AdapterEncumbranceView]
+    providerVisibleCurrentLotHoldings : [AdapterHoldingView]
+    providerVisibleAdapterReceipts : [AdapterReceiptStatusView]
+  deriving (Eq, Show)
+
+expectActiveReturnRequest : Party -> ContractId ReturnRequest -> Text -> Script ReturnRequest
+expectActiveReturnRequest party cid missingMessage = do
+  returns <- query @ReturnRequest party
+  expectContractFromQuery returns cid missingMessage
+
+findReturnForInstruction :
+  Party ->
+  Text ->
+  Text ->
+  ContractId SettlementInstruction ->
+  Script (ContractId ReturnRequest, ReturnRequest)
+findReturnForInstruction party obligationId instructionId instructionCid = do
+  returns <-
+    queryFilter @ReturnRequest party
+      (\returnRequest ->
+        returnRequest.obligationId == obligationId
+          && returnRequest.returnRequestId /= ""
+          && returnRequest.state == PendingSettlement
+          && returnRequest.settlementInstructionCid == Some instructionCid
+      )
+  expectSingleMatch ("missing return request for settlement instruction " <> instructionId) returns
+
+findReturnRegistry :
+  Party ->
+  Party ->
+  Party ->
+  Text ->
+  Script (ContractId ReturnRequestRegistry, ReturnRequestRegistry)
+findReturnRegistry providerParty securedParty custodianParty returnRequestId = do
+  registries <-
+    queryFilter @ReturnRequestRegistry providerParty
+      (\registry ->
+        registry.requestor == providerParty
+          && registry.securedParty == securedParty
+          && registry.custodian == custodianParty
+          && containsText returnRequestId registry.usedReturnRequestIds
+      )
+  expectSingleMatch ("missing return registry for request " <> returnRequestId) registries
+
+workflowStatePriority : WorkflowState -> Int
+workflowStatePriority state =
+  case state of
+    Closed -> 100
+    Settled -> 90
+    ExceptionOpen -> 80
+    PendingSettlement -> 70
+    Approved -> 60
+    PendingApproval -> 50
+    UnderEvaluation -> 40
+    Submitted -> 30
+    Draft -> 20
+    Rejected -> 10
+    Expired -> 0
+
+preferReturn :
+  (ContractId ReturnRequest, ReturnRequest) ->
+  (ContractId ReturnRequest, ReturnRequest) ->
+  (ContractId ReturnRequest, ReturnRequest)
+preferReturn left@(_, leftReturn) right@(_, rightReturn) =
+  let leftPriority = workflowStatePriority leftReturn.state
+      rightPriority = workflowStatePriority rightReturn.state
+  in
+    if leftPriority > rightPriority then left else
+      if leftPriority < rightPriority then right else
+        case (leftReturn.settlementInstructionCid, rightReturn.settlementInstructionCid) of
+          (Some _, None) -> left
+          (None, Some _) -> right
+          _ -> left
+
+bestVisibleReturn :
+  [(ContractId ReturnRequest, ReturnRequest)] ->
+  Optional (ContractId ReturnRequest, ReturnRequest)
+bestVisibleReturn returns =
+  case returns of
+    [] -> None
+    returnEntry :: rest -> Some (bestVisibleReturnFrom returnEntry rest)
+
+bestVisibleReturnFrom :
+  (ContractId ReturnRequest, ReturnRequest) ->
+  [(ContractId ReturnRequest, ReturnRequest)] ->
+  (ContractId ReturnRequest, ReturnRequest)
+bestVisibleReturnFrom current remaining =
+  case remaining of
+    [] -> current
+    next :: tail -> bestVisibleReturnFrom (preferReturn current next) tail
+
+preferInstruction :
+  (ContractId SettlementInstruction, SettlementInstruction) ->
+  (ContractId SettlementInstruction, SettlementInstruction) ->
+  (ContractId SettlementInstruction, SettlementInstruction)
+preferInstruction left@(_, leftInstruction) right@(_, rightInstruction) =
+  if workflowStatePriority leftInstruction.state >= workflowStatePriority rightInstruction.state then left else right
+
+bestVisibleInstruction :
+  [(ContractId SettlementInstruction, SettlementInstruction)] ->
+  Optional (ContractId SettlementInstruction, SettlementInstruction)
+bestVisibleInstruction instructions =
+  case instructions of
+    [] -> None
+    instruction :: rest -> Some (bestVisibleInstructionFrom instruction rest)
+
+bestVisibleInstructionFrom :
+  (ContractId SettlementInstruction, SettlementInstruction) ->
+  [(ContractId SettlementInstruction, SettlementInstruction)] ->
+  (ContractId SettlementInstruction, SettlementInstruction)
+bestVisibleInstructionFrom current remaining =
+  case remaining of
+    [] -> current
+    next :: tail -> bestVisibleInstructionFrom (preferInstruction current next) tail
+
+allTextsPresent : [Text] -> [Text] -> Bool
+allTextsPresent required available =
+  case required of
+    [] -> True
+    value :: rest -> containsText value available && allTextsPresent rest available
+
+findCurrentEncumbrances :
+  Party ->
+  Text ->
+  [Text] ->
+  Script [(ContractId EncumbranceState, EncumbranceState)]
+findCurrentEncumbrances party obligationId lotIdsInScope = do
+  encumbrances <-
+    queryFilter @EncumbranceState party
+      (\encumbrance ->
+        encumbrance.obligationId == obligationId
+          && containsText encumbrance.lotId lotIdsInScope
+          && encumbrance.status == EncumbrancePledged
+      )
+  assertMsg "current encumbrance scope drifted from the declared return lot set" (length encumbrances == length lotIdsInScope)
+  pure encumbrances
+
+reportEventIds : [ExecutionEvent] -> [Text]
+reportEventIds [] = []
+reportEventIds (event :: rest) = event.eventId :: reportEventIds rest
+
+reportEventStates : [ExecutionEvent] -> [Text]
+reportEventStates [] = []
+reportEventStates (event :: rest) = show event.eventState :: reportEventStates rest
+
+reportSummaries : [(ContractId ExecutionReportRecord, ExecutionReportRecord)] -> [QuickstartReturnExecutionReport]
+reportSummaries [] = []
+reportSummaries ((_, report) :: rest) =
+  (QuickstartReturnExecutionReport with
+    reportId = report.reportId
+    workflowType = show report.workflowType
+    outcome = show report.outcome
+    summary = report.summary
+    eventIds = reportEventIds report.events
+    eventStates = reportEventStates report.events)
+    :: reportSummaries rest
+
+pledgedLotIds : [(ContractId EncumbranceState, EncumbranceState)] -> [Text]
+pledgedLotIds encumbrances =
+  map (\(_, encumbrance) -> encumbrance.lotId)
+    (filter (\(_, encumbrance) -> encumbrance.status == EncumbrancePledged) encumbrances)
+
+releasedEncumbranceLotIds : [(ContractId EncumbranceState, EncumbranceState)] -> [Text]
+releasedEncumbranceLotIds encumbrances =
+  map (\(_, encumbrance) -> encumbrance.lotId)
+    (filter (\(_, encumbrance) -> encumbrance.status == EncumbranceReleased) encumbrances)
+
+workflowStep : Int -> Text -> Text -> Text -> Text -> QuickstartReturnWorkflowStep
+workflowStep step phase actor state detail =
+  QuickstartReturnWorkflowStep with
+    step
+    phase
+    actor
+    state
+    detail
+
+seedReturnScenario : QuickstartReturnSeedInput -> Script QuickstartReturnSeedResult
+seedReturnScenario input = script do
+  assertMsg "Quickstart return seed requires at least one incumbent encumbered lot" (not (null input.currentEncumberedLots))
+
+  providerUserId <- ensureHostedUserOn input.providerUserId input.providerParty appUserAdminParticipant
+  securedPartyUserId <- ensureHostedUserOn input.securedPartyUserId input.securedParty appProviderAdminParticipant
+  operatorParty <- getOrAllocatePartyOn input.operatorDisplayName input.operatorPartyHint appProviderAdminParticipant
+  operatorUserId <- getOrCreateScopedUserOn input.operatorUserId operatorParty appProviderAdminParticipant
+  custodianParty <- getOrAllocatePartyOn input.custodianDisplayName input.custodianPartyHint appProviderAdminParticipant
+  custodianUserId <- getOrCreateScopedUserOn input.custodianUserId custodianParty appProviderAdminParticipant
+  seededAt <- getTime
+
+  let policyContext =
+        PolicyContext with
+          policyVersion = input.policyVersion
+          snapshotId = input.snapshotId
+          decisionReference = input.decisionReference
+  let inventoryVisibility = [input.securedParty, custodianParty]
+  let roleRegistryOperator = input.securedParty
+
+  providerRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = input.providerParty
+      role = CollateralProviderRole
+      label = "provider"
+
+  securedRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = input.securedParty
+      role = SecuredPartyRole
+      label = "secured-party"
+
+  custodianRoleRegistrationCid <- submitUserOn securedPartyUserId appProviderAdminParticipant do
+    createCmd PartyRoleRegistration with
+      registryOperator = roleRegistryOperator
+      participant = custodianParty
+      role = CustodianRole
+      label = "custodian"
+
+  currentInventoryCids <-
+    mapA
+      (\currentLot -> submitUserOn providerUserId appUserAdminParticipant do
+        createCmd CollateralInventoryLot with
+          lotId = currentLot.lotId
+          owner = input.providerParty
+          custodian = custodianParty
+          visibilityObservers = inventoryVisibility
+          asset = mkAsset currentLot
+          custodyAccount = currentLot.custodyAccount
+          quantity = currentLot.quantity
+          availableQuantity = currentLot.quantity
+          controlMethod = "quickstart-return-current-encumbered"
+          provenance = "Quickstart seeded confidential return incumbent set"
+          availabilityStart = seededAt
+          availabilityEnd = None
+      )
+      input.currentEncumberedLots
+
+  currentEncumbranceCids <-
+    mapA
+      (\currentLot -> submitUserOn providerUserId appUserAdminParticipant do
+        createCmd EncumbranceState with
+          encumbranceId = input.correlationId <> "-current-" <> currentLot.lotId
+          obligationId = input.obligationId
+          lotId = currentLot.lotId
+          provider = input.providerParty
+          securedParty = input.securedParty
+          custodian = custodianParty
+          visibilityObservers = [input.securedParty, custodianParty]
+          quantity = currentLot.quantity
+          status = EncumbrancePledged
+          policyContext
+          correlationId = input.correlationId <> "-baseline"
+      )
+      input.currentEncumberedLots
+
+  baselineHoldingCids <-
+    mapA
+      (\currentLot -> submitUserOn custodianUserId appProviderAdminParticipant do
+        createCmd ReferenceTokenHolding with
+          holdingId = input.scenarioId <> "-baseline-holding-" <> currentLot.lotId
+          lotId = currentLot.lotId
+          asset = mkAsset currentLot
+          beneficialOwner = input.securedParty
+          custodian = custodianParty
+          accountId = currentLot.sourceAccount
+          quantity = currentLot.quantity
+          controlState = "SettledToSecuredAccount"
+          sourceReference = "quickstart-return-baseline"
+          visibilityObservers = [input.providerParty, input.securedParty]
+      )
+      input.currentEncumberedLots
+
+  pure QuickstartReturnSeedResult with
+    scenarioId = input.scenarioId
+    obligationId = input.obligationId
+    correlationId = input.correlationId
+    policyVersion = input.policyVersion
+    snapshotId = input.snapshotId
+    decisionReference = input.decisionReference
+    providerParty = input.providerParty
+    securedParty = input.securedParty
+    operatorParty
+    custodianParty
+    operatorUserId = userIdToText operatorUserId
+    custodianUserId = userIdToText custodianUserId
+    roleRegistrations =
+      [ SeededRoleRegistration with role = "CollateralProviderRole", label = "provider", participant = input.providerParty, contractId = providerRoleRegistrationCid
+      , SeededRoleRegistration with role = "SecuredPartyRole", label = "secured-party", participant = input.securedParty, contractId = securedRoleRegistrationCid
+      , SeededRoleRegistration with role = "CustodianRole", label = "custodian", participant = custodianParty, contractId = custodianRoleRegistrationCid
+      ]
+    currentInventoryLots =
+      zipWith
+        (\currentLot inventoryCid -> SeededInventoryLot with lotId = currentLot.lotId, contractId = inventoryCid)
+        input.currentEncumberedLots
+        currentInventoryCids
+    currentEncumbrances =
+      zipWith
+        (\currentLot encumbranceCid ->
+          SeededReturnEncumbrance with
+            lotId = currentLot.lotId
+            encumbranceId = input.correlationId <> "-current-" <> currentLot.lotId
+            contractId = encumbranceCid
+        )
+        input.currentEncumberedLots
+        currentEncumbranceCids
+    referenceTokenHoldings =
+      zipWith
+        (\currentLot holdingCid ->
+          SeededReferenceTokenHolding with
+            lotId = currentLot.lotId
+            holdingId = input.scenarioId <> "-baseline-holding-" <> currentLot.lotId
+            contractId = holdingCid
+        )
+        input.currentEncumberedLots
+        baselineHoldingCids
+    currentEncumberedLots = input.currentEncumberedLots
+
+runReturnWorkflow : QuickstartReturnWorkflowInput -> Script QuickstartReturnWorkflowResult
+runReturnWorkflow input = script do
+  let currentLotIds = input.currentEncumberedLotIds
+  let returnLotIds = map (\lot -> lot.lotId) input.returnLots
+  let requestedReturnQuantity = totalAllocatedQuantity (map mkAllocation input.returnLots)
+  let releaseConditionSatisfied =
+        input.currentSecuredAmount - requestedReturnQuantity >= input.remainingRequiredCoverage
+
+  assertMsg "Quickstart return workflow requires at least one current encumbered lot" (not (null currentLotIds))
+  assertMsg "Quickstart return workflow requires at least one return lot" (not (null input.returnLots))
+  assertMsg "Quickstart return workflow requires the return lots to be a subset of the current encumbered set" (allTextsPresent returnLotIds currentLotIds)
+  assertMsg "Quickstart return workflow must retain at least one incumbent lot" (length returnLotIds < length currentLotIds)
+  assertMsg "Quickstart return workflow requires positive secured amount" (input.currentSecuredAmount > 0.0)
+  assertMsg "Quickstart return workflow requires non-negative remaining coverage" (input.remainingRequiredCoverage >= 0.0)
+  assertMsg
+    "unsupported Quickstart return workflow gate"
+    ( input.workflowGate == "PREPARE_FOR_ADAPTER"
+        || input.workflowGate == "ATTEMPT_UNAUTHORIZED_RELEASE"
+        || input.workflowGate == "BLOCK_STALE_COVERAGE"
+    )
+
+  currentEncumbrancePairs <- findCurrentEncumbrances input.providerParty input.obligationId currentLotIds
+  let currentAllocations =
+        map
+          (\(_, encumbrance) ->
+            LotAllocation with
+              lotId = encumbrance.lotId
+              assetId = encumbrance.lotId
+              quantity = encumbrance.quantity
+              sourceAccount = ""
+              destinationAccount = ""
+          )
+          currentEncumbrancePairs
+  assertMsg "Quickstart return workflow secured amount drifted from the current encumbered quantity" (input.currentSecuredAmount == totalAllocatedQuantity currentAllocations)
+
+  now <- getTime
+  let returnAllocations = map mkAllocation input.returnLots
+  let returnEncumbranceCids =
+        map snd $
+          filter (\(lotId, _) -> containsText lotId returnLotIds) $
+            map
+              (\(encumbranceCid, encumbrance) -> (encumbrance.lotId, encumbranceCid))
+              currentEncumbrancePairs
+  let baseSteps =
+        [ workflowStep 1 "BASELINE" "provider" "Encumbered" "provider started from an already pledged collateral set on Quickstart"
+        , workflowStep 2 "RETURN" "provider" "Draft" "provider created the draft return request on Quickstart"
+        , workflowStep 3 "RETURN" "provider" "Submitted" "provider submitted the return request on Quickstart"
+        , workflowStep 4 "RETURN" "provider" "UnderEvaluation" "provider moved the return request into evaluation on Quickstart"
+        ]
+  let approvalSteps =
+        [ workflowStep 5 "RETURN" "provider" "PendingApproval" "provider recorded a feasible return after checking the retained-set coverage condition on Quickstart"
+        , workflowStep 6 "CONTROL" "provider" "Blocked" "provider could not create the return settlement intent before the required approvals were recorded"
+        , workflowStep 7 "RETURN" "secured-party" "PendingApproval" "secured party approved the return request on Quickstart"
+        , workflowStep 8 "RETURN" "custodian" "Approved" "custodian approved the return request on Quickstart"
+        ]
+  let prepareSteps =
+        [ workflowStep 9 "SETTLEMENT" "provider" "PendingSettlement" "provider submitted the approved return settlement intent and exposed the release instruction to the adapter"
+        ]
+  let unauthorizedSteps =
+        [ workflowStep 9 "SETTLEMENT" "provider" "PendingSettlement" "provider submitted the approved return settlement intent for the selected release lots"
+        , workflowStep 10 "CONTROL" "provider" "Blocked" "provider attempted to confirm release without custodian authority and the workflow preserved the incumbent encumbrance state"
+        ]
+  let mismatchSteps =
+        [ workflowStep 5 "CONTROL" "provider" "Blocked" "the workflow rejected the return request because the requested release would breach the remaining required coverage"
+        ]
+  let policyContext =
+        PolicyContext with
+          policyVersion = input.policyVersion
+          snapshotId = input.snapshotId
+          decisionReference = input.decisionReference
+
+  registrySeedCid <- submit input.providerParty do
+    createCmd ReturnRequestRegistry with
+      requestor = input.providerParty
+      provider = input.providerParty
+      securedParty = input.securedParty
+      custodian = input.custodianParty
+      visibilityObservers = [input.securedParty, input.custodianParty]
+      usedReturnRequestIds = []
+
+  (registryCid, draftReturnCid) <- submit input.providerParty do
+    exerciseCmd registrySeedCid $
+      DraftReturnRequest with
+        returnRequestId = input.returnRequestId
+        obligationId = input.obligationId
+        policyContext
+        encumbrancesToReturn = returnEncumbranceCids
+        returnLots = returnAllocations
+        requestedReturnQuantity
+        currentSecuredAmount = input.currentSecuredAmount
+        remainingRequiredCoverage = input.remainingRequiredCoverage
+        requestedReason = "release condition satisfied for the Quickstart retained-set recommendation"
+        expiryAt = now
+        correlationId = input.correlationId
+        state = Draft
+        requiresSecuredPartyApproval = input.requiresSecuredPartyApproval
+        requiresCustodianApproval = input.requiresCustodianApproval
+        securedPartyApproval = if input.requiresSecuredPartyApproval then ApprovalPending else ApprovalGranted
+        custodianApproval = if input.requiresCustodianApproval then ApprovalPending else ApprovalGranted
+        decisionSummary = "draft Quickstart return request created from deterministic retained-set selection"
+        rejectionReason = ""
+        settlementInstructionCid = None
+
+  submittedReturnCid <- submit input.providerParty do
+    exerciseCmd draftReturnCid SubmitReturnRequest
+
+  evaluationReturnCid <- submit input.providerParty do
+    exerciseCmd submittedReturnCid StartReturnEvaluation
+
+  (finalReturnCid, controlChecks, workflowSteps) <-
+    if not releaseConditionSatisfied || input.workflowGate == "BLOCK_STALE_COVERAGE" then do
+      submitMustFail input.providerParty do
+        exerciseCmd evaluationReturnCid $
+          RecordFeasibleReturn with
+            nextDecisionSummary = "return request would breach the remaining obligation coverage"
+            settlementLots = returnAllocations
+      pure
+        ( evaluationReturnCid
+        , [ QuickstartReturnControlCheck with
+              checkId = "OBLIGATION_STATE_MISMATCH_BLOCKED"
+              status = "PASS"
+              detail = "the workflow rejected the return request because the requested release did not match the remaining obligation state on Quickstart"
+          ]
+        , baseSteps <> mismatchSteps
+        )
+    else do
+      feasibleReturnCid <- submit input.providerParty do
+        exerciseCmd evaluationReturnCid $
+          RecordFeasibleReturn with
+            nextDecisionSummary = "selected collateral can be returned while preserving the retained coverage requirement on Quickstart"
+            settlementLots = returnAllocations
+
+      approvalGateChecks <-
+        if input.requiresSecuredPartyApproval || input.requiresCustodianApproval then do
+          submitMustFail input.providerParty do
+            exerciseCmd feasibleReturnCid $
+              SubmitReturnSettlementIntent with settlementLots = returnAllocations
+          pure
+            [ QuickstartReturnControlCheck with
+                checkId = "APPROVAL_GATE_BLOCKED"
+                status = "PASS"
+                detail = "provider could not create a return settlement intent until the required approvals were recorded on Quickstart"
+            ]
+        else pure []
+
+      afterSecuredPartyApprovalCid <-
+        if input.requiresSecuredPartyApproval then
+          submit input.securedParty do
+            exerciseCmd feasibleReturnCid ApproveReturnBySecuredParty
+        else pure feasibleReturnCid
+
+      afterCustodianApprovalCid <-
+        if input.requiresCustodianApproval then
+          submit input.custodianParty do
+            exerciseCmd afterSecuredPartyApprovalCid ApproveReturnByCustodian
+        else pure afterSecuredPartyApprovalCid
+
+      approvedReturn <- expectActiveReturnRequest input.providerParty afterCustodianApprovalCid "approved return should remain visible after the Quickstart approvals"
+
+      pendingSettlementCid <-
+        if approvedReturn.state == PendingSettlement then pure afterCustodianApprovalCid else
+          submit input.providerParty do
+            exerciseCmd afterCustodianApprovalCid $
+              SubmitReturnSettlementIntent with settlementLots = returnAllocations
+
+      if input.workflowGate == "ATTEMPT_UNAUTHORIZED_RELEASE" then do
+        submitMustFail input.providerParty do
+          exerciseCmd pendingSettlementCid ConfirmReturnSettlement
+        pure
+          ( pendingSettlementCid
+          , approvalGateChecks
+              ++ [ QuickstartReturnControlCheck with
+                    checkId = "UNAUTHORIZED_RETURN_BLOCKED"
+                    status = "PASS"
+                    detail = "the workflow blocked the provider from confirming release without custodian authority on Quickstart"
+                 ]
+          , baseSteps <> approvalSteps <> unauthorizedSteps
+          )
+      else pure (pendingSettlementCid, approvalGateChecks, baseSteps <> approvalSteps <> prepareSteps)
+
+  finalReturn <- expectActiveReturnRequest input.providerParty finalReturnCid "final Quickstart return request should remain visible to the provider"
+  maybeInstruction <-
+    case finalReturn.settlementInstructionCid of
+      Some instructionCid -> do
+        instruction <- expectActiveInstruction input.providerParty instructionCid "return settlement instruction should remain visible after workflow preparation"
+        pure (Some instruction)
+      None -> pure None
+  executionReports <- queryFilter @ExecutionReportRecord input.providerParty (\report -> report.obligationId == input.obligationId)
+  encumbrances <- queryFilter @EncumbranceState input.providerParty (\encumbrance -> encumbrance.obligationId == input.obligationId)
+
+  pure QuickstartReturnWorkflowResult with
+    scenarioId = input.scenarioId
+    obligationId = input.obligationId
+    returnRequestId = input.returnRequestId
+    correlationId = input.correlationId
+    workflowGate = input.workflowGate
+    returnState = show finalReturn.state
+    securedPartyApproval = show finalReturn.securedPartyApproval
+    custodianApproval = show finalReturn.custodianApproval
+    settlementInstructionId =
+      case maybeInstruction of
+        Some instruction -> Some instruction.instructionId
+        None -> None
+    settlementInstructionState =
+      case maybeInstruction of
+        Some instruction -> Some (show instruction.state)
+        None -> None
+    currentEncumberedLotIds = currentLotIds
+    returnedLotIds = releasedEncumbranceLotIds encumbrances
+    remainingEncumberedLotIds = pledgedLotIds encumbrances
+    requestedReturnQuantity
+    currentSecuredAmount = input.currentSecuredAmount
+    remainingRequiredCoverage = input.remainingRequiredCoverage
+    releaseConditionSatisfied
+    atomicityOutcome =
+      if input.workflowGate == "ATTEMPT_UNAUTHORIZED_RELEASE" then "BLOCKED_ATOMICALLY" else
+        if finalReturn.state == PendingSettlement then "PENDING_ATOMIC_SETTLEMENT" else
+        if finalReturn.state == Closed then "COMMITTED_ATOMICALLY" else
+          "BLOCKED_ATOMICALLY"
+    executionReportCount = length executionReports
+    executionReports = reportSummaries executionReports
+    controlChecks = controlChecks
+    steps = workflowSteps
+
+executeReturnMoves :
+  QuickstartReturnAdapterInput ->
+  SettlementInstruction ->
+  [QuickstartSeedLotInput] ->
+  Script [ReferenceTokenMoveResult]
+executeReturnMoves input instruction returnLots =
+  case returnLots of
+    [] -> pure []
+    returnLot :: rest -> do
+      holdings <-
+        queryFilter @ReferenceTokenHolding input.custodianParty
+          (\holding ->
+            holding.lotId == returnLot.lotId
+              && holding.accountId == returnLot.sourceAccount
+              && holding.beneficialOwner == input.securedParty
+          )
+      (holdingCid, _) <- expectSingleMatch ("missing incumbent holding for " <> returnLot.lotId) holdings
+      moveResult <- submit input.custodianParty do
+        exerciseCmd holdingCid
+          (MoveByCustodian with
+            movementId = instruction.instructionId <> "-return-" <> returnLot.lotId
+            instructionId = instruction.instructionId
+            obligationId = instruction.obligationId
+            destinationBeneficialOwner = input.providerParty
+            destinationAccount = returnLot.destinationAccount
+            quantityToMove = returnLot.quantity
+            resultingControlState = "ReturnedToProviderAccount"
+            externalTransactionId = instruction.instructionId <> "-return-" <> returnLot.lotId
+            nextVisibilityObservers = [input.providerParty, input.securedParty]
+          )
+      restResults <- executeReturnMoves input instruction rest
+      pure (moveResult :: restResults)
+
+referenceTokenReturnAdapterReport :
+  QuickstartReturnAdapterInput ->
+  Script QuickstartReturnAdapterReport
+referenceTokenReturnAdapterReport input = script do
+  startedAt <- getTime
+  (instructionCid, pendingInstruction) <- findInstructionById input.custodianParty input.settlementInstructionId
+  (returnCid, pendingReturn) <-
+    findReturnForInstruction
+      input.providerParty
+      input.obligationId
+      input.settlementInstructionId
+      instructionCid
+  encumbrancesBefore <- queryEncumbrancesForObligation input.custodianParty input.obligationId
+  holdingsBefore <- queryReferenceTokenHoldings input.custodianParty (map (\lot -> lot.lotId) input.currentEncumberedLots)
+  existingReceipts <- queryFilter @ReferenceTokenAdapterReceipt input.custodianParty (\receipt -> receipt.instructionId == input.settlementInstructionId)
+  assertMsg "adapter already executed for this return instruction" (null existingReceipts)
+
+  moveResults <- executeReturnMoves input pendingInstruction input.returnLots
+  receiptTime <- getTime
+  receiptCid <- submit input.custodianParty do
+    createCmd ReferenceTokenAdapterReceipt with
+      receiptId = input.scenarioId <> "-reference-token-return-receipt"
+      adapterName = "quickstart-reference-token-adapter"
+      adapterVersion = "v0.1"
+      workflowType = pendingInstruction.workflowType
+      settlementAction = pendingInstruction.action
+      instructionId = pendingInstruction.instructionId
+      obligationId = pendingInstruction.obligationId
+      correlationId = pendingInstruction.correlationId
+      provider = pendingInstruction.provider
+      securedParty = pendingInstruction.securedParty
+      custodian = pendingInstruction.custodian
+      sourceAccount = pendingInstruction.fromAccount
+      destinationAccount = pendingInstruction.toAccount
+      encumbranceMode = "RELEASE_ENCUMBRANCE"
+      movements = map (\result -> result.movement) moveResults
+      executedAt = receiptTime
+      status = "EXECUTED"
+      externalTransactionId = pendingInstruction.instructionId <> "-reference-token-return"
+      details = "Reference token adapter executed the approved return instruction against the Quickstart-backed reference token holdings."
+      visibilityObservers = [pendingInstruction.provider, pendingInstruction.securedParty]
+  closedReturnCid <- submit input.custodianParty do
+    exerciseCmd returnCid ConfirmReturnSettlement
+
+  replayHandling <-
+    if input.simulateReplayAttempt then do
+      (registryCid, _) <- findReturnRegistry input.providerParty input.securedParty input.custodianParty input.returnRequestId
+      submitMustFail input.providerParty do
+        exerciseCmd registryCid $
+          DraftReturnRequest with
+            returnRequestId = pendingReturn.returnRequestId
+            obligationId = pendingReturn.obligationId
+            policyContext = pendingReturn.policyContext
+            encumbrancesToReturn = pendingReturn.encumbrancesToReturn
+            returnLots = pendingReturn.returnLots
+            requestedReturnQuantity = pendingReturn.requestedReturnQuantity
+            currentSecuredAmount = pendingReturn.currentSecuredAmount
+            remainingRequiredCoverage = pendingReturn.remainingRequiredCoverage
+            requestedReason = pendingReturn.requestedReason
+            expiryAt = pendingReturn.expiryAt
+            correlationId = pendingReturn.correlationId
+            state = Draft
+            requiresSecuredPartyApproval = pendingReturn.requiresSecuredPartyApproval
+            requiresCustodianApproval = pendingReturn.requiresCustodianApproval
+            securedPartyApproval = pendingReturn.securedPartyApproval
+            custodianApproval = pendingReturn.custodianApproval
+            decisionSummary = "duplicate Quickstart return request attempted after original settlement"
+            rejectionReason = ""
+            settlementInstructionCid = None
+      pure QuickstartReturnReplayHandlingView with
+        attempted = True
+        result = "BLOCKED_DUPLICATE_RETURN_REQUEST"
+        controlCheckId = Some "REPLAY_RETURN_BLOCKED"
+        detail = "the workflow rejected the replayed return instruction by preserving the active request identifier after the original Quickstart release settled"
+    else pure QuickstartReturnReplayHandlingView with
+      attempted = False
+      result = "NOT_REQUESTED"
+      controlCheckId = None
+      detail = "no replay attempt was requested for this Quickstart return path"
+
+  finishedAt <- getTime
+  closedReturn <- expectActiveReturnRequest input.providerParty closedReturnCid "closed return should remain visible after adapter confirmation"
+  (_, settledInstruction) <- findInstructionById input.custodianParty pendingInstruction.instructionId
+  receipt <- expectActiveReceipt input.custodianParty receiptCid "return adapter receipt should remain visible after creation"
+  holdingsAfter <- queryReferenceTokenHoldings input.custodianParty (map (\lot -> lot.lotId) input.currentEncumberedLots)
+  encumbrancesAfter <- queryEncumbrancesForObligation input.custodianParty input.obligationId
+  executionReports <- queryFilter @ExecutionReportRecord input.custodianParty (\report -> report.obligationId == input.obligationId)
+
+  pure QuickstartReturnAdapterReport with
+    reportVersion = "return-adapter-execution-report-v0.1"
+    adapterName = "quickstart-reference-token-adapter"
+    adapterVersion = "v0.1"
+    scenarioId = input.scenarioId
+    startedAt
+    finishedAt
+    settlementInstruction = instructionView pendingInstruction
+    approvedReturnLotIds = map (\lot -> lot.lotId) input.returnLots
+    encumbranceContextBefore = encumbrancesBefore
+    referenceTokenHoldingsBefore = holdingsBefore
+    adapterReceipt = buildReceiptView receipt
+    referenceTokenHoldingsAfter = holdingsAfter
+    workflowConfirmation =
+      QuickstartReturnWorkflowConfirmationView with
+        returnStateBefore = show pendingReturn.state
+        returnStateAfterConfirmation = show closedReturn.state
+        settledInstructionState = show settledInstruction.state
+        providerVisibleExecutionReportCount = length executionReports
+        providerVisibleEncumbranceCount = length encumbrancesAfter
+        returnedLotIds =
+          map (\encumbrance -> encumbrance.lotId)
+            (filter (\encumbrance -> encumbrance.status == "EncumbranceReleased") encumbrancesAfter)
+        remainingEncumberedLotIds =
+          map (\encumbrance -> encumbrance.lotId)
+            (filter (\encumbrance -> encumbrance.status == "EncumbrancePledged") encumbrancesAfter)
+    encumbranceContextAfter = encumbrancesAfter
+    replayHandling = replayHandling
+
+returnStatusForProviderView :
+  QuickstartReturnStatusInput ->
+  Script QuickstartReturnStatusResult
+returnStatusForProviderView input = script do
+  returns <- queryFilter @ReturnRequest input.providerParty (\returnRequest -> returnRequest.obligationId == input.obligationId)
+  instructions <- queryFilter @SettlementInstruction input.providerParty (\instruction -> instruction.obligationId == input.obligationId)
+  executionReports <- queryFilter @ExecutionReportRecord input.providerParty (\report -> report.obligationId == input.obligationId)
+  encumbrances <- queryEncumbrancesForObligation input.providerParty input.obligationId
+  holdings <- queryReferenceTokenHoldings input.providerParty input.currentEncumberedLotIds
+  receipts <- queryFilter @ReferenceTokenAdapterReceipt input.providerParty (\receipt -> receipt.obligationId == input.obligationId)
+
+  pure QuickstartReturnStatusResult with
+    scenarioId = input.scenarioId
+    returnState =
+      case bestVisibleReturn returns of
+        Some (_, returnRequest) -> Some (show returnRequest.state)
+        None -> None
+    settlementInstructionState =
+      case bestVisibleInstruction instructions of
+        Some (_, instruction) -> Some (show instruction.state)
+        None -> None
+    providerVisibleExecutionReportCount = length executionReports
+    providerVisibleEncumbrances = encumbrances
+    providerVisibleCurrentLotHoldings = holdings
+    providerVisibleAdapterReceipts =
+      map
+        (\(_, receipt) ->
+          AdapterReceiptStatusView with
+            receiptId = receipt.receiptId
+            instructionId = receipt.instructionId
+            settlementAction = show receipt.settlementAction
+            status = receipt.status
+            externalTransactionId = receipt.externalTransactionId
+            executedAt = receipt.executedAt
+        )
+        receipts
