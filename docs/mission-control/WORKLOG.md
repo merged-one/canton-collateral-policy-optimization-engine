@@ -2,6 +2,41 @@
 
 This log is append-oriented. Every task should record intent before changes and outcomes after changes.
 
+## 2026-03-30 - Proposal Baseline Freeze And Cleanliness Scope - Pre-Change
+
+Intent:
+Freeze a clean proposal baseline commit and make the proposal-submission manifest report that baseline cleanly by excluding regenerated `reports/generated` artifacts from the git-cleanliness check that runs during `make proposal-package`.
+
+Task summary:
+
+- verify the current clean baseline rerun behavior and confirm whether `make proposal-package` still reports a dirty worktree because it refreshes tracked generated artifacts before proposal-manifest generation
+- narrow the proposal-manifest cleanliness check so it measures committed repo source and documentation state rather than regenerated package outputs
+- add or update focused tests so the proposal-submission generator preserves dirty-source detection while ignoring only regenerated proposal artifacts
+- rerun `make proposal-package` from the new clean baseline and confirm the generated manifest records the intended source commit with `worktreeStatus: CLEAN`
+
+Expected affected files:
+
+- `app/orchestration/proposal_submission_pack.py`
+- `test/conformance/test_proposal_submission_package.py`
+- `docs/mission-control/WORKLOG.md`
+- `docs/mission-control/MASTER_TRACKER.md`
+- `docs/invariants/INVARIANT_REGISTRY.md`
+- `docs/evidence/EVIDENCE_MANIFEST.md`
+- `docs/evidence/prompt-22-execution-report.md`
+- generated proposal-package artifacts under `reports/generated/`
+
+Risk assessment:
+
+- an over-broad ignore rule could hide real uncommitted source or documentation drift instead of only filtering regenerated package artifacts
+- the submission-manifest summary could become misleading if the cleanliness scope changes without being made explicit in the generated output
+- the new clean-baseline path could still fail if `make demo-all` mutates tracked files outside `reports/generated`
+
+Acceptance criteria:
+
+- the proposal-submission manifest records the current source commit with `worktreeStatus: CLEAN` when the only refreshed files are under `reports/generated`
+- uncommitted source or documentation edits outside `reports/generated` still cause the manifest to report `DIRTY`
+- focused tests, mission-control docs, and evidence records are updated alongside the cleanliness-scope change
+
 ## 2026-03-30 - Reviewer Path Rehearsal - Pre-Change
 
 Intent:

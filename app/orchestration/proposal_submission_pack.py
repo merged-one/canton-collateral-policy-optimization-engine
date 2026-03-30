@@ -26,6 +26,9 @@ DO_NOT_INFER = [
     "The current workflow-party and provider-visible evidence surfaces do not yet prove broader role-scoped disclosure profiles.",
     "Workflow-coupled optimizer reservation, settlement-window enforcement, retry and recovery semantics, and reference-data contracts remain staged roadmap scope.",
 ]
+IGNORED_DIRTY_PATH_PREFIXES = (
+    "reports/generated/",
+)
 
 
 def build_proposal_submission_package(
@@ -159,6 +162,7 @@ def _submission_baseline(
         "sourceCommitShort": git_metadata["commitSha"][:7],
         "worktreeStatus": git_metadata["worktreeStatus"],
         "dirtyPaths": git_metadata["dirtyPaths"],
+        "ignoredDirtyPathPrefixes": git_metadata["ignoredDirtyPathPrefixes"],
         "finalDemoPackId": final_demo_pack["demoPackId"],
         "conformanceSuiteId": conformance_report["suiteId"],
         "passStates": {
@@ -254,7 +258,9 @@ def _render_submission_summary(manifest: dict[str, Any]) -> str:
         f"- Command: `{manifest['command']}`",
         f"- Overall status: `{manifest['overallStatus']}`",
         f"- Source commit: `{baseline['sourceCommit']}`",
-        f"- Worktree status at package build: `{baseline['worktreeStatus']}`",
+        "- Worktree status at package build"
+        + f" (excluding {', '.join(baseline['ignoredDirtyPathPrefixes'])}): "
+        + f"`{baseline['worktreeStatus']}`",
         f"- Final demo pack ID: `{baseline['finalDemoPackId']}`",
         f"- Conformance suite ID: `{baseline['conformanceSuiteId']}`",
         f"- Quickstart commit: `{baseline['quickstartCommit']}`",
@@ -358,13 +364,26 @@ def _git_metadata(repo_root: Path) -> dict[str, Any]:
     dirty_paths = [
         line
         for line in _git_stdout(repo_root, "status", "--short").splitlines()
-        if line.strip()
+        if line.strip() and not _is_ignored_dirty_status(line)
     ]
     return {
         "commitSha": commit_sha,
         "worktreeStatus": "CLEAN" if not dirty_paths else "DIRTY",
         "dirtyPaths": dirty_paths,
+        "ignoredDirtyPathPrefixes": list(IGNORED_DIRTY_PATH_PREFIXES),
     }
+
+
+def _is_ignored_dirty_status(line: str) -> bool:
+    path = _status_line_path(line)
+    return any(path.startswith(prefix) for prefix in IGNORED_DIRTY_PATH_PREFIXES)
+
+
+def _status_line_path(line: str) -> str:
+    status_path = line[3:].strip()
+    if " -> " in status_path:
+        return status_path.split(" -> ", 1)[1]
+    return status_path
 
 
 def _git_stdout(repo_root: Path, *args: str) -> str:

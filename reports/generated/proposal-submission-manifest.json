@@ -1,8 +1,8 @@
 {
   "reportType": "ProposalSubmissionManifest",
   "reportVersion": "0.1.0",
-  "submissionId": "psp-8bc396964860907b",
-  "generatedAt": "2026-03-30T06:03:16Z",
+  "submissionId": "psp-f71c891039fa83f6",
+  "generatedAt": "2026-03-30T06:10:18Z",
   "overallStatus": "PASS",
   "command": "make proposal-package",
   "artifacts": {
@@ -21,16 +21,13 @@
     "runbookPath": "docs/runbooks/FINAL_DEMO_RUNBOOK.md"
   },
   "submissionBaseline": {
-    "sourceCommit": "a6b6a9cce50ad1e9c73c95eef10dd0fd386e620b",
-    "sourceCommitShort": "a6b6a9c",
+    "sourceCommit": "8cb3e15844b73ed52b8c6da4fd9d512854bd3c25",
+    "sourceCommitShort": "8cb3e15",
     "worktreeStatus": "DIRTY",
     "dirtyPaths": [
-      " M app/orchestration/proposal_submission_pack.py",
-      " M docs/mission-control/WORKLOG.md",
       " M reports/generated/conformance-suite-report.json",
       " M reports/generated/final-demo-pack.json",
-      " M reports/generated/localnet-control-plane-deployment-receipt.json",
-      " M test/conformance/test_proposal_submission_package.py"
+      " M reports/generated/localnet-control-plane-deployment-receipt.json"
     ],
     "finalDemoPackId": "fdp-ad4246d5144c77eb",
     "conformanceSuiteId": "csr-d7e4b4c29646d5d4",

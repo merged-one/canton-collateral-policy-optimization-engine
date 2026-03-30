@@ -10,7 +10,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "app/orchestration"))
 
 from margin_call_demo import DemoExecutionError  # noqa: E402
-from proposal_submission_pack import build_proposal_submission_package  # noqa: E402
+from proposal_submission_pack import (  # noqa: E402
+    _git_metadata,
+    build_proposal_submission_package,
+)
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -175,6 +178,7 @@ class ProposalSubmissionPackageUnitTest(unittest.TestCase):
                     "commitSha": "abc123def456",
                     "worktreeStatus": "CLEAN",
                     "dirtyPaths": [],
+                    "ignoredDirtyPathPrefixes": ["reports/generated/"],
                 },
             ):
                 manifest = build_proposal_submission_package(
@@ -192,6 +196,10 @@ class ProposalSubmissionPackageUnitTest(unittest.TestCase):
             self.assertEqual(
                 manifest["submissionBaseline"]["demoReports"][0]["reportId"],
                 "exec-001",
+            )
+            self.assertEqual(
+                manifest["submissionBaseline"]["ignoredDirtyPathPrefixes"],
+                ["reports/generated/"],
             )
             self.assertEqual(
                 set(manifest["artifacts"].keys()),
@@ -257,6 +265,39 @@ class ProposalSubmissionPackageUnitTest(unittest.TestCase):
                     output_dir=reports_generated,
                     repo_root=repo_root,
                 )
+
+    def test_git_metadata_ignores_generated_report_paths(self) -> None:
+        with patch(
+            "proposal_submission_pack._git_stdout",
+            side_effect=[
+                "abc123def456\n",
+                " M reports/generated/conformance-suite-report.json\n"
+                " M reports/generated/proposal-submission-manifest.json\n",
+            ],
+        ):
+            metadata = _git_metadata(Path("/tmp/repo"))
+
+        self.assertEqual(metadata["commitSha"], "abc123def456")
+        self.assertEqual(metadata["worktreeStatus"], "CLEAN")
+        self.assertEqual(metadata["dirtyPaths"], [])
+        self.assertEqual(metadata["ignoredDirtyPathPrefixes"], ["reports/generated/"])
+
+    def test_git_metadata_keeps_non_generated_dirty_paths(self) -> None:
+        with patch(
+            "proposal_submission_pack._git_stdout",
+            side_effect=[
+                "abc123def456\n",
+                " M docs/evidence/PROPOSAL_SUBMISSION_MEMO.md\n"
+                " M reports/generated/proposal-submission-manifest.json\n",
+            ],
+        ):
+            metadata = _git_metadata(Path("/tmp/repo"))
+
+        self.assertEqual(metadata["worktreeStatus"], "DIRTY")
+        self.assertEqual(
+            metadata["dirtyPaths"],
+            [" M docs/evidence/PROPOSAL_SUBMISSION_MEMO.md"],
+        )
 
 
 if __name__ == "__main__":
